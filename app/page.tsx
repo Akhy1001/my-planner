@@ -25,6 +25,15 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
+  // Apply pink theme for rstrpn05@gmail.com
+  useEffect(() => {
+    if (user?.email === 'rstrpn05@gmail.com') {
+      document.documentElement.setAttribute('data-theme', 'pink');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [user]);
+
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
     // Small delay so the app reveals smoothly after splash
