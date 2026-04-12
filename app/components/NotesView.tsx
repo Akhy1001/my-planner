@@ -1,4 +1,5 @@
 'use client';
+import AddButton from './AddButton';
 import { useState } from 'react';
 import { useNotes, Note } from '@/hooks/useNotes';
 
@@ -63,12 +64,7 @@ export default function NotesView() {
                 color: 'var(--ink)', outline: 'none', fontFamily: 'inherit'
               }}
             />
-            <button onClick={handleAddNote} style={{
-              width: '32px', height: '32px', borderRadius: '8px',
-              background: 'var(--ink)', color: 'white',
-              border: 'none', cursor: 'pointer', fontSize: '1.1rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>+</button>
+            <AddButton onClick={handleAddNote} size={18} />
           </div>
           {/* Tags filter */}
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>

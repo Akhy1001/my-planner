@@ -1,4 +1,5 @@
 'use client';
+import AddButton from './AddButton';
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -138,12 +139,7 @@ export default function AgendaView() {
               {format(selectedDate, 'd MMMM', { locale: fr })}
             </div>
           </div>
-          <button onClick={() => setShowForm(!showForm)} style={{
-            width: '32px', height: '32px', borderRadius: '50%',
-            background: 'var(--ink)', color: 'var(--cream)',
-            border: 'none', cursor: 'pointer', fontSize: '1.2rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>+</button>
+          <AddButton onClick={() => setShowForm(!showForm)} />
         </div>
 
         {/* Add event form */}

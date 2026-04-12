@@ -1,4 +1,5 @@
 'use client';
+import AddButton from './AddButton';
 import { useState } from 'react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
@@ -33,11 +34,7 @@ export default function HabitsView() {
             {loading ? 'Chargement…' : `${overallProgress}/${habits.length} complétées aujourd'hui`}
           </div>
         </div>
-        <button onClick={() => setShowAdd(!showAdd)} style={{
-          padding: '8px 16px', background: 'var(--ink)', color: 'var(--cream)',
-          border: 'none', borderRadius: '8px', cursor: 'pointer',
-          fontSize: '0.82rem', fontFamily: 'inherit'
-        }}>+ Habitude</button>
+        <AddButton onClick={() => setShowAdd(!showAdd)} label="Habitude" />
       </div>
 
       {/* Add form */}

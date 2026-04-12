@@ -1,4 +1,5 @@
 'use client';
+import AddButton from './AddButton';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -145,11 +146,7 @@ export default function TodayView() {
                   fontFamily: 'inherit'
                 }}
               />
-              <button onClick={handleAddTask} style={{
-                padding: '8px 14px', background: 'var(--ink)', color: 'var(--cream)',
-                border: 'none', borderRadius: '8px', cursor: 'pointer',
-                fontSize: '0.82rem', fontFamily: 'inherit'
-              }}>+</button>
+              <AddButton onClick={handleAddTask} />
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               {(['high', 'medium', 'low'] as const).map(p => (

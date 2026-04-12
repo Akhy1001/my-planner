@@ -1,4 +1,5 @@
 'use client';
+import AddButton from './AddButton';
 import { useState } from 'react';
 import { useGoals, Goal } from '@/hooks/useGoals';
 
@@ -52,12 +53,7 @@ export default function GoalsView() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 4px' }}>
           <h1 className="font-display" style={{ fontSize: '1.6rem', color: 'var(--ink)' }}>Objectifs</h1>
-          <button onClick={() => setShowAdd(!showAdd)} style={{
-            width: '30px', height: '30px', borderRadius: '50%',
-            background: 'var(--ink)', color: 'white',
-            border: 'none', cursor: 'pointer', fontSize: '1.1rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>+</button>
+          <AddButton onClick={() => setShowAdd(!showAdd)} />
         </div>
 
         {showAdd && (
