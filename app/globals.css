@@ -1,0 +1,174 @@
+/* Geist is loaded via the npm 'geist' package in layout.tsx */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #F8F6F2;
+  --warm-white: #F0EDE6;
+  --ink: #18181B;
+  --ink-light: #3F3F46;
+  --sage: #6B8F71;
+  --sage-light: #A8C5AD;
+  --terra: #C0634A;
+  --terra-light: #E8A882;
+  --gold: #C9973C;
+  --gold-light: #E8D08A;
+  --lavender: #8075A8;
+  --stone: #A1A1AA;
+  --stone-light: #D4D4D8;
+  --border: #E4E4E7;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+  font-style: normal;
+}
+
+html, body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+  font-style: normal;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--stone-light); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--stone); }
+
+/* ── Animations — inspired by the reference site ── */
+
+/* Enter: starts scale(0.95) + opacity(0), ends at scale(1) + opacity(1) */
+@keyframes enter {
+  0% {
+    opacity: var(--enter-opacity, 0);
+    transform: scale(var(--enter-scale, 0.95)) translateY(var(--enter-y, 6px));
+    filter: blur(var(--enter-blur, 0));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  --enter-opacity: 0;
+  --enter-scale: 0.97;
+  --enter-y: 6px;
+  animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in {
+  animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered children — apply on container */
+.stagger-children > * {
+  opacity: 0;
+  animation: enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+
+/* Display font */
+.font-display {
+  font-family: var(--font-geist-sans), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: -0.03em;
+}
+
+/* Paper background */
+.paper-bg {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(107, 143, 113, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(192, 99, 74, 0.05) 0%, transparent 60%);
+}
+
+/* ── Task checkbox ── */
+.task-check {
+  width: 20px; height: 20px;
+  border: 1.5px solid var(--stone-light);
+  border-radius: 6px;
+  flex-shrink: 0; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; align-items: center; justify-content: center;
+}
+.task-check:hover { border-color: var(--sage); background: rgba(107,143,113,0.07); }
+.task-check.checked { background: var(--sage); border-color: var(--sage); }
+
+/* Priorities */
+.priority-high   { background: var(--terra);   }
+.priority-medium { background: var(--gold);    }
+.priority-low    { background: var(--sage);    }
+
+/* Habit day squares */
+.habit-day {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  cursor: pointer; transition: all 0.15s ease;
+}
+.habit-day:hover { border-color: var(--sage-light); }
+.habit-day.done  { background: var(--sage); border-color: var(--sage); }
+.habit-day.today { border-color: var(--terra); }
+
+/* Mood buttons */
+.mood-btn {
+  font-size: 1.5rem;
+  padding: 8px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 2px solid transparent;
+  background: none;
+}
+.mood-btn:hover  { background: var(--warm-white); transform: scale(1.12); }
+.mood-btn.selected { border-color: var(--gold); background: rgba(201, 151, 60, 0.1); }
+
+/* Card */
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+}
+
+/* Hover lift effect (like the reference site) */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(24, 24, 27, 0.1);
+}
