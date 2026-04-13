@@ -24,19 +24,17 @@ export function CirclePlus({
   };
 
   const hLineVariants: Variants = {
-    normal: { d: 'M8 12h8', opacity: 1 },
+    normal: { opacity: 1 },
     animate: {
-      d: ['M12 12h0', 'M8 12h8'],
-      opacity: [0.4, 1],
+      opacity: [0.6, 1],
       transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
   const vLineVariants: Variants = {
-    normal: { d: 'M12 8v8', opacity: 1 },
+    normal: { opacity: 1 },
     animate: {
-      d: ['M12 12v0', 'M12 8v8'],
-      opacity: [0.4, 1],
+      opacity: [0.6, 1],
       transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.04 },
     },
   };
@@ -57,8 +55,8 @@ export function CirclePlus({
       onMouseLeave={() => setIsAnimating(false)}
     >
       <motion.circle cx="12" cy="12" r="10" variants={circleVariants} animate={isAnimating ? 'animate' : 'normal'} />
-      <motion.path d="M8 12h8" variants={hLineVariants} animate={isAnimating ? 'animate' : 'normal'} />
-      <motion.path d="M12 8v8" variants={vLineVariants} animate={isAnimating ? 'animate' : 'normal'} />
+      <motion.path d="M8 12h8" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" variants={hLineVariants} animate={isAnimating ? 'animate' : 'normal'} />
+      <motion.path d="M12 8v8" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" variants={vLineVariants} animate={isAnimating ? 'animate' : 'normal'} />
     </motion.svg>
   );
 }
@@ -476,7 +474,7 @@ export function Flag({
       onMouseLeave={() => setIsAnimating(false)}
     >
       <motion.path
-        d="M4 15s1-1 5-1 5 2 10 0V4s-1 1-5 1-5-2-10 0"
+        d="M6 15s1-1 4-1 4 2 8 0V4s-1 1-4 1-4-2-8 0"
         variants={flagVariants}
         animate={isAnimating ? 'animate' : 'normal'}
       />
