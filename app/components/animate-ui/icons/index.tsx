@@ -18,8 +18,8 @@ export function CirclePlus({
   const circleVariants: Variants = {
     normal: { scale: 1 },
     animate: {
-      scale: [1, 1.12, 0.96, 1.04, 1],
-      transition: { duration: 0.5, type: 'spring', stiffness: 300, damping: 15 },
+      scale: [1, 1.1, 1],
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
