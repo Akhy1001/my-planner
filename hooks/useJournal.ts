@@ -8,7 +8,6 @@ export interface JournalEntry {
   date: string;
   mood: number | null;
   gratitude: string[];
-  intention: string;
   water_glasses: number;
 }
 
@@ -16,7 +15,6 @@ const defaultEntry = (date: string): JournalEntry => ({
   date,
   mood: null,
   gratitude: ['', '', ''],
-  intention: '',
   water_glasses: 0,
 });
 

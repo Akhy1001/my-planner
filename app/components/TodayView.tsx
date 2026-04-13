@@ -258,29 +258,6 @@ export default function TodayView() {
 
       {/* Right column */}
       <div style={{ width: '280px', flexShrink: 0 }}>
-        {/* Intention */}
-        <div style={{ 
-          background: 'linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%)',
-          borderRadius: '14px', padding: '22px', marginBottom: '20px',
-          color: 'var(--cream)'
-        }}>
-          <div style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '10px' }}>
-            Intention du jour
-          </div>
-          <textarea
-            value={journal.intention}
-            onChange={e => updateJournal({ intention: e.target.value })}
-            placeholder="Quelle est votre intention pour aujourd'hui?"
-            rows={3}
-            style={{
-              width: '100%', background: 'transparent', border: 'none',
-              color: 'var(--cream)', fontSize: '0.88rem', resize: 'none',
-              outline: 'none', fontFamily: "'Nunito', sans-serif",
-              lineHeight: 1.6
-            }}
-          />
-        </div>
-
         {/* Gratitude */}
         <div style={{ 
           background: 'white', borderRadius: '14px', 

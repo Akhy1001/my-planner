@@ -47,3 +47,40 @@ No global state library. Each feature has its own hook in `hooks/`:
 
 ### Database Schema
 Defined in `lib/database.sql`. Core tables: `tasks`, `events`, `habits`, `habit_completions`, `goals`, `milestones`, `notes`, `daily_journal`. Supabase client is initialized in `lib/supabase.ts`.
+
+# Comportement global de Claude Code
+
+## Démarrage de session
+
+Au début de chaque nouvelle session de travail, tu dois :
+
+1. Lire le fichier `CLAUDE.md` local du projet s'il existe
+2. Identifier si un ticket Linear est mentionné ou en cours
+3. Si un ticket est identifié → appliquer automatiquement
+   la logique de planification (voir section "Planification")
+4. Si aucun contexte n'est établi → demander :
+   "Sur quel ticket travaille-t-on ? (ex: PROJ-123)"
+
+## Planification
+
+Quand un ticket Linear est fourni, tu dois toujours :
+
+1. Récupérer le ticket via l'outil MCP `linear-server`
+   (`get_issue` avec l'ID du ticket)
+2. Analyser : titre, description, critères d'acceptation
+3. Explorer les fichiers du projet pertinents
+4. Produire un plan structuré avec :
+   - **Résumé** : ce que la tâche accomplit en une phrase
+   - **Fichiers à créer ou modifier**
+   - **Étapes de développement** ordonnées et actionnables
+   - **Points d'attention** : risques, dépendances, cas limites
+
+Présente ce plan en français et attends validation
+avant de commencer à coder.
+
+## Règles générales
+
+- Toujours répondre en français
+- Ne jamais commencer à coder sans plan validé
+- Signaler les ambiguïtés avant de faire des suppositions
+- Préférer des commits atomiques et bien nommés

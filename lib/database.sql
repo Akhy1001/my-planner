@@ -22,7 +22,6 @@ create table if not exists daily_journal (
   date date unique not null default current_date,
   mood int2,
   gratitude text[] not null default array['', '', ''],
-  intention text not null default '',
   water_glasses int2 not null default 0
 );
 alter table daily_journal disable row level security;
