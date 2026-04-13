@@ -17,7 +17,11 @@ export default function AgendaView() {
   const { events, loading, addEvent } = useEvents();
 
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
-  const firstDayOffset = (getDay(startOfMonth(currentMonth)) + 6) % 7;
+  // Pour une semaine commençant par lundi, calculer le décalage correctement
+  const firstDayOfMonth = startOfMonth(currentMonth);
+  const firstDayWeekday = getDay(firstDayOfMonth); // 0 = dimanche, 1 = lundi, etc.
+  // Convertir pour que lundi = 0, dimanche = 6
+  const firstDayOffset = firstDayWeekday === 0 ? 6 : firstDayWeekday - 1;
 
   const selectedEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(selectedDate)));
 
