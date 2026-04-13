@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Calendar, Zap } from './animate-ui';
+import { Calendar, Zap, Trash } from './animate-ui';
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay, startOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -14,7 +14,7 @@ export default function AgendaView() {
   const [showForm, setShowForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', time: '', duration: '1h', color: COLORS[0], category: 'Personnel' });
 
-  const { events, loading, addEvent } = useEvents();
+  const { events, loading, addEvent, removeEvent } = useEvents();
 
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
   // Pour une semaine commençant par lundi, calculer le décalage correctement
@@ -208,12 +208,32 @@ export default function AgendaView() {
                 borderLeft: `4px solid ${event.color}`,
                 boxShadow: '0 1px 4px rgba(26,23,20,0.04)'
               }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: '500', color: 'var(--ink)' }}>{event.title}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginTop: '4px' }}>
-                  ⏱ {event.time} · {event.duration}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: '500', color: 'var(--ink)' }}>{event.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginTop: '4px' }}>
+                      ⏱ {event.time} · {event.duration}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeEvent(event.id)}
+                    title="Supprimer l'événement"
+                    style={{
+                      padding: '8px 12px', borderRadius: '12px',
+                      border: '1px solid var(--border)', background: 'var(--cream)',
+                      cursor: 'pointer', color: 'var(--terra)', transition: 'all 0.15s',
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      fontSize: '0.78rem', fontWeight: 600
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--terra-light)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'var(--cream)'; }}
+                  >
+                    <Trash size={16} color="var(--terra)" />
+                    Supprimer
+                  </button>
                 </div>
                 <div style={{ 
-                  fontSize: '0.68rem', marginTop: '6px', padding: '2px 8px',
+                  fontSize: '0.68rem', marginTop: '10px', padding: '2px 8px',
                   borderRadius: '10px', display: 'inline-block',
                   background: 'var(--warm-white)', color: 'var(--stone)'
                 }}>{event.category}</div>
