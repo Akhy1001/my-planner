@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'motion/react';
 import Sidebar from './components/Sidebar';
 import TodayView from './components/TodayView';
 import AgendaView from './components/AgendaView';
@@ -87,17 +88,18 @@ export default function Home() {
           onSignOut={handleSignOut}
         />
         <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-          <div
-            key={activeTab}
-            style={{ 
-              height: '100%', 
-              overflowY: 'auto',
-              animation: 'slideRightIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            }}
-            className="animate-fade-in"
-          >
-            {renderView()}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6, scale: 0.99 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              style={{ height: '100%', overflowY: 'auto' }}
+            >
+              {renderView()}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </>

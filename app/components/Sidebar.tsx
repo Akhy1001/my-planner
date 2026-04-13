@@ -117,12 +117,14 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
                 if (!active) {
                   e.currentTarget.style.background = 'rgba(24, 24, 27, 0.05)';
                   e.currentTarget.style.color = 'var(--ink-light)';
+                  e.currentTarget.style.transform = 'translateX(2px)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!active) {
                   e.currentTarget.style.background = 'transparent';
                   e.currentTarget.style.color = 'var(--stone)';
+                  e.currentTarget.style.transform = 'translateX(0)';
                 }
               }}
             >
@@ -173,14 +175,24 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
           borderTop: '1px solid var(--border)',
           paddingTop: '16px',
         }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '10px 12px',
-            background: 'var(--cream)',
-            borderRadius: '16px',
-            border: '1px solid var(--border)',
-            transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}>
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '10px 12px',
+              background: 'var(--cream)',
+              borderRadius: '16px',
+              border: '1px solid var(--border)',
+              transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(24, 24, 27, 0.08)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
             {/* Avatar */}
             <div style={{
               width: '34px', height: '34px', borderRadius: '12px',

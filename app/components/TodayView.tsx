@@ -49,19 +49,31 @@ export default function TodayView() {
         }} className="animate-fade-in">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--stone)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Progression du jour</span>
-            <span className="font-display" style={{ fontSize: '1.4rem', color: 'var(--ink)', }}>{progress}%</span>
+            <motion.span
+              key={progress}
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              className="font-display"
+              style={{ fontSize: '1.4rem', color: 'var(--ink)' }}
+            >
+              {progress}%
+            </motion.span>
           </div>
           <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ 
-              height: '100%', 
-              width: `${progress}%`, 
-              background: 'linear-gradient(90deg, var(--sage), var(--sage-light))',
-              borderRadius: '3px',
-              transition: 'width 0.4s ease'
-            }} />
+            <div
+              className={progress === 100 ? 'progress-bar-complete' : ''}
+              style={{
+                height: '100%',
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, var(--sage), var(--sage-light))',
+                borderRadius: '3px',
+                transition: 'width 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+              }}
+            />
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--stone)', marginTop: '8px' }}>
-            {loading ? 'Chargement…' : `${doneTasks} tâche${doneTasks !== 1 ? 's' : ''} complétée${doneTasks !== 1 ? 's' : ''} sur ${tasks.length}`}
+            {loading ? <span className="skeleton" style={{ display: 'inline-block', width: '160px', height: '14px' }} /> : `${doneTasks} tâche${doneTasks !== 1 ? 's' : ''} complétée${doneTasks !== 1 ? 's' : ''} sur ${tasks.length}`}
           </div>
         </div>
 
@@ -77,7 +89,11 @@ export default function TodayView() {
           </h2>
           
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              {[0, 1, 2].map(i => (
+                <div key={i} className="skeleton" style={{ height: '52px', borderRadius: '14px', animationDelay: `${i * 0.12}s` }} />
+              ))}
+            </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               {tasks.map((task, i) => (
@@ -279,10 +295,16 @@ export default function TodayView() {
             3 choses pour lesquelles je suis reconnaissant·e
           </div>
           {journal.gratitude.map((g, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <span style={{ 
-                fontSize: '0.7rem', color: 'var(--gold)', 
-                width: '20px', textAlign: 'center', fontWeight: 500 
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.07, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}
+            >
+              <span style={{
+                fontSize: '0.7rem', color: 'var(--gold)',
+                width: '20px', textAlign: 'center', fontWeight: 500
               }}>
                 {i + 1}.
               </span>
@@ -301,7 +323,7 @@ export default function TodayView() {
                   color: 'var(--ink)', outline: 'none', fontFamily: 'inherit'
                 }}
               />
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -334,22 +356,53 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
       </div>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
         {Array.from({ length: target }).map((_, i) => (
-          <button key={i} onClick={() => onChange(i < glasses ? i : i + 1)} style={{
-            width: '32px', height: '40px', borderRadius: '8px 8px 6px 6px',
-            border: '1.5px solid',
-            borderColor: i < glasses ? '#6BA3BE' : 'var(--border)',
-            background: i < glasses ? 'rgba(107, 163, 190, 0.15)' : 'transparent',
-            cursor: 'pointer', transition: 'all 0.15s ease',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1rem'
-          }}>
-            {i < glasses ? <CheckCircle size={16} color="#6BA3BE" /> : <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--border)' }}></div>}
-          </button>
+          <motion.button
+            key={i}
+            onClick={() => onChange(i < glasses ? i : i + 1)}
+            whileTap={{ scale: 0.82 }}
+            whileHover={{ scale: 1.12, y: -3 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 18 }}
+            style={{
+              width: '32px', height: '40px', borderRadius: '8px 8px 6px 6px',
+              border: '1.5px solid',
+              borderColor: i < glasses ? '#6BA3BE' : 'var(--border)',
+              background: i < glasses ? 'rgba(107, 163, 190, 0.15)' : 'transparent',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1rem'
+            }}
+          >
+            {i < glasses
+              ? <CheckCircle size={16} color="#6BA3BE" />
+              : <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--border)' }} />}
+          </motion.button>
         ))}
       </div>
-      <div style={{ fontSize: '0.76rem', color: 'var(--stone)', marginTop: '10px' }}>
-        {glasses >= target ? '✓ Objectif atteint !' : `Plus que ${target - glasses} gourde${target - glasses > 1 ? 's' : ''} remplie${target - glasses > 1 ? 's' : ''}`}
-      </div>
+      <AnimatePresence mode="wait">
+        {glasses >= target ? (
+          <motion.div
+            key="done"
+            initial={{ opacity: 0, scale: 0.88, y: 4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            style={{ fontSize: '0.76rem', color: 'var(--sage)', marginTop: '10px', fontWeight: 600 }}
+          >
+            ✓ Objectif atteint !
+          </motion.div>
+        ) : (
+          <motion.div
+            key="progress"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{ fontSize: '0.76rem', color: 'var(--stone)', marginTop: '10px' }}
+          >
+            {`Plus que ${target - glasses} gourde${target - glasses > 1 ? 's' : ''} à remplir`}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
