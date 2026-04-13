@@ -145,17 +145,45 @@ export default function TodayView() {
               />
               <AddButton onClick={handleAddTask} />
             </div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {(['high', 'medium', 'low'] as const).map(p => (
-                <button key={p} onClick={() => setNewPriority(p)} style={{
-                  padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)',
-                  background: newPriority === p ? 'var(--warm-white)' : 'transparent',
-                  fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit',
-                  color: newPriority === p ? 'var(--ink)' : 'var(--stone)'
-                }}>
-                  {p === 'high' ? '🔴 Haute' : p === 'medium' ? '🟡 Moyenne' : '🟢 Basse'}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {(['high', 'medium', 'low'] as const).map(p => {
+                const isSelected = newPriority === p;
+                const priorityConfig = {
+                  high: { label: 'Haute', bg: 'var(--terra)', bgLight: 'rgba(192,99,74,0.15)', color: isSelected ? 'white' : 'var(--terra)', fontWeight: 'bold' },
+                  medium: { label: 'Moyenne', bg: 'var(--gold)', bgLight: 'rgba(201,151,60,0.15)', color: isSelected ? 'white' : 'var(--gold)', fontWeight: '600' },
+                  low: { label: 'Basse', bg: 'var(--sage)', bgLight: 'rgba(107,143,113,0.15)', color: isSelected ? 'white' : 'var(--sage)', fontWeight: '500' },
+                };
+                const config = priorityConfig[p];
+                return (
+                  <button key={p} onClick={() => setNewPriority(p)} style={{
+                    padding: '8px 16px', 
+                    borderRadius: '10px', 
+                    border: 'none',
+                    background: isSelected ? config.bg : config.bgLight,
+                    fontSize: '0.8rem', 
+                    cursor: 'pointer', 
+                    fontFamily: 'inherit',
+                    fontWeight: config.fontWeight,
+                    color: config.color,
+                    transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = config.bg;
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = config.bgLight;
+                      e.currentTarget.style.color = config.color;
+                    }
+                  }}
+                  >
+                    {config.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
