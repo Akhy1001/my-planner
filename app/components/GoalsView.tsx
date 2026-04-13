@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { Target } from './animate-ui';
 import { useState } from 'react';
 import { useGoals, Goal } from '@/hooks/useGoals';
 

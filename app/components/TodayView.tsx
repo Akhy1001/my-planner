@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { Trash, CheckCircle, Flag } from './animate-ui';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -113,14 +114,19 @@ export default function TodayView() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div className={`priority-${task.priority}`} style={{ 
-                      width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0
-                    }} />
-                    <button onClick={() => removeTask(task.id)} style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'var(--stone-light)', fontSize: '1rem', lineHeight: 1,
-                      padding: '0 2px', opacity: 0.5
-                    }}>×</button>
+                    {task.priority === 'high' && <Flag size={14} color="var(--terra)" />}
+                    <button 
+                      onClick={() => removeTask(task.id)} 
+                      title="Supprimer"
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        padding: '4px', opacity: 0.6, transition: 'opacity 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                      onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
+                    >
+                      <Trash size={16} color="var(--terra)" />
+                    </button>
                   </div>
                 </div>
               ))}

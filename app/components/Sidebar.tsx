@@ -2,6 +2,7 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { User } from '@supabase/supabase-js';
+import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
@@ -12,12 +13,12 @@ interface SidebarProps {
   onSignOut: () => void;
 }
 
-const navItems: { id: Tab; label: string; icon: string }[] = [
-  { id: 'today',  label: "Aujourd'hui", icon: '◈' },
-  { id: 'agenda', label: 'Agenda',       icon: '◷' },
-  { id: 'habits', label: 'Habitudes',    icon: '◉' },
-  { id: 'notes',  label: 'Notes',        icon: '◫' },
-  { id: 'goals',  label: 'Objectifs',    icon: '◎' },
+const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: 'today',  label: "Aujourd'hui", icon: <NavIconToday /> },
+  { id: 'agenda', label: 'Agenda',       icon: <NavIconAgenda /> },
+  { id: 'habits', label: 'Habitudes',    icon: <NavIconHabits /> },
+  { id: 'notes',  label: 'Notes',        icon: <NavIconNotes /> },
+  { id: 'goals',  label: 'Objectifs',    icon: <NavIconGoals /> },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: SidebarProps) {
@@ -137,15 +138,18 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
                 }} />
               )}
               
-              <span style={{
+              <div style={{
                 fontSize: '1rem',
+                color: active ? 'white' : 'var(--stone)',
                 opacity: active ? 1 : 0.5,
-                transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 transform: active ? 'scale(1.15)' : 'scale(1)',
-                display: 'inline-block',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
                 {item.icon}
-              </span>
+              </div>
               <span style={{ flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                 {item.label}
               </span>

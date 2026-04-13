@@ -1,6 +1,6 @@
 'use client';
 
-import { CirclePlus } from './animate-ui/icons/circle-plus';
+import { CirclePlus } from './animate-ui';
 
 interface AddButtonProps {
   onClick: () => void;
@@ -45,7 +45,7 @@ export default function AddButton({ onClick, label, size = 20 }: AddButtonProps)
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,24,27,0.18)';
       }}
     >
-      <CirclePlus size={size} color="white" strokeWidth={2} />
+      <CirclePlus size={size} color="white" className="" />
       {label && <span>{label}</span>}
     </button>
   );

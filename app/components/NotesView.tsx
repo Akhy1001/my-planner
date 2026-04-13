@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { Star } from './animate-ui';
 import { useState } from 'react';
 import { useNotes, Note } from '@/hooks/useNotes';
 
