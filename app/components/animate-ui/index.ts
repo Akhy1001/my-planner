@@ -17,6 +17,7 @@ export {
 } from './icons';
 
 export type * from './icons';
+export { PlayfulTodolist } from './PlayfulTodolist';
 
 export {
   spinVariants,
