@@ -89,7 +89,11 @@ export default function Home() {
         <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
           <div
             key={activeTab}
-            style={{ height: '100%', overflowY: 'auto' }}
+            style={{ 
+              height: '100%', 
+              overflowY: 'auto',
+              animation: 'slideRightIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            }}
             className="animate-fade-in"
           >
             {renderView()}

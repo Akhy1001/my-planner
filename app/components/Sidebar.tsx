@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
       flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ padding: '0 22px 28px' }}>
+      <div style={{ padding: '0 22px 28px' }} className="animate-slide-in">
         <div className="font-display" style={{
           fontSize: '1.35rem', color: 'var(--ink)',
           fontWeight: '700', letterSpacing: '-0.03em',
@@ -59,7 +59,8 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
         borderRadius: '18px',
         border: '1px solid var(--border)',
         textAlign: 'center',
-      }}>
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+      }} className="animate-slide-in">
         <div className="font-display" style={{
           fontSize: '2.6rem', fontWeight: '700',
           color: 'var(--ink)', lineHeight: 1,
@@ -81,7 +82,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '0 10px' }}>
+      <nav style={{ flex: 1, padding: '0 10px' }} className="stagger-children">
         {navItems.map((item, i) => {
           const active = activeTab === item.id;
           return (
@@ -96,32 +97,65 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
                 padding: '10px 14px',
                 borderRadius: '14px',
                 border: 'none',
-                background: active ? 'var(--ink)' : 'transparent',
+                background: active 
+                  ? 'var(--ink)' 
+                  : 'transparent',
                 color: active ? 'white' : 'var(--stone)',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
                 fontWeight: active ? '600' : '400',
-                transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 textAlign: 'left',
                 marginBottom: '3px',
                 animationDelay: `${i * 0.05}s`,
                 fontFamily: 'inherit',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = 'rgba(24, 24, 27, 0.05)';
+                  e.currentTarget.style.color = 'var(--ink-light)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--stone)';
+                }
               }}
             >
+              {/* Glow effect background on active */}
+              {active && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                  opacity: 0,
+                  animation: 'enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                }} />
+              )}
+              
               <span style={{
                 fontSize: '1rem',
                 opacity: active ? 1 : 0.5,
-                transition: 'opacity 0.15s',
+                transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: active ? 'scale(1.15)' : 'scale(1)',
+                display: 'inline-block',
               }}>
                 {item.icon}
               </span>
-              {item.label}
+              <span style={{ flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                {item.label}
+              </span>
               {active && (
                 <div style={{
-                  marginLeft: 'auto',
                   width: '6px', height: '6px',
                   borderRadius: '50%',
                   background: 'var(--terra)',
+                  marginLeft: '8px',
+                  animation: 'enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                 }} />
               )}
             </button>
@@ -130,7 +164,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
       </nav>
 
       {/* User profile + logout */}
-      <div style={{ padding: '0 14px', marginTop: 'auto' }}>
+      <div style={{ padding: '0 14px', marginTop: 'auto' }} className="animate-slide-in">
         <div style={{
           borderTop: '1px solid var(--border)',
           paddingTop: '16px',
@@ -141,6 +175,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
             background: 'var(--cream)',
             borderRadius: '16px',
             border: '1px solid var(--border)',
+            transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
           }}>
             {/* Avatar */}
             <div style={{
@@ -174,16 +209,18 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 color: 'var(--stone)', fontSize: '1.1rem', padding: '4px',
-                borderRadius: '8px', transition: 'all 0.15s',
+                borderRadius: '8px', transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 flexShrink: 0, lineHeight: 1,
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.color = 'var(--terra)';
                 e.currentTarget.style.background = 'rgba(192,99,74,0.1)';
+                e.currentTarget.style.transform = 'scale(1.12)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color = 'var(--stone)';
                 e.currentTarget.style.background = 'none';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               ⎋
