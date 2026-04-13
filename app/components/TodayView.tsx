@@ -1,6 +1,7 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, CheckCircle, Flag } from './animate-ui';
+import { Trash, Flag, PlayfulTodolist } from './animate-ui';
+import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -80,27 +81,68 @@ export default function TodayView() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               {tasks.map((task, i) => (
-                <div key={task.id} 
-                  className="animate-slide-in"
+                <motion.div
+                  key={task.id}
+                  className={`animate-slide-in task-row ${task.done ? 'task-done' : ''}`}
+                  layout
+                  initial={false}
+                  animate={task.done ? { backgroundColor: 'rgba(192, 99, 74, 0.15)', scale: 1.02, x: [0, -6, 0] } : { backgroundColor: 'transparent', scale: 1, x: 0 }}
+                  transition={{ duration: 0.28, type: 'tween', ease: 'easeOut' }}
+                  whileHover={task.done ? {} : { y: -1 }}
                   style={{ 
                     animationDelay: `${i * 0.05}s`,
                     display: 'flex', alignItems: 'center', gap: '10px',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    background: task.done ? 'var(--warm-white)' : 'transparent',
-                    border: '1px solid transparent',
-                    transition: 'all 0.15s ease',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: task.done ? '1px solid rgba(192, 99, 74, 0.24)' : '1px solid transparent',
                   }}>
-                  <div className={`task-check ${task.done ? 'checked' : ''}`} onClick={() => toggleTask(task.id)}>
-                    {task.done && <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                      <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>}
-                  </div>
+                  <motion.div
+                    className={`task-check ${task.done ? 'checked' : ''}`}
+                    onClick={() => toggleTask(task.id)}
+                    whileTap={{ scale: 0.92 }}
+                    animate={task.done ? { scale: [1, 1.18, 1], backgroundColor: 'var(--terra)' } : { scale: 1, backgroundColor: 'transparent' }}
+                    transition={{ duration: 0.24, type: 'tween', ease: [0.16, 1, 0.3, 1] }}
+                    style={{
+                      width: '26px', height: '26px', borderRadius: '10px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', border: '1px solid var(--border)',
+                      background: task.done ? 'var(--terra)' : 'transparent',
+                      color: task.done ? 'white' : 'var(--ink)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <AnimatePresence>
+                      {task.done && (
+                        <motion.span
+                          key="check-pulse"
+                          className="task-check-pulse"
+                          initial={{ opacity: 0.38, scale: 0.8 }}
+                          animate={{ opacity: [0.38, 0], scale: [1, 1.8] }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.35, ease: 'easeOut' }}
+                        />
+                      )}
+                    </AnimatePresence>
+                    {task.done && (
+                      <motion.svg
+                        width="12"
+                        height="10"
+                        viewBox="0 0 12 10"
+                        fill="none"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                      >
+                        <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </motion.svg>
+                    )}
+                  </motion.div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ 
+                    <div className={task.done ? 'task-text-done' : ''} style={{ 
                       fontSize: '0.85rem', color: task.done ? 'var(--stone)' : 'var(--ink)',
-                      textDecoration: task.done ? 'line-through' : 'none',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      opacity: task.done ? 0.78 : 1,
                     }}>
                       {task.text}
                     </div>
@@ -128,7 +170,7 @@ export default function TodayView() {
                       <Trash size={16} color="var(--terra)" />
                     </button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -192,6 +234,8 @@ export default function TodayView() {
               })}
             </div>
           </div>
+
+          <PlayfulTodolist />
         </div>
 
       </div>
@@ -286,7 +330,7 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
         <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
           Hydratation
         </h2>
-        <span style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>{glasses}/{target}</span>
+        <span style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>{glasses}/{target} gourde{target > 1 ? 's' : ''} remplie{glasses > 1 ? 's' : ''}</span>
       </div>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
         {Array.from({ length: target }).map((_, i) => (
@@ -299,12 +343,12 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1rem'
           }}>
-            {i < glasses ? '💧' : '○'}
+            {i < glasses ? '🥤' : '○'}
           </button>
         ))}
       </div>
       <div style={{ fontSize: '0.76rem', color: 'var(--stone)', marginTop: '10px' }}>
-        {glasses >= target ? '✓ Objectif atteint !' : `Plus que ${target - glasses} verre${target - glasses > 1 ? 's' : ''}`}
+        {glasses >= target ? '✓ Objectif atteint !' : `Plus que ${target - glasses} gourde${target - glasses > 1 ? 's' : ''} remplie${target - glasses > 1 ? 's' : ''}`}
       </div>
     </>
   );
