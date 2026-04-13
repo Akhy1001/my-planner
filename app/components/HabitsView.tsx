@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { Heart } from './animate-ui';
 import { useState } from 'react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';

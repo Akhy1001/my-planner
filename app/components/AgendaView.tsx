@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { Calendar, Zap } from './animate-ui';
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';

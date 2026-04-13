@@ -1,13 +1,11 @@
 'use client';
 import AddButton from './AddButton';
+import { Trash, CheckCircle, Flag } from './animate-ui';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useTasks } from '@/hooks/useTasks';
 import { useJournal } from '@/hooks/useJournal';
-
-const moods = ['😴', '😔', '😐', '🙂', '😊', '🤩'];
-const moodLabels = ['Épuisé', 'Bas', 'Neutre', 'Bien', 'Super', 'Excellent'];
 
 export default function TodayView() {
   const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks();
@@ -116,14 +114,19 @@ export default function TodayView() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div className={`priority-${task.priority}`} style={{ 
-                      width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0
-                    }} />
-                    <button onClick={() => removeTask(task.id)} style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'var(--stone-light)', fontSize: '1rem', lineHeight: 1,
-                      padding: '0 2px', opacity: 0.5
-                    }}>×</button>
+                    {task.priority === 'high' && <Flag size={14} color="var(--terra)" />}
+                    <button 
+                      onClick={() => removeTask(task.id)} 
+                      title="Supprimer"
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        padding: '4px', opacity: 0.6, transition: 'opacity 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                      onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
+                    >
+                      <Trash size={16} color="var(--terra)" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -148,44 +151,49 @@ export default function TodayView() {
               />
               <AddButton onClick={handleAddTask} />
             </div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {(['high', 'medium', 'low'] as const).map(p => (
-                <button key={p} onClick={() => setNewPriority(p)} style={{
-                  padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)',
-                  background: newPriority === p ? 'var(--warm-white)' : 'transparent',
-                  fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit',
-                  color: newPriority === p ? 'var(--ink)' : 'var(--stone)'
-                }}>
-                  {p === 'high' ? '🔴 Haute' : p === 'medium' ? '🟡 Moyenne' : '🟢 Basse'}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {(['high', 'medium', 'low'] as const).map(p => {
+                const isSelected = newPriority === p;
+                const priorityConfig = {
+                  high: { label: 'Haute', bg: 'var(--terra)', bgLight: 'rgba(192,99,74,0.15)', color: isSelected ? 'white' : 'var(--terra)', fontWeight: 'bold' },
+                  medium: { label: 'Moyenne', bg: 'var(--gold)', bgLight: 'rgba(201,151,60,0.15)', color: isSelected ? 'white' : 'var(--gold)', fontWeight: '600' },
+                  low: { label: 'Basse', bg: 'var(--sage)', bgLight: 'rgba(107,143,113,0.15)', color: isSelected ? 'white' : 'var(--sage)', fontWeight: '500' },
+                };
+                const config = priorityConfig[p];
+                return (
+                  <button key={p} onClick={() => setNewPriority(p)} style={{
+                    padding: '8px 16px', 
+                    borderRadius: '10px', 
+                    border: 'none',
+                    background: isSelected ? config.bg : config.bgLight,
+                    fontSize: '0.8rem', 
+                    cursor: 'pointer', 
+                    fontFamily: 'inherit',
+                    fontWeight: config.fontWeight,
+                    color: config.color,
+                    transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = config.bg;
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = config.bgLight;
+                      e.currentTarget.style.color = config.color;
+                    }
+                  }}
+                  >
+                    {config.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Mood */}
-        <div style={{ 
-          background: 'white', borderRadius: '14px', 
-          padding: '20px',
-          border: '1px solid var(--border)',
-          boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
-        }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '14px', color: 'var(--ink)' }}>
-            Humeur du jour
-          </h2>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {moods.map((m, i) => (
-              <button key={i} className={`mood-btn ${journal.mood === i ? 'selected' : ''}`} onClick={() => updateJournal({ mood: i })} title={moodLabels[i]}>
-                {m}
-              </button>
-            ))}
-          </div>
-          {journal.mood !== null && (
-            <div style={{ marginTop: '10px', fontSize: '0.82rem', color: 'var(--stone)' }}>
-              Vous vous sentez <span style={{ color: 'var(--terra)' }}>{moodLabels[journal.mood].toLowerCase()}</span> aujourd&apos;hui.
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Right column */}
