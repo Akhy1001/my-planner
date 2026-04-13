@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, Flag, PlayfulTodolist } from './animate-ui';
+import { Trash, Flag, PlayfulTodolist, CheckCircle } from './animate-ui';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -343,7 +343,7 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1rem'
           }}>
-            {i < glasses ? '🥤' : '○'}
+            {i < glasses ? <CheckCircle size={16} color="#6BA3BE" /> : <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--border)' }}></div>}
           </button>
         ))}
       </div>
