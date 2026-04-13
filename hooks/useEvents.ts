@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, startOfDay } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 
 export interface Event {
@@ -24,7 +24,7 @@ interface DbEvent {
 }
 
 function toEvent(db: DbEvent): Event {
-  return { ...db, date: parseISO(db.date) };
+  return { ...db, date: startOfDay(parseISO(db.date)) };
 }
 
 export function useEvents() {
@@ -44,7 +44,7 @@ export function useEvents() {
   }, []);
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
-    const localDate = format(event.date, 'yyyy-MM-dd');
+    const localDate = format(startOfDay(event.date), 'yyyy-MM-dd');
     const { data, error } = await supabase
       .from('events')
       .insert({

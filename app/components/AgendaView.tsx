@@ -51,7 +51,11 @@ export default function AgendaView() {
           </h1>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} style={btnStyle}>‹</button>
-            <button onClick={() => setCurrentMonth(startOfMonth(new Date()))} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
+            <button onClick={() => {
+              const today = startOfDay(new Date());
+              setCurrentMonth(startOfMonth(today));
+              setSelectedDate(today);
+            }} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
             <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} style={btnStyle}>›</button>
           </div>
         </div>
