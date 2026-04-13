@@ -2,30 +2,34 @@
 import AddButton from './AddButton';
 import { Calendar, Zap } from './animate-ui';
 import { useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay, startOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useEvents } from '@/hooks/useEvents';
 
 const COLORS = ['var(--sage)', 'var(--terra)', 'var(--gold)', 'var(--lavender)'];
 
 export default function AgendaView() {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [showForm, setShowForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', time: '', duration: '1h', color: COLORS[0], category: 'Personnel' });
 
   const { events, loading, addEvent } = useEvents();
 
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
-  const firstDayOffset = (getDay(startOfMonth(currentMonth)) + 6) % 7;
+  // Pour une semaine commençant par lundi, calculer le décalage correctement
+  const firstDayOfMonth = startOfMonth(currentMonth);
+  const firstDayWeekday = getDay(firstDayOfMonth); // 0 = dimanche, 1 = lundi, etc.
+  // Convertir pour que lundi = 0, dimanche = 6
+  const firstDayOffset = firstDayWeekday === 0 ? 6 : firstDayWeekday - 1;
 
-  const selectedEvents = events.filter(e => isSameDay(e.date, selectedDate));
+  const selectedEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(selectedDate)));
 
   const handleAddEvent = async () => {
     if (!newEvent.title.trim()) return;
     await addEvent({
       title: newEvent.title,
-      date: selectedDate,
+      date: startOfDay(selectedDate),
       time: newEvent.time || '09:00',
       duration: newEvent.duration,
       color: newEvent.color,
@@ -47,7 +51,7 @@ export default function AgendaView() {
           </h1>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} style={btnStyle}>‹</button>
-            <button onClick={() => setCurrentMonth(new Date())} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
+            <button onClick={() => setCurrentMonth(startOfMonth(new Date()))} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
             <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} style={btnStyle}>›</button>
           </div>
         </div>
@@ -76,13 +80,13 @@ export default function AgendaView() {
               <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', minHeight: '80px' }} />
             ))}
             {days.map(day => {
-              const dayEvents = events.filter(e => isSameDay(e.date, day));
+              const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
               const selected = isSameDay(day, selectedDate);
               const today = isToday(day);
               return (
                 <div
                   key={day.toString()}
-                  onClick={() => setSelectedDate(day)}
+                  onClick={() => setSelectedDate(startOfDay(day))}
                   style={{
                     borderRight: '1px solid var(--border)',
                     borderBottom: '1px solid var(--border)',
