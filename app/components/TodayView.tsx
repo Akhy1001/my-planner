@@ -6,9 +6,6 @@ import { fr } from 'date-fns/locale';
 import { useTasks } from '@/hooks/useTasks';
 import { useJournal } from '@/hooks/useJournal';
 
-const moods = ['😴', '😔', '😐', '🙂', '😊', '🤩'];
-const moodLabels = ['Épuisé', 'Bas', 'Neutre', 'Bien', 'Super', 'Excellent'];
-
 export default function TodayView() {
   const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks();
   const { journal, loading: journalLoading, updateJournal } = useJournal();
@@ -163,29 +160,6 @@ export default function TodayView() {
           </div>
         </div>
 
-        {/* Mood */}
-        <div style={{ 
-          background: 'white', borderRadius: '14px', 
-          padding: '20px',
-          border: '1px solid var(--border)',
-          boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
-        }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '14px', color: 'var(--ink)' }}>
-            Humeur du jour
-          </h2>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {moods.map((m, i) => (
-              <button key={i} className={`mood-btn ${journal.mood === i ? 'selected' : ''}`} onClick={() => updateJournal({ mood: i })} title={moodLabels[i]}>
-                {m}
-              </button>
-            ))}
-          </div>
-          {journal.mood !== null && (
-            <div style={{ marginTop: '10px', fontSize: '0.82rem', color: 'var(--stone)' }}>
-              Vous vous sentez <span style={{ color: 'var(--terra)' }}>{moodLabels[journal.mood].toLowerCase()}</span> aujourd&apos;hui.
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Right column */}
