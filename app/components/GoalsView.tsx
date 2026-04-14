@@ -2,6 +2,7 @@
 import AddButton from './AddButton';
 import { Target } from './animate-ui';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useGoals, Goal } from '@/hooks/useGoals';
 
 const categoryColors: Record<string, string> = {
@@ -84,41 +85,49 @@ export default function GoalsView() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
         ) : (
-          goals.map((goal, i) => (
-            <div key={goal.id} onClick={() => setSelected(goal)}
-              className="animate-slide-in"
-              style={{ 
-                animationDelay: `${i * 0.07}s`,
-                padding: '14px', borderRadius: '12px', marginBottom: '8px',
-                cursor: 'pointer', transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
-                border: `1px solid ${selectedGoal?.id === goal.id ? goal.color : 'var(--border)'}`,
-                background: selectedGoal?.id === goal.id ? 'var(--warm-white)' : 'transparent',
-                boxShadow: selectedGoal?.id === goal.id ? '0 2px 8px rgba(26,23,20,0.06)' : 'none'
-              }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--ink)' }}>{goal.title}</div>
-                  <div style={{ fontSize: '0.7rem', color: categoryColors[goal.category] || 'var(--stone)', marginTop: '2px' }}>
-                    {goal.category}
+          <AnimatePresence mode="popLayout">
+            {goals.map((goal, i) => (
+              <motion.div
+                key={goal.id}
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.22, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
+                onClick={() => setSelected(goal)}
+                style={{
+                  padding: '14px', borderRadius: '12px', marginBottom: '8px',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
+                  border: `1px solid ${selectedGoal?.id === goal.id ? goal.color : 'var(--border)'}`,
+                  background: selectedGoal?.id === goal.id ? 'var(--warm-white)' : 'transparent',
+                  boxShadow: selectedGoal?.id === goal.id ? '0 2px 8px rgba(26,23,20,0.06)' : 'none'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--ink)' }}>{goal.title}</div>
+                    <div style={{ fontSize: '0.7rem', color: categoryColors[goal.category] || 'var(--stone)', marginTop: '2px' }}>
+                      {goal.category}
+                    </div>
+                  </div>
+                  <div className="font-display" style={{ fontSize: '1.1rem', color: goal.color }}>
+                    {goal.progress}%
                   </div>
                 </div>
-                <div className="font-display" style={{ fontSize: '1.1rem', color: goal.color, }}>
-                  {goal.progress}%
+                <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', width: `${goal.progress}%`,
+                    background: goal.color, borderRadius: '2px', transition: 'width 0.4s ease'
+                  }} />
                 </div>
-              </div>
-              <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', width: `${goal.progress}%`,
-                  background: goal.color, borderRadius: '2px', transition: 'width 0.4s ease'
-                }} />
-              </div>
-              {goal.deadline && (
-                <div style={{ fontSize: '0.68rem', color: 'var(--stone)', marginTop: '6px' }}>
-                  📅 {new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </div>
-              )}
-            </div>
-          ))
+                {goal.deadline && (
+                  <div style={{ fontSize: '0.68rem', color: 'var(--stone)', marginTop: '6px' }}>
+                    📅 {new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
 

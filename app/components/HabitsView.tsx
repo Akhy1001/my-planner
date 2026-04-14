@@ -2,6 +2,7 @@
 import AddButton from './AddButton';
 import { Heart } from './animate-ui';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 
@@ -100,19 +101,26 @@ export default function HabitsView() {
 
       {/* Habits list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {habits.map((habit, idx) => {
-          const doneToday = habit.completedDays.includes(today);
-          const weekRate = Math.round((last7.filter(d => habit.completedDays.includes(d)).length / 7) * 100);
+        <AnimatePresence mode="popLayout">
+          {habits.map((habit, idx) => {
+            const doneToday = habit.completedDays.includes(today);
+            const weekRate = Math.round((last7.filter(d => habit.completedDays.includes(d)).length / 7) * 100);
 
-          return (
-            <div key={habit.id} className="animate-slide-in" style={{ animationDelay: `${idx * 0.06}s` }}>
-              <div style={{
-                background: 'var(--warm-white)', borderRadius: '14px',
-                padding: '18px 20px',
-                border: '1px solid var(--border)',
-                borderLeft: `4px solid ${habit.color}`,
-                boxShadow: '0 1px 6px rgba(26,23,20,0.03)'
-              }}>
+            return (
+              <motion.div
+                key={habit.id}
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.22, delay: idx * 0.05, ease: [0.23, 1, 0.32, 1] }}
+                style={{
+                  background: 'var(--warm-white)', borderRadius: '14px',
+                  padding: '18px 20px',
+                  border: '1px solid var(--border)',
+                  borderLeft: `4px solid ${habit.color}`,
+                  boxShadow: '0 1px 6px rgba(26,23,20,0.03)'
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                   <span style={{ fontSize: '1.4rem' }}>{habit.icon}</span>
                   <div style={{ flex: 1 }}>
@@ -126,17 +134,26 @@ export default function HabitsView() {
                       <div style={{ fontSize: '0.78rem', color: 'var(--stone)' }}>{weekRate}%</div>
                       <div style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>cette sem.</div>
                     </div>
-                    <button onClick={() => toggleToday(habit.id)} style={{
-                      width: '36px', height: '36px', borderRadius: '50%',
-                      border: `2px solid ${doneToday ? habit.color : 'var(--border)'}`,
-                      background: doneToday ? habit.color : 'transparent',
-                      cursor: 'pointer', transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: doneToday ? '1rem' : '0.9rem',
-                      color: doneToday ? 'white' : 'var(--stone)'
-                    }}>
+                    <motion.button
+                      onClick={() => toggleToday(habit.id)}
+                      whileTap={{ scale: 0.9 }}
+                      animate={{
+                        borderColor: doneToday ? habit.color : 'var(--border)',
+                        background: doneToday ? habit.color : 'transparent',
+                      }}
+                      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                      style={{
+                        width: '36px', height: '36px', borderRadius: '50%',
+                        border: `2px solid ${doneToday ? habit.color : 'var(--border)'}`,
+                        background: doneToday ? habit.color : 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: doneToday ? '1rem' : '0.9rem',
+                        color: doneToday ? 'white' : 'var(--stone)'
+                      }}
+                    >
                       {doneToday ? '✓' : '○'}
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -152,10 +169,10 @@ export default function HabitsView() {
                     }} title={day} />
                   ))}
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );

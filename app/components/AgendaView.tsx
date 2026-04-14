@@ -3,7 +3,7 @@ import AddButton from './AddButton';
 import { Trash } from './animate-ui';
 import { useState } from 'react';
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
   isSameDay, isToday, addMonths, subMonths, getDay, startOfDay,
@@ -357,76 +357,97 @@ export default function AgendaView() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
           ) : selectedEvents.length === 0 ? (
-            <div style={{
-              textAlign: 'center', padding: '40px 20px',
-              color: 'var(--stone)', fontSize: '0.85rem'
-            }}>
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              style={{
+                textAlign: 'center', padding: '40px 20px',
+                color: 'var(--stone)', fontSize: '0.85rem'
+              }}
+            >
               <div style={{ fontSize: '2rem', marginBottom: '8px' }}>○</div>
               Aucun événement
-            </div>
+            </motion.div>
           ) : (
-            selectedEvents.map(event => (
-              <div key={event.id} style={{
-                background: 'var(--warm-white)', borderRadius: '12px',
-                padding: '14px 16px',
-                border: '1px solid var(--border)',
-                borderLeft: `4px solid ${event.color}`,
-                boxShadow: '0 1px 4px rgba(26,23,20,0.04)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.88rem', fontWeight: '500', color: 'var(--ink)' }}>{event.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginTop: '4px' }}>
-                      ⏱ {event.time} · {event.duration}
+            <AnimatePresence mode="popLayout">
+              {selectedEvents.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                  transition={{
+                    duration: 0.22,
+                    delay: i * 0.05,
+                    ease: [0.23, 1, 0.32, 1],
+                  }}
+                  style={{
+                    background: 'var(--warm-white)', borderRadius: '12px',
+                    padding: '14px 16px',
+                    border: '1px solid var(--border)',
+                    borderLeft: `4px solid ${event.color}`,
+                    boxShadow: '0 1px 4px rgba(26,23,20,0.04)'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: '500', color: 'var(--ink)' }}>{event.title}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginTop: '4px' }}>
+                        ⏱ {event.time} · {event.duration}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <motion.button
+                        onClick={() => openEditForm(event)}
+                        title="Modifier l'événement"
+                        whileTap={{ scale: 0.93 }}
+                        whileHover={{ background: 'var(--warm-white)' }}
+                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                        style={{
+                          padding: '7px 10px', borderRadius: '10px',
+                          border: '1px solid var(--border)', background: 'var(--cream)',
+                          cursor: 'pointer', color: 'var(--ink)',
+                          display: 'inline-flex', alignItems: 'center',
+                        }}
+                      >
+                        <Pencil size={14} />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleDelete(event)}
+                        title="Supprimer l'événement"
+                        whileTap={{ scale: 0.93 }}
+                        whileHover={{ background: 'var(--terra-light)' }}
+                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                        style={{
+                          padding: '7px 10px', borderRadius: '10px',
+                          border: '1px solid var(--border)', background: 'var(--cream)',
+                          cursor: 'pointer', color: 'var(--terra)',
+                          display: 'inline-flex', alignItems: 'center',
+                        }}
+                      >
+                        <Trash size={14} color="var(--terra)" />
+                      </motion.button>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                    <button
-                      onClick={() => openEditForm(event)}
-                      title="Modifier l'événement"
-                      style={{
-                        padding: '7px 10px', borderRadius: '10px',
-                        border: '1px solid var(--border)', background: 'var(--cream)',
-                        cursor: 'pointer', color: 'var(--ink)', transition: 'all 0.15s',
-                        display: 'inline-flex', alignItems: 'center',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--warm-white)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--cream)'; }}
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(event)}
-                      title="Supprimer l'événement"
-                      style={{
-                        padding: '7px 10px', borderRadius: '10px',
-                        border: '1px solid var(--border)', background: 'var(--cream)',
-                        cursor: 'pointer', color: 'var(--terra)', transition: 'all 0.15s',
-                        display: 'inline-flex', alignItems: 'center',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--terra-light)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--cream)'; }}
-                    >
-                      <Trash size={14} color="var(--terra)" />
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
-                  <div style={{
-                    fontSize: '0.68rem', padding: '2px 8px',
-                    borderRadius: '10px',
-                    background: 'var(--warm-white)', color: 'var(--stone)'
-                  }}>{event.category}</div>
-                  {event.recurrence !== 'none' && (
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
                     <div style={{
                       fontSize: '0.68rem', padding: '2px 8px',
                       borderRadius: '10px',
-                      background: event.color + '22', color: 'var(--stone)'
-                    }}>{RECURRENCE_BADGE[event.recurrence]}</div>
-                  )}
-                </div>
-              </div>
-            ))
+                      background: 'var(--warm-white)', color: 'var(--stone)'
+                    }}>{event.category}</div>
+                    {event.recurrence !== 'none' && (
+                      <div style={{
+                        fontSize: '0.68rem', padding: '2px 8px',
+                        borderRadius: '10px',
+                        background: event.color + '22', color: 'var(--stone)'
+                      }}>{RECURRENCE_BADGE[event.recurrence]}</div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>

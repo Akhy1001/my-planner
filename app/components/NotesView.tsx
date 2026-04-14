@@ -2,6 +2,7 @@
 import AddButton from './AddButton';
 import { Star } from './animate-ui';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useNotes, Note } from '@/hooks/useNotes';
 
 const tagColors: Record<string, string> = {
@@ -94,42 +95,50 @@ export default function NotesView() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.8rem' }}>Chargement…</div>
           ) : (
-            filtered.map(note => (
-              <div key={note.id}
-                onClick={() => setSelected(note)}
-                style={{
-                  padding: '12px',
-                  borderRadius: '10px',
-                  marginBottom: '6px',
-                  cursor: 'pointer',
-                  border: `1px solid ${selectedNote?.id === note.id ? 'var(--stone-light)' : 'transparent'}`,
-                  background: selectedNote?.id === note.id ? 'var(--warm-white)' : 'transparent',
-                  transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
-                }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)', 
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1
-                  }}>
-                    {note.pinned && <span style={{ color: 'var(--gold)', marginRight: '4px' }}>📌</span>}
-                    {note.title || 'Sans titre'}
+            <AnimatePresence mode="popLayout">
+              {filtered.map((note, i) => (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.22, delay: i * 0.04, ease: [0.23, 1, 0.32, 1] }}
+                  onClick={() => setSelected(note)}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    marginBottom: '6px',
+                    cursor: 'pointer',
+                    border: `1px solid ${selectedNote?.id === note.id ? 'var(--stone-light)' : 'transparent'}`,
+                    background: selectedNote?.id === note.id ? 'var(--warm-white)' : 'transparent',
+                    transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1
+                    }}>
+                      {note.pinned && <span style={{ color: 'var(--gold)', marginRight: '4px' }}>📌</span>}
+                      {note.title || 'Sans titre'}
+                    </div>
                   </div>
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--stone)', 
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  marginBottom: '6px'
-                }}>
-                  {note.content || 'Vide…'}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ 
-                    fontSize: '0.65rem', padding: '1px 6px', borderRadius: '8px',
-                    background: tagColors[note.tag] + '25', color: tagColors[note.tag],
-                    border: `1px solid ${tagColors[note.tag]}50`
-                  }}>{note.tag}</span>
-                  <span style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>{timeAgo(note.updated_at)}</span>
-                </div>
-              </div>
-            ))
+                  <div style={{ fontSize: '0.75rem', color: 'var(--stone)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    marginBottom: '6px'
+                  }}>
+                    {note.content || 'Vide…'}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: '0.65rem', padding: '1px 6px', borderRadius: '8px',
+                      background: tagColors[note.tag] + '25', color: tagColors[note.tag],
+                      border: `1px solid ${tagColors[note.tag]}50`
+                    }}>{note.tag}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>{timeAgo(note.updated_at)}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>
