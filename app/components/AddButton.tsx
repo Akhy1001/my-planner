@@ -23,7 +23,7 @@ export default function AddButton({ onClick, label, size = 20 }: AddButtonProps)
         gap: '6px',
         padding: label ? '7px 14px 7px 10px' : '8px',
         background: 'var(--ink)',
-        color: 'white',
+        color: 'var(--cream)',
         border: 'none',
         borderRadius: '12px',
         cursor: 'pointer',
@@ -45,7 +45,7 @@ export default function AddButton({ onClick, label, size = 20 }: AddButtonProps)
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,24,27,0.18)';
       }}
     >
-      <CirclePlus size={size} color="white" className="" />
+      <CirclePlus size={size} color="var(--cream)" className="" />
       {label && <span>{label}</span>}
     </button>
   );

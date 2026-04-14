@@ -62,7 +62,7 @@ export default function AgendaView() {
 
         {/* Calendar grid */}
         <div style={{ 
-          background: 'white', borderRadius: '14px', 
+          background: 'var(--warm-white)', borderRadius: '14px', 
           border: '1px solid var(--border)',
           overflow: 'hidden',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
@@ -97,7 +97,7 @@ export default function AgendaView() {
                     minHeight: '80px',
                     padding: '8px',
                     cursor: 'pointer',
-                    background: selected ? 'rgba(122, 140, 110, 0.08)' : 'white',
+                    background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
                     transition: 'background 0.1s',
                   }}
                 >
@@ -154,7 +154,7 @@ export default function AgendaView() {
         {/* Add event form */}
         {showForm && (
           <div style={{ 
-            background: 'white', borderRadius: '12px', 
+            background: 'var(--warm-white)', borderRadius: '12px', 
             padding: '16px', marginBottom: '16px',
             border: '1px solid var(--border)'
           }}>
@@ -202,7 +202,7 @@ export default function AgendaView() {
           ) : (
             selectedEvents.map(event => (
               <div key={event.id} style={{
-                background: 'white', borderRadius: '12px',
+                background: 'var(--warm-white)', borderRadius: '12px',
                 padding: '14px 16px',
                 border: '1px solid var(--border)',
                 borderLeft: `4px solid ${event.color}`,
@@ -247,7 +247,7 @@ export default function AgendaView() {
 }
 
 const btnStyle: React.CSSProperties = {
-  padding: '6px 10px', background: 'white',
+  padding: '6px 10px', background: 'var(--warm-white)',
   border: '1px solid var(--border)', borderRadius: '8px',
   cursor: 'pointer', fontSize: '1rem', color: 'var(--ink)',
   fontFamily: 'inherit'

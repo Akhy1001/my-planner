@@ -59,7 +59,7 @@ export default function GoalsView() {
 
         {showAdd && (
           <div style={{ 
-            background: 'white', borderRadius: '12px', padding: '14px',
+            background: 'var(--warm-white)', borderRadius: '12px', padding: '14px',
             border: '1px solid var(--border)', marginBottom: '14px'
           }}>
             <input value={newGoal.title} onChange={e => setNewGoal({...newGoal, title: e.target.value})}
@@ -74,7 +74,7 @@ export default function GoalsView() {
             <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({...newGoal, deadline: e.target.value})}
               style={{ ...iS, marginBottom: '8px' }} />
             <button onClick={handleAddGoal} style={{
-              width: '100%', padding: '7px', background: 'var(--ink)', color: 'white',
+              width: '100%', padding: '7px', background: 'var(--ink)', color: 'var(--cream)',
               border: 'none', borderRadius: '7px', cursor: 'pointer',
               fontSize: '0.8rem', fontFamily: 'inherit'
             }}>Créer</button>
@@ -92,7 +92,7 @@ export default function GoalsView() {
                 padding: '14px', borderRadius: '12px', marginBottom: '8px',
                 cursor: 'pointer', transition: 'all 0.15s',
                 border: `1px solid ${selectedGoal?.id === goal.id ? goal.color : 'var(--border)'}`,
-                background: selectedGoal?.id === goal.id ? 'white' : 'transparent',
+                background: selectedGoal?.id === goal.id ? 'var(--warm-white)' : 'transparent',
                 boxShadow: selectedGoal?.id === goal.id ? '0 2px 8px rgba(26,23,20,0.06)' : 'none'
               }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -161,7 +161,7 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
 
       {/* Progress */}
       <div style={{ 
-        background: 'white', borderRadius: '14px', padding: '20px 24px',
+        background: 'var(--warm-white)', borderRadius: '14px', padding: '20px 24px',
         border: '1px solid var(--border)', marginBottom: '24px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -177,7 +177,7 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
       </div>
 
       {/* Milestones */}
-      <div style={{ background: 'white', borderRadius: '14px', padding: '20px 24px', border: '1px solid var(--border)' }}>
+      <div style={{ background: 'var(--warm-white)', borderRadius: '14px', padding: '20px 24px', border: '1px solid var(--border)' }}>
         <h3 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}>Étapes clés</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
           {goal.milestones.map((ms, i) => (
@@ -212,7 +212,7 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
             onKeyDown={e => { if (e.key === 'Enter') { onAddMilestone(goal.id, newMs); setNewMs(''); } }}
             placeholder="Ajouter une étape…" style={{ flex: 1, ...iS }} />
           <button onClick={() => { onAddMilestone(goal.id, newMs); setNewMs(''); }} style={{
-            padding: '7px 14px', background: 'var(--ink)', color: 'white',
+            padding: '7px 14px', background: 'var(--ink)', color: 'var(--cream)',
             border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit'
           }}>+</button>
         </div>
