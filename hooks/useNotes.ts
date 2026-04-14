@@ -15,22 +15,32 @@ export interface Note {
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const debounceRefs = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     const fetchNotes = async () => {
       const { data, error } = await supabase
         .from('notes')
         .select('*')
+        .eq('user_id', userId)
         .order('pinned', { ascending: false })
         .order('updated_at', { ascending: false });
       if (!error && data) setNotes(data as Note[]);
       setLoading(false);
     };
     fetchNotes();
-  }, []);
+  }, [userId]);
 
   const addNote = async (): Promise<Note | null> => {
+    if (!userId) return null;
     const { data, error } = await supabase
       .from('notes')
       .insert({
@@ -39,6 +49,7 @@ export function useNotes() {
         tag: 'Personnel',
         color: '#FAF7F2',
         pinned: false,
+        user_id: userId,
       })
       .select()
       .single();

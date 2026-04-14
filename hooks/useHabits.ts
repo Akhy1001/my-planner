@@ -35,12 +35,20 @@ function computeStreak(completedDays: string[]): number {
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     const fetchHabits = async () => {
       const [habitsRes, completionsRes] = await Promise.all([
-        supabase.from('habits').select('*').order('created_at', { ascending: true }),
-        supabase.from('habit_completions').select('*'),
+        supabase.from('habits').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+        supabase.from('habit_completions').select('*').eq('user_id', userId),
       ]);
       if (habitsRes.error || completionsRes.error) { setLoading(false); return; }
       const completions = completionsRes.data || [];
@@ -54,9 +62,10 @@ export function useHabits() {
       setLoading(false);
     };
     fetchHabits();
-  }, []);
+  }, [userId]);
 
   const toggleToday = async (habitId: string) => {
+    if (!userId) return;
     const today = format(new Date(), 'yyyy-MM-dd');
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -78,14 +87,15 @@ export function useHabits() {
         return { ...h, completedDays, streak: computeStreak(completedDays) };
       }));
       await supabase.from('habit_completions')
-        .insert({ habit_id: habitId, completed_date: today });
+        .insert({ habit_id: habitId, completed_date: today, user_id: userId });
     }
   };
 
   const addHabit = async (habit: { name: string; icon: string; color: string; target: number }) => {
+    if (!userId) return;
     const { data, error } = await supabase
       .from('habits')
-      .insert(habit)
+      .insert({ ...habit, user_id: userId })
       .select()
       .single();
     if (!error && data) setHabits(prev => [...prev, { ...data, completedDays: [], streak: 0 }]);

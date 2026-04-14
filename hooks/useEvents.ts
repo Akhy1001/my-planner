@@ -30,20 +30,30 @@ function toEvent(db: DbEvent): Event {
 export function useEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     const fetchEvents = async () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
+        .eq('user_id', userId)
         .order('date', { ascending: true });
       if (!error && data) setEvents((data as DbEvent[]).map(toEvent));
       setLoading(false);
     };
     fetchEvents();
-  }, []);
+  }, [userId]);
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
+    if (!userId) return;
     const localDate = format(startOfDay(event.date), 'yyyy-MM-dd');
     const { data, error } = await supabase
       .from('events')
@@ -54,6 +64,7 @@ export function useEvents() {
         duration: event.duration,
         color: event.color,
         category: event.category,
+        user_id: userId,
       })
       .select()
       .single();
