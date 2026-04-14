@@ -47,8 +47,11 @@ create table if not exists events (
   duration text not null default '1h',
   color text not null default 'var(--sage)',
   category text not null default 'Personnel',
+  recurrence text not null default 'none',
   created_at timestamptz not null default now()
 );
+-- Migration si la table existe déjà :
+-- alter table events add column if not exists recurrence text not null default 'none';
 alter table events enable row level security;
 create policy "events: select own" on events for select using (auth.uid() = user_id);
 create policy "events: insert own" on events for insert with check (auth.uid() = user_id);
