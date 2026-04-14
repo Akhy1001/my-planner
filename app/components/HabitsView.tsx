@@ -41,7 +41,7 @@ export default function HabitsView() {
       {/* Add form */}
       {showAdd && (
         <div style={{ 
-          background: 'white', borderRadius: '14px', padding: '20px',
+          background: 'var(--warm-white)', borderRadius: '14px', padding: '20px',
           border: '1px solid var(--border)', marginBottom: '20px',
           boxShadow: '0 2px 12px rgba(26,23,20,0.06)'
         }}>
@@ -80,7 +80,7 @@ export default function HabitsView() {
             { label: 'Taux global', value: habits.length > 0 ? Math.round((habits.filter(h => h.completedDays.includes(today)).length / habits.length) * 100) : 0, unit: '%' },
           ].map(stat => (
             <div key={stat.label} style={{
-              background: 'white', borderRadius: '12px', padding: '16px',
+              background: 'var(--warm-white)', borderRadius: '12px', padding: '16px',
               border: '1px solid var(--border)', textAlign: 'center'
             }}>
               <div className="font-display" style={{ fontSize: '1.8rem', color: 'var(--ink)' }}>{stat.value}</div>
@@ -107,7 +107,7 @@ export default function HabitsView() {
           return (
             <div key={habit.id} className="animate-slide-in" style={{ animationDelay: `${idx * 0.06}s` }}>
               <div style={{
-                background: 'white', borderRadius: '14px',
+                background: 'var(--warm-white)', borderRadius: '14px',
                 padding: '18px 20px',
                 border: '1px solid var(--border)',
                 borderLeft: `4px solid ${habit.color}`,

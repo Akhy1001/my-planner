@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { User } from '@supabase/supabase-js';
 import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
+import { ThemeToggle } from './animate-ui/icons/theme-toggle';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
@@ -11,6 +12,9 @@ interface SidebarProps {
   setActiveTab: (tab: Tab) => void;
   user: User;
   onSignOut: () => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
+  isPinkUser: boolean;
 }
 
 const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -21,7 +25,7 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'goals',  label: 'Objectifs',    icon: <NavIconGoals /> },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDark, onToggleTheme, isPinkUser }: SidebarProps) {
   const today = new Date();
   const displayName = user.email?.split('@')[0] ?? 'Utilisateur';
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -29,8 +33,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
   return (
     <aside style={{
       width: '230px',
-      background: 'white',
+      background: 'var(--warm-white)',
       borderRight: '1px solid var(--border)',
+      transition: 'background 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
       display: 'flex',
       flexDirection: 'column',
       padding: '28px 0',
@@ -101,7 +106,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
                 background: active 
                   ? 'var(--ink)' 
                   : 'transparent',
-                color: active ? 'white' : 'var(--stone)',
+                color: active ? 'var(--cream)' : 'var(--stone)',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
                 fontWeight: active ? '600' : '400',
@@ -115,7 +120,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
               }}
               onMouseEnter={(e) => {
                 if (!active) {
-                  e.currentTarget.style.background = 'rgba(24, 24, 27, 0.05)';
+                  e.currentTarget.style.background = 'rgba(128, 128, 128, 0.12)';
                   e.currentTarget.style.color = 'var(--ink-light)';
                   e.currentTarget.style.transform = 'translateX(2px)';
                 }
@@ -142,7 +147,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
               
               <div style={{
                 fontSize: '1rem',
-                color: active ? 'white' : 'var(--stone)',
+                color: active ? 'var(--cream)' : 'var(--stone)',
                 opacity: active ? 1 : 0.5,
                 transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 transform: active ? 'scale(1.15)' : 'scale(1)',
@@ -168,6 +173,13 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut }: Si
           );
         })}
       </nav>
+
+      {/* Theme toggle — masqué pour l'utilisateur pink */}
+      {!isPinkUser && (
+        <div style={{ padding: '0 10px', marginBottom: '4px' }}>
+          <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
+        </div>
+      )}
 
       {/* User profile + logout */}
       <div style={{ padding: '0 14px', marginTop: 'auto' }} className="animate-slide-in">

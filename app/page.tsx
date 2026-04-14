@@ -10,12 +10,14 @@ import NotesView from './components/NotesView';
 import GoalsView from './components/GoalsView';
 import SplashScreen from './components/SplashScreen';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
 export default function Home() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('today');
   const [showSplash, setShowSplash] = useState(true);
   const [appVisible, setAppVisible] = useState(false);
@@ -26,14 +28,16 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // Apply pink theme for rstrpn05@gmail.com
+  // Pink theme takes priority over dark mode for rstrpn05@gmail.com
+  const isPinkUser = user?.email === 'rstrpn05@gmail.com';
+
   useEffect(() => {
-    if (user?.email === 'rstrpn05@gmail.com') {
+    if (isPinkUser) {
       document.documentElement.setAttribute('data-theme', 'pink');
-    } else {
+    } else if (!isDark) {
       document.documentElement.removeAttribute('data-theme');
     }
-  }, [user]);
+  }, [user, isPinkUser, isDark]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -86,6 +90,9 @@ export default function Home() {
           setActiveTab={setActiveTab}
           user={user}
           onSignOut={handleSignOut}
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
+          isPinkUser={isPinkUser}
         />
         <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
           <AnimatePresence mode="wait" initial={false}>

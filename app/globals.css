@@ -25,6 +25,31 @@
   --radius-xl: 24px;
 }
 
+/* ── Thème Sombre ── */
+[data-theme="dark"] {
+  --cream: #18181B;
+  --warm-white: #27272A;
+  --ink: #F4F4F5;
+  --ink-light: #A1A1AA;
+  --sage: #6B8F71;
+  --sage-light: #4A6B50;
+  --terra: #C0634A;
+  --terra-light: #8C3D28;
+  --gold: #C9973C;
+  --gold-light: #8C6520;
+  --lavender: #8075A8;
+  --stone: #71717A;
+  --stone-light: #3F3F46;
+  --border: #3F3F46;
+}
+
+[data-theme="dark"] .paper-bg {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(107, 143, 113, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(192, 99, 74, 0.06) 0%, transparent 60%);
+}
+
 /* ── Thème Pastel Rose (rstrpn05@gmail.com) ── */
 [data-theme="pink"] {
   --cream: #FEF0F5;
@@ -76,6 +101,7 @@ html, body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button, input, textarea, select {
@@ -271,7 +297,7 @@ button, input, textarea, select {
 
 /* Card */
 .card {
-  background: white;
+  background: var(--warm-white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);

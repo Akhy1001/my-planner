@@ -39,7 +39,7 @@ export function PlayfulTodolist() {
 
   return (
     <div style={{
-      background: 'white',
+      background: 'var(--warm-white)',
       borderRadius: '18px',
       padding: '18px',
       border: '1px solid var(--border)',

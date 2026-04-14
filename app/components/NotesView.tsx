@@ -62,7 +62,7 @@ export default function NotesView() {
               style={{
                 flex: 1, padding: '7px 10px',
                 border: '1px solid var(--border)', borderRadius: '8px',
-                background: 'white', fontSize: '0.8rem',
+                background: 'var(--warm-white)', fontSize: '0.8rem',
                 color: 'var(--ink)', outline: 'none', fontFamily: 'inherit'
               }}
             />
@@ -103,7 +103,7 @@ export default function NotesView() {
                   marginBottom: '6px',
                   cursor: 'pointer',
                   border: `1px solid ${selectedNote?.id === note.id ? 'var(--stone-light)' : 'transparent'}`,
-                  background: selectedNote?.id === note.id ? 'white' : 'transparent',
+                  background: selectedNote?.id === note.id ? 'var(--warm-white)' : 'transparent',
                   transition: 'all 0.15s',
                 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>

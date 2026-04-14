@@ -42,7 +42,7 @@ export default function TodayView() {
 
         {/* Progress */}
         <div style={{ 
-          background: 'white', borderRadius: '14px', 
+          background: 'var(--warm-white)', borderRadius: '14px', 
           padding: '20px', marginBottom: '20px',
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
@@ -79,7 +79,7 @@ export default function TodayView() {
 
         {/* Tasks */}
         <div style={{ 
-          background: 'white', borderRadius: '14px', 
+          background: 'var(--warm-white)', borderRadius: '14px', 
           padding: '20px', marginBottom: '20px',
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
@@ -260,7 +260,7 @@ export default function TodayView() {
       <div style={{ width: '280px', flexShrink: 0 }}>
         {/* Gratitude */}
         <div style={{ 
-          background: 'white', borderRadius: '14px', 
+          background: 'var(--warm-white)', borderRadius: '14px', 
           padding: '20px', marginBottom: '20px',
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
@@ -306,7 +306,7 @@ export default function TodayView() {
 
         {/* Water intake */}
         <div style={{ 
-          background: 'white', borderRadius: '14px', 
+          background: 'var(--warm-white)', borderRadius: '14px', 
           padding: '20px',
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
