@@ -90,7 +90,7 @@ export default function GoalsView() {
               style={{ 
                 animationDelay: `${i * 0.07}s`,
                 padding: '14px', borderRadius: '12px', marginBottom: '8px',
-                cursor: 'pointer', transition: 'all 0.15s',
+                cursor: 'pointer', transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
                 border: `1px solid ${selectedGoal?.id === goal.id ? goal.color : 'var(--border)'}`,
                 background: selectedGoal?.id === goal.id ? 'var(--warm-white)' : 'transparent',
                 boxShadow: selectedGoal?.id === goal.id ? '0 2px 8px rgba(26,23,20,0.06)' : 'none'
@@ -194,7 +194,7 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
                 border: `2px solid ${ms.done ? goal.color : 'var(--stone-light)'}`,
                 background: ms.done ? goal.color : 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, transition: 'all 0.2s'
+                flexShrink: 0, transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
               }}>
                 {ms.done && <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                   <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

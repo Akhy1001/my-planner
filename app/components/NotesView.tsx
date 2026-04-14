@@ -104,7 +104,7 @@ export default function NotesView() {
                   cursor: 'pointer',
                   border: `1px solid ${selectedNote?.id === note.id ? 'var(--stone-light)' : 'transparent'}`,
                   background: selectedNote?.id === note.id ? 'var(--warm-white)' : 'transparent',
-                  transition: 'all 0.15s',
+                  transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
                 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <div style={{ fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)', 

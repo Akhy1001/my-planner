@@ -130,7 +130,7 @@ export default function HabitsView() {
                       width: '36px', height: '36px', borderRadius: '50%',
                       border: `2px solid ${doneToday ? habit.color : 'var(--border)'}`,
                       background: doneToday ? habit.color : 'transparent',
-                      cursor: 'pointer', transition: 'all 0.2s',
+                      cursor: 'pointer', transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: doneToday ? '1rem' : '0.9rem',
                       color: doneToday ? 'white' : 'var(--stone)'
