@@ -2,7 +2,13 @@
 import AddButton from './AddButton';
 import { Trash } from './animate-ui';
 import { useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay, startOfDay } from 'date-fns';
+import React from 'react';
+import { motion } from 'motion/react';
+import {
+  format, startOfMonth, endOfMonth, eachDayOfInterval,
+  isSameDay, isToday, addMonths, subMonths, getDay, startOfDay,
+  startOfWeek, endOfWeek, addWeeks, subWeeks,
+} from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Pencil } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
@@ -23,6 +29,9 @@ const RECURRENCE_BADGE: Record<RecurrenceType, string> = {
   monthly: '↻ Mensuel',
 };
 
+const WEEK_OPTS = { weekStartsOn: 1 as const };
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
 interface EventFormState {
   title: string;
   time: string;
@@ -42,7 +51,9 @@ const defaultForm: EventFormState = {
 };
 
 export default function AgendaView() {
+  const [view, setView] = useState<'month' | 'week'>('month');
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), WEEK_OPTS));
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<EventFormState>(defaultForm);
@@ -51,12 +62,34 @@ export default function AgendaView() {
 
   const { events, loading, addEvent, updateEvent, removeEvent } = useEvents();
 
+  // Month view data
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
-  const firstDayOfMonth = startOfMonth(currentMonth);
-  const firstDayWeekday = getDay(firstDayOfMonth);
-  const firstDayOffset = firstDayWeekday === 0 ? 6 : firstDayWeekday - 1;
+  const firstDayOffset = (() => {
+    const d = getDay(startOfMonth(currentMonth));
+    return d === 0 ? 6 : d - 1;
+  })();
+
+  // Week view data
+  const weekDays = eachDayOfInterval({ start: currentWeekStart, end: endOfWeek(currentWeekStart, WEEK_OPTS) });
 
   const selectedEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(selectedDate)));
+
+  const goToToday = () => {
+    const today = startOfDay(new Date());
+    setCurrentMonth(startOfMonth(today));
+    setCurrentWeekStart(startOfWeek(today, WEEK_OPTS));
+    setSelectedDate(today);
+  };
+
+  const goPrev = () => {
+    if (view === 'month') setCurrentMonth(subMonths(currentMonth, 1));
+    else setCurrentWeekStart(subWeeks(currentWeekStart, 1));
+  };
+
+  const goNext = () => {
+    if (view === 'month') setCurrentMonth(addMonths(currentMonth, 1));
+    else setCurrentWeekStart(addWeeks(currentWeekStart, 1));
+  };
 
   const openAddForm = () => {
     setEditingBaseId(null);
@@ -122,100 +155,95 @@ export default function AgendaView() {
     removeEvent(baseId);
   };
 
-  const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  const weekDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+  // Title for the header
+  const headerTitle = view === 'month'
+    ? format(currentMonth, 'MMMM yyyy', { locale: fr })
+    : `${format(currentWeekStart, 'd MMM', { locale: fr })} – ${format(endOfWeek(currentWeekStart, WEEK_OPTS), 'd MMM yyyy', { locale: fr })}`;
 
   return (
     <div style={{ display: 'flex', gap: '24px', padding: '32px', height: '100%', overflowY: 'auto' }}>
       {/* Calendar */}
-      <div style={{ flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h1 className="font-display" style={{ fontSize: '1.8rem', color: 'var(--ink)' }}>
-            {format(currentMonth, 'MMMM yyyy', { locale: fr })}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '12px' }}>
+          <h1 className="font-display" style={{ fontSize: '1.8rem', color: 'var(--ink)', flexShrink: 0 }}>
+            {headerTitle}
           </h1>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} style={btnStyle}>‹</button>
-            <button onClick={() => {
-              const today = startOfDay(new Date());
-              setCurrentMonth(startOfMonth(today));
-              setSelectedDate(today);
-            }} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
-            <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} style={btnStyle}>›</button>
-          </div>
-        </div>
-
-        {/* Calendar grid */}
-        <div style={{
-          background: 'var(--warm-white)', borderRadius: '14px',
-          border: '1px solid var(--border)',
-          overflow: 'hidden',
-          boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
-        }}>
-          {/* Weekday headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
-            {weekDays.map(d => (
-              <div key={d} style={{
-                padding: '12px 0', textAlign: 'center',
-                fontSize: '0.72rem', color: 'var(--stone)',
-                letterSpacing: '0.06em', textTransform: 'uppercase'
-              }}>{d}</div>
-            ))}
-          </div>
-
-          {/* Days */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', minHeight: '80px' }} />
-            ))}
-            {days.map(day => {
-              const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
-              const selected = isSameDay(day, selectedDate);
-              const today = isToday(day);
-              return (
-                <div
-                  key={day.toString()}
-                  onClick={() => setSelectedDate(startOfDay(day))}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {/* View toggle */}
+            <div style={{
+              display: 'flex',
+              background: 'var(--warm-white)',
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              padding: '3px',
+              gap: '2px',
+            }}>
+              {(['month', 'week'] as const).map(v => (
+                <motion.button
+                  key={v}
+                  onClick={() => setView(v)}
+                  whileTap={{ scale: 0.96 }}
                   style={{
-                    borderRight: '1px solid var(--border)',
-                    borderBottom: '1px solid var(--border)',
-                    minHeight: '80px',
-                    padding: '8px',
+                    position: 'relative',
+                    padding: '5px 14px',
+                    border: 'none',
                     cursor: 'pointer',
-                    background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
-                    transition: 'background 0.1s',
+                    fontSize: '0.76rem',
+                    fontFamily: 'inherit',
+                    background: 'transparent',
+                    color: view === v ? 'var(--cream)' : 'var(--stone)',
+                    fontWeight: view === v ? 500 : 400,
+                    borderRadius: '7px',
+                    zIndex: 1,
+                    transition: 'color 150ms cubic-bezier(0.23, 1, 0.32, 1)',
                   }}
                 >
-                  <div style={{
-                    width: '26px', height: '26px',
-                    borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.82rem',
-                    background: today ? 'var(--terra)' : 'transparent',
-                    color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
-                    fontWeight: today || selected ? '500' : '300',
-                    marginBottom: '4px'
-                  }}>
-                    {format(day, 'd')}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    {dayEvents.slice(0, 2).map(e => (
-                      <div key={e.id} style={{
-                        fontSize: '0.65rem', padding: '2px 5px',
-                        borderRadius: '3px', color: 'white',
-                        background: e.color,
-                        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'
-                      }}>
-                        <span style={{ opacity: 0.85, marginRight: '3px' }}>{e.time}</span>
-                        {e.recurrence !== 'none' && <span style={{ opacity: 0.75, marginRight: '2px' }}>↻</span>}
-                        {e.title}
-                      </div>
-                    ))}
-                    {dayEvents.length > 2 && <div style={{ fontSize: '0.6rem', color: 'var(--stone)' }}>+{dayEvents.length - 2}</div>}
-                  </div>
-                </div>
-              );
-            })}
+                  {view === v && (
+                    <motion.div
+                      layoutId="view-toggle-pill"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'var(--ink)',
+                        borderRadius: '7px',
+                        zIndex: -1,
+                      }}
+                      transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
+                    />
+                  )}
+                  {v === 'month' ? 'Mois' : 'Semaine'}
+                </motion.button>
+              ))}
+            </div>
+            {/* Navigation */}
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button onClick={goPrev} style={btnStyle}>‹</button>
+              <button onClick={goToToday} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
+              <button onClick={goNext} style={btnStyle}>›</button>
+            </div>
           </div>
         </div>
+
+        {view === 'month' ? (
+          <MonthGrid
+            days={days}
+            firstDayOffset={firstDayOffset}
+            weekDayLabels={weekDayLabels}
+            events={events}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        ) : (
+          <WeekGrid
+            weekDays={weekDays}
+            events={events}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        )}
       </div>
 
       {/* Event panel */}
@@ -405,6 +433,245 @@ export default function AgendaView() {
     </div>
   );
 }
+
+// ─── Month grid ───────────────────────────────────────────────────────────────
+
+function MonthGrid({
+  days, firstDayOffset, weekDayLabels, events, selectedDate, onSelectDate,
+}: {
+  days: Date[];
+  firstDayOffset: number;
+  weekDayLabels: string[];
+  events: Event[];
+  selectedDate: Date;
+  onSelectDate: (d: Date) => void;
+}) {
+  return (
+    <div style={{
+      background: 'var(--warm-white)', borderRadius: '14px',
+      border: '1px solid var(--border)',
+      overflow: 'hidden',
+      boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
+    }}>
+      {/* Weekday headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
+        {weekDayLabels.map(d => (
+          <div key={d} style={{
+            padding: '12px 0', textAlign: 'center',
+            fontSize: '0.72rem', color: 'var(--stone)',
+            letterSpacing: '0.06em', textTransform: 'uppercase'
+          }}>{d}</div>
+        ))}
+      </div>
+
+      {/* Days */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        {Array.from({ length: firstDayOffset }).map((_, i) => (
+          <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', minHeight: '80px' }} />
+        ))}
+        {days.map(day => {
+          const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
+          const selected = isSameDay(day, selectedDate);
+          const today = isToday(day);
+          return (
+            <div
+              key={day.toString()}
+              onClick={() => onSelectDate(startOfDay(day))}
+              style={{
+                borderRight: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
+                minHeight: '80px',
+                padding: '8px',
+                cursor: 'pointer',
+                background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
+                transition: 'background 0.1s',
+              }}
+            >
+              <div style={{
+                width: '26px', height: '26px',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.82rem',
+                background: today ? 'var(--terra)' : 'transparent',
+                color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
+                fontWeight: today || selected ? '500' : '300',
+                marginBottom: '4px'
+              }}>
+                {format(day, 'd')}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {dayEvents.slice(0, 2).map(e => (
+                  <div key={e.id} style={{
+                    fontSize: '0.65rem', padding: '2px 5px',
+                    borderRadius: '3px', color: 'white',
+                    background: e.color,
+                    overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'
+                  }}>
+                    <span style={{ opacity: 0.85, marginRight: '3px' }}>{e.time}</span>
+                    {e.recurrence !== 'none' && <span style={{ opacity: 0.75, marginRight: '2px' }}>↻</span>}
+                    {e.title}
+                  </div>
+                ))}
+                {dayEvents.length > 2 && <div style={{ fontSize: '0.6rem', color: 'var(--stone)' }}>+{dayEvents.length - 2}</div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Week grid ────────────────────────────────────────────────────────────────
+
+const HOUR_HEIGHT = 52; // px per hour row
+
+function WeekGrid({
+  weekDays, events, selectedDate, onSelectDate,
+}: {
+  weekDays: Date[];
+  events: Event[];
+  selectedDate: Date;
+  onSelectDate: (d: Date) => void;
+}) {
+  return (
+    <div style={{
+      background: 'var(--warm-white)', borderRadius: '14px',
+      border: '1px solid var(--border)',
+      overflow: 'hidden',
+      boxShadow: '0 1px 8px rgba(26,23,20,0.04)',
+    }}>
+      {/* Day headers */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '48px repeat(7, 1fr)',
+        borderBottom: '1px solid var(--border)',
+        position: 'sticky', top: 0, zIndex: 2,
+        background: 'var(--warm-white)',
+      }}>
+        <div style={{ borderRight: '1px solid var(--border)' }} />
+        {weekDays.map(day => {
+          const selected = isSameDay(day, selectedDate);
+          const today = isToday(day);
+          return (
+            <div
+              key={day.toString()}
+              onClick={() => onSelectDate(startOfDay(day))}
+              style={{
+                padding: '10px 4px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                borderRight: '1px solid var(--border)',
+                background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
+                transition: 'background 0.1s',
+              }}
+            >
+              <div style={{
+                fontSize: '0.68rem', color: 'var(--stone)',
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>
+                {format(day, 'EEE', { locale: fr })}
+              </div>
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.85rem', margin: '2px auto 0',
+                background: today ? 'var(--terra)' : 'transparent',
+                color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
+                fontWeight: today || selected ? 500 : 300,
+              }}>
+                {format(day, 'd')}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Scrollable time grid */}
+      <div style={{ overflowY: 'auto', maxHeight: '580px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '48px repeat(7, 1fr)' }}>
+          {/* Hour labels column + rows */}
+          {HOURS.map(hour => (
+            <React.Fragment key={hour}>
+              {/* Hour label */}
+              <div
+                style={{
+                  height: `${HOUR_HEIGHT}px`,
+                  borderRight: '1px solid var(--border)',
+                  borderBottom: '1px solid var(--border)',
+                  display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end',
+                  paddingRight: '6px', paddingTop: '4px',
+                  fontSize: '0.65rem', color: 'var(--stone)',
+                  userSelect: 'none',
+                }}
+              >
+                {String(hour).padStart(2, '0')}h
+              </div>
+
+              {/* Day cells for this hour */}
+              {weekDays.map(day => {
+                const dayEvents = events.filter(e =>
+                  isSameDay(startOfDay(e.date), startOfDay(day)) &&
+                  parseHour(e.time) === hour
+                );
+                const selected = isSameDay(day, selectedDate);
+                return (
+                  <div
+                    key={`${day}-${hour}`}
+                    onClick={() => onSelectDate(startOfDay(day))}
+                    style={{
+                      height: `${HOUR_HEIGHT}px`,
+                      borderRight: '1px solid var(--border)',
+                      borderBottom: '1px solid var(--border)',
+                      padding: '2px 3px',
+                      cursor: 'pointer',
+                      background: selected ? 'rgba(122, 140, 110, 0.05)' : 'transparent',
+                      transition: 'background 0.1s',
+                      overflow: 'hidden',
+                      position: 'relative',
+                    }}
+                  >
+                    {dayEvents.map(e => (
+                      <div
+                        key={e.id}
+                        title={`${e.time} – ${e.title}`}
+                        style={{
+                          background: e.color,
+                          color: 'white',
+                          borderRadius: '4px',
+                          padding: '2px 5px',
+                          fontSize: '0.65rem',
+                          lineHeight: 1.3,
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          marginBottom: '1px',
+                        }}
+                      >
+                        <span style={{ opacity: 0.85, marginRight: '3px' }}>{e.time}</span>
+                        {e.recurrence !== 'none' && <span style={{ opacity: 0.75, marginRight: '2px' }}>↻</span>}
+                        {e.title}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function parseHour(time: string): number {
+  if (!time) return 0;
+  const [h] = time.split(':');
+  const n = parseInt(h, 10);
+  return isNaN(n) ? 0 : n;
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const btnStyle: React.CSSProperties = {
   padding: '6px 10px', background: 'var(--warm-white)',
