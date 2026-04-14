@@ -258,52 +258,6 @@ export default function TodayView() {
 
       {/* Right column */}
       <div style={{ width: '280px', flexShrink: 0 }}>
-        {/* Gratitude */}
-        <div style={{ 
-          background: 'var(--warm-white)', borderRadius: '14px', 
-          padding: '20px', marginBottom: '20px',
-          border: '1px solid var(--border)',
-          boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
-        }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '4px', color: 'var(--ink)' }}>
-            Gratitude
-          </h2>
-          <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginBottom: '14px' }}>
-            3 choses pour lesquelles je suis reconnaissant·e
-          </div>
-          {journal.gratitude.map((g, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.07, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}
-            >
-              <span style={{
-                fontSize: '0.7rem', color: 'var(--gold)',
-                width: '20px', textAlign: 'center', fontWeight: 500
-              }}>
-                {i + 1}.
-              </span>
-              <input
-                value={g}
-                onChange={e => {
-                  const arr = [...journal.gratitude];
-                  arr[i] = e.target.value;
-                  updateJournal({ gratitude: arr });
-                }}
-                placeholder={['Je suis reconnaissant pour…', 'Je suis heureux de…', "Aujourd'hui, j'apprécie…"][i]}
-                style={{
-                  flex: 1, padding: '7px 10px',
-                  border: '1px solid var(--border)', borderRadius: '7px',
-                  background: 'var(--warm-white)', fontSize: '0.8rem',
-                  color: 'var(--ink)', outline: 'none', fontFamily: 'inherit'
-                }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
         {/* Water intake */}
         <div style={{ 
           background: 'var(--warm-white)', borderRadius: '14px', 
