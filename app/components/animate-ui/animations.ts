@@ -39,11 +39,11 @@ export const fadeVariants: Variants = {
 
 // Scale entrance
 export const scaleEnterVariants: Variants = {
-  normal: { scale: 0, opacity: 0 },
+  normal: { scale: 0.95, opacity: 0 },
   animate: {
     scale: 1,
     opacity: 1,
-    transition: { duration: 0.3, type: 'spring', stiffness: 300, damping: 30 },
+    transition: { duration: 0.25, type: 'spring', stiffness: 300, damping: 30 },
   },
 };
 

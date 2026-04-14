@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { CirclePlus } from './animate-ui';
 
 interface AddButtonProps {
@@ -14,9 +15,12 @@ interface AddButtonProps {
  */
 export default function AddButton({ onClick, label, size = 20 }: AddButtonProps) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       title={label ?? 'Ajouter'}
+      whileTap={{ scale: 0.96 }}
+      whileHover={{ y: -1 }}
+      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -31,22 +35,19 @@ export default function AddButton({ onClick, label, size = 20 }: AddButtonProps)
         fontFamily: 'inherit',
         fontWeight: '600',
         letterSpacing: '0.01em',
-        transition: 'background 0.2s, transform 0.15s',
         boxShadow: '0 2px 8px rgba(24,24,27,0.18)',
       }}
       onMouseEnter={e => {
         e.currentTarget.style.background = 'var(--ink-light)';
-        e.currentTarget.style.transform = 'translateY(-1px)';
         e.currentTarget.style.boxShadow = '0 4px 16px rgba(24,24,27,0.24)';
       }}
       onMouseLeave={e => {
         e.currentTarget.style.background = 'var(--ink)';
-        e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,24,27,0.18)';
       }}
     >
       <CirclePlus size={size} color="var(--cream)" className="" />
       {label && <span>{label}</span>}
-    </button>
+    </motion.button>
   );
 }

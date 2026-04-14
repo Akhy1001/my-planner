@@ -155,9 +155,9 @@ export default function TodayView() {
                     )}
                   </motion.div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className={task.done ? 'task-text-done' : ''} style={{ 
+                    <div className={task.done ? 'task-text-done' : ''} style={{
                       fontSize: '0.85rem', color: task.done ? 'var(--stone)' : 'var(--ink)',
-                      transition: 'all 0.2s',
+                      transition: 'color 0.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
                       opacity: task.done ? 0.78 : 1,
                     }}>
                       {task.text}
@@ -219,33 +219,31 @@ export default function TodayView() {
                 };
                 const config = priorityConfig[p];
                 return (
-                  <button key={p} onClick={() => setNewPriority(p)} style={{
-                    padding: '8px 16px', 
-                    borderRadius: '10px', 
-                    border: 'none',
-                    background: isSelected ? config.bg : config.bgLight,
-                    fontSize: '0.8rem', 
-                    cursor: 'pointer', 
-                    fontFamily: 'inherit',
-                    fontWeight: config.fontWeight,
-                    color: config.color,
-                    transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = config.bg;
-                      e.currentTarget.style.color = 'white';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = config.bgLight;
-                      e.currentTarget.style.color = config.color;
-                    }
-                  }}
+                  <motion.button
+                    key={p}
+                    onClick={() => setNewPriority(p)}
+                    whileTap={{ scale: 0.96 }}
+                    animate={{
+                      background: isSelected ? config.bg : config.bgLight,
+                      color: isSelected ? 'white' : config.color,
+                    }}
+                    whileHover={!isSelected ? {
+                      background: config.bg,
+                      color: 'white',
+                    } : {}}
+                    transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontWeight: config.fontWeight,
+                    }}
                   >
                     {config.label}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -290,9 +288,9 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
           <motion.button
             key={i}
             onClick={() => onChange(i < glasses ? i : i + 1)}
-            whileTap={{ scale: 0.82 }}
-            whileHover={{ scale: 1.12, y: -3 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 18 }}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.06, y: -2 }}
+            transition={{ type: 'spring', duration: 0.25, bounce: 0.2 }}
             style={{
               width: '32px', height: '40px', borderRadius: '8px 8px 6px 6px',
               border: '1.5px solid',
