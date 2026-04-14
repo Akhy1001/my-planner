@@ -23,12 +23,20 @@ export interface Goal {
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     const fetchGoals = async () => {
       const [goalsRes, milestonesRes] = await Promise.all([
-        supabase.from('goals').select('*').order('created_at', { ascending: true }),
-        supabase.from('milestones').select('*').order('created_at', { ascending: true }),
+        supabase.from('goals').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+        supabase.from('milestones').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
       ]);
       if (goalsRes.error || milestonesRes.error) { setLoading(false); return; }
       const milestones = (milestonesRes.data || []) as Milestone[];
@@ -43,12 +51,13 @@ export function useGoals() {
       setLoading(false);
     };
     fetchGoals();
-  }, []);
+  }, [userId]);
 
   const addGoal = async (goal: Omit<Goal, 'id' | 'milestones' | 'progress'>): Promise<Goal | null> => {
+    if (!userId) return null;
     const { data, error } = await supabase
       .from('goals')
-      .insert({ ...goal, progress: 0 })
+      .insert({ ...goal, progress: 0, user_id: userId })
       .select()
       .single();
     if (!error && data) {
@@ -86,9 +95,10 @@ export function useGoals() {
   };
 
   const addMilestone = async (goalId: string, text: string) => {
+    if (!userId) return;
     const { data, error } = await supabase
       .from('milestones')
-      .insert({ goal_id: goalId, text, done: false })
+      .insert({ goal_id: goalId, text, done: false, user_id: userId })
       .select()
       .single();
     if (!error && data) {

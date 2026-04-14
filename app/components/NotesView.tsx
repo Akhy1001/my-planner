@@ -36,7 +36,8 @@ export default function NotesView() {
   };
 
   const timeAgo = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
+    const now = new Date().getTime();
+    const diff = now - new Date(dateStr).getTime();
     if (diff < 3600000) return `Il y a ${Math.floor(diff / 60000)} min`;
     if (diff < 86400000) return `Il y a ${Math.floor(diff / 3600000)}h`;
     return `Il y a ${Math.floor(diff / 86400000)}j`;

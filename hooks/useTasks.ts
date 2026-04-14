@@ -17,24 +17,34 @@ export function useTasks() {
   const today = format(new Date(), 'yyyy-MM-dd');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     const fetchTasks = async () => {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('user_id', userId)
         .eq('date', today)
         .order('created_at', { ascending: true });
       if (!error && data) setTasks(data as Task[]);
       setLoading(false);
     };
     fetchTasks();
-  }, [today]);
+  }, [userId, today]);
 
   const addTask = async (task: { text: string; priority: 'high' | 'medium' | 'low'; category: string; time?: string }) => {
+    if (!userId) return;
     const { data, error } = await supabase
       .from('tasks')
-      .insert({ ...task, done: false, date: today })
+      .insert({ ...task, done: false, date: today, user_id: userId })
       .select()
       .single();
     if (!error && data) setTasks(prev => [...prev, data as Task]);
