@@ -13,6 +13,9 @@ import { fr } from 'date-fns/locale';
 import { Pencil } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
 import { useMenstrualCycle, computeCycleDays, daysUntilNextPeriod, CycleDay, MenstrualCycle } from '@/hooks/useMenstrualCycle';
+import { useAuth } from '@/hooks/useAuth';
+
+const CYCLE_ALLOWED_EMAIL = 'rstrpn05@gmail.com';
 
 const COLORS = ['var(--sage)', 'var(--terra)', 'var(--gold)', 'var(--lavender)'];
 
@@ -62,6 +65,8 @@ export default function AgendaView() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const { events, loading, addEvent, updateEvent, removeEvent } = useEvents();
+  const { user } = useAuth();
+  const isCycleUser = user?.email === CYCLE_ALLOWED_EMAIL;
   const { cycle, saveCycle, deleteCycle } = useMenstrualCycle();
 
   const [showCycleForm, setShowCycleForm] = useState(false);
@@ -90,10 +95,10 @@ export default function AgendaView() {
     setShowCycleForm(false);
   };
 
-  // Calcul des jours de cycle pour le mois affiché (±1 mois pour les vues adjacentes)
+  // Calcul des jours de cycle uniquement pour le compte autorisé
   const cycleRangeStart = startOfMonth(addMonths(currentMonth, -1));
   const cycleRangeEnd = endOfMonth(addMonths(currentMonth, 1));
-  const cycleDays: CycleDay[] = cycle
+  const cycleDays: CycleDay[] = isCycleUser && cycle
     ? computeCycleDays(cycle, cycleRangeStart, cycleRangeEnd)
     : [];
 
@@ -389,8 +394,8 @@ export default function AgendaView() {
           </div>
         )}
 
-        {/* Cycle menstruel */}
-        <motion.div
+        {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
+        {isCycleUser && <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
@@ -555,7 +560,7 @@ export default function AgendaView() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.div>}
 
         {/* Events list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
