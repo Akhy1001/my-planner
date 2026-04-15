@@ -27,19 +27,21 @@ export default function TodayView() {
   const loading = tasksLoading || journalLoading;
 
   return (
-    <div style={{ display: 'flex', gap: '24px', padding: '32px', height: '100%', overflowY: 'auto' }}>
+    <div style={{ padding: '32px', height: '100%', overflowY: 'auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '28px' }} className="animate-fade-in">
+        <div style={{ fontSize: '0.75rem', color: 'var(--stone)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '4px' }}>
+          {format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}
+        </div>
+        <h1 className="font-display" style={{ fontSize: '2rem', fontWeight: '500', color: 'var(--ink)', lineHeight: 1.2 }}>
+          Bonjour ✦
+        </h1>
+      </div>
+
+      {/* Two columns */}
+      <div style={{ display: 'flex', gap: '24px' }}>
       {/* Left column */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header */}
-        <div style={{ marginBottom: '28px' }} className="animate-fade-in">
-          <div style={{ fontSize: '0.75rem', color: 'var(--stone)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '4px' }}>
-            {format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}
-          </div>
-          <h1 className="font-display" style={{ fontSize: '2rem', fontWeight: '500', color: 'var(--ink)', lineHeight: 1.2 }}>
-            Bonjour ✦
-          </h1>
-        </div>
-
         {/* Progress */}
         <div style={{ 
           background: 'var(--warm-white)', borderRadius: '14px', 
@@ -257,8 +259,8 @@ export default function TodayView() {
       {/* Right column */}
       <div style={{ width: '280px', flexShrink: 0 }}>
         {/* Water intake */}
-        <div style={{ 
-          background: 'var(--warm-white)', borderRadius: '14px', 
+        <div style={{
+          background: 'var(--warm-white)', borderRadius: '14px',
           padding: '20px',
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
@@ -268,6 +270,7 @@ export default function TodayView() {
             onChange={(glasses) => updateJournal({ water_glasses: glasses })}
           />
         </div>
+      </div>
       </div>
     </div>
   );
