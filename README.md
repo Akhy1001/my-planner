@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Planner
 
-## Getting Started
+Application de productivité personnelle en français. Pensée pour organiser ses journées, suivre ses habitudes, gérer ses objectifs et prendre des notes — le tout dans une interface épurée.
 
-First, run the development server:
+## Fonctionnalités
+
+- **Aujourd'hui** — tâches du jour, journal (humeur, intentions, hydratation)
+- **Agenda** — événements avec créneaux horaires et codes couleur
+- **Habitudes** — suivi quotidien avec calcul des séries (*streaks*)
+- **Objectifs** — objectifs long terme avec jalons et progression automatique
+- **Notes** — notes taguées et épinglables avec sauvegarde automatique
+
+## Prérequis
+
+- [Node.js](https://nodejs.org/) v20 ou supérieur
+- npm v10 ou supérieur
+- Un projet [Supabase](https://supabase.com/) (gratuit) pour la base de données et l'authentification
+
+## Installation
+
+```bash
+# 1. Cloner le dépôt
+git clone https://github.com/Akhy1001/my-planner.git
+cd my-planner
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Configurer les variables d'environnement
+cp .env.example .env.local
+```
+
+Renseigner les valeurs suivantes dans `.env.local` :
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<votre-projet>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<votre-clé-anon-publique>
+```
+
+Ces valeurs sont disponibles dans **Project Settings > API** sur le tableau de bord Supabase.
+
+> Le schéma de la base de données est défini dans `lib/database.sql`. Exécuter ce fichier dans l'éditeur SQL de Supabase pour initialiser les tables.
+
+## Lancement en local
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application est accessible sur [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Autres commandes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Commande | Description |
+|---|---|
+| `npm run dev` | Serveur de développement avec hot reload |
+| `npm run build` | Build de production |
+| `npm run start` | Démarrer le build de production |
+| `npm run lint` | Analyser le code avec ESLint |
 
-## Learn More
+## Structure du projet
 
-To learn more about Next.js, take a look at the following resources:
+```
+my-planner/
+├── app/
+│   ├── components/       # Composants par vue (TodayView, AgendaView, HabitsView…)
+│   │   └── animate-ui/   # Icônes animées et variantes Framer Motion
+│   ├── globals.css       # Variables CSS du design system
+│   └── page.tsx          # Point d'entrée — routeur de vues par onglets
+├── hooks/                # Hooks de données (useTasks, useEvents, useHabits…)
+├── lib/
+│   ├── supabase.ts       # Initialisation du client Supabase
+│   └── database.sql      # Schéma de la base de données
+└── public/               # Assets statiques
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Stack technique
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 16** (App Router) + **TypeScript**
+- **Supabase** — authentification et base de données PostgreSQL (RLS activé)
+- **Framer Motion** — animations d'interface
+- **Tailwind CSS** — utilitaires de style
+- **date-fns** — manipulation des dates
 
-## Deploy on Vercel
+## Contribuer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Créer une branche depuis `main` : `git checkout -b DEV-XXX-description`
+2. Commiter les changements de façon atomique avec des messages clairs
+3. Ouvrir une Pull Request vers `main`
