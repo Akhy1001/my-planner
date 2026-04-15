@@ -137,3 +137,19 @@ create policy "notes: select own" on notes for select using (auth.uid() = user_i
 create policy "notes: insert own" on notes for insert with check (auth.uid() = user_id);
 create policy "notes: update own" on notes for update using (auth.uid() = user_id);
 create policy "notes: delete own" on notes for delete using (auth.uid() = user_id);
+
+-- 9. CYCLE MENSTRUEL
+create table if not exists menstrual_cycles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
+  start_date date not null,
+  cycle_length int2 not null default 28,
+  period_duration int2 not null default 5,
+  updated_at timestamptz not null default now(),
+  unique (user_id)
+);
+alter table menstrual_cycles enable row level security;
+create policy "cycle: select own" on menstrual_cycles for select using (auth.uid() = user_id);
+create policy "cycle: insert own" on menstrual_cycles for insert with check (auth.uid() = user_id);
+create policy "cycle: update own" on menstrual_cycles for update using (auth.uid() = user_id);
+create policy "cycle: delete own" on menstrual_cycles for delete using (auth.uid() = user_id);

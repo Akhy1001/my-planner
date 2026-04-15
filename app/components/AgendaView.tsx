@@ -12,6 +12,10 @@ import {
 import { fr } from 'date-fns/locale';
 import { Pencil } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
+import { useMenstrualCycle, computeCycleDays, daysUntilNextPeriod, CycleDay, MenstrualCycle } from '@/hooks/useMenstrualCycle';
+import { useAuth } from '@/hooks/useAuth';
+
+const CYCLE_ALLOWED_EMAIL = 'rstrpn05@gmail.com';
 
 const COLORS = ['var(--sage)', 'var(--terra)', 'var(--gold)', 'var(--lavender)'];
 
@@ -61,6 +65,42 @@ export default function AgendaView() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const { events, loading, addEvent, updateEvent, removeEvent } = useEvents();
+  const { user } = useAuth();
+  const isCycleUser = user?.email === CYCLE_ALLOWED_EMAIL;
+  const { cycle, saveCycle, deleteCycle } = useMenstrualCycle();
+
+  const [showCycleForm, setShowCycleForm] = useState(false);
+  const [cycleForm, setCycleForm] = useState<{ startDate: string; cycleLength: string; periodDuration: string }>({
+    startDate: '',
+    cycleLength: '28',
+    periodDuration: '5',
+  });
+
+  const openCycleForm = () => {
+    setCycleForm({
+      startDate: cycle ? format(cycle.startDate, 'yyyy-MM-dd') : '',
+      cycleLength: String(cycle?.cycleLength ?? 28),
+      periodDuration: String(cycle?.periodDuration ?? 5),
+    });
+    setShowCycleForm(true);
+  };
+
+  const handleSaveCycle = async () => {
+    if (!cycleForm.startDate) return;
+    await saveCycle({
+      startDate: startOfDay(new Date(cycleForm.startDate)),
+      cycleLength: parseInt(cycleForm.cycleLength, 10) || 28,
+      periodDuration: parseInt(cycleForm.periodDuration, 10) || 5,
+    });
+    setShowCycleForm(false);
+  };
+
+  // Calcul des jours de cycle uniquement pour le compte autorisé
+  const cycleRangeStart = startOfMonth(addMonths(currentMonth, -1));
+  const cycleRangeEnd = endOfMonth(addMonths(currentMonth, 1));
+  const cycleDays: CycleDay[] = isCycleUser && cycle
+    ? computeCycleDays(cycle, cycleRangeStart, cycleRangeEnd)
+    : [];
 
   // Month view data
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
@@ -235,6 +275,7 @@ export default function AgendaView() {
             events={events}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
+            cycleDays={cycleDays}
           />
         ) : (
           <WeekGrid
@@ -242,6 +283,7 @@ export default function AgendaView() {
             events={events}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
+            cycleDays={cycleDays}
           />
         )}
       </div>
@@ -352,6 +394,174 @@ export default function AgendaView() {
           </div>
         )}
 
+        {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
+        {isCycleUser && <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          style={{
+            background: 'var(--warm-white)', borderRadius: '12px',
+            padding: '14px 16px', marginBottom: '16px',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Cycle
+            </span>
+            {!showCycleForm && (
+              <motion.button
+                onClick={openCycleForm}
+                whileHover={{ background: 'var(--border)' }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  fontSize: '0.72rem', color: 'var(--stone)', padding: '3px 8px',
+                  borderRadius: '6px', fontFamily: 'inherit',
+                }}
+              >
+                {cycle ? 'Modifier' : 'Configurer'}
+              </motion.button>
+            )}
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            {showCycleForm ? (
+              <motion.div
+                key="cycle-form"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+              >
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                    Début du dernier cycle
+                  </label>
+                  <input
+                    type="date"
+                    value={cycleForm.startDate}
+                    onChange={e => setCycleForm(f => ({ ...f, startDate: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                      Durée cycle (j)
+                    </label>
+                    <input
+                      type="number"
+                      min={20}
+                      max={45}
+                      value={cycleForm.cycleLength}
+                      onChange={e => setCycleForm(f => ({ ...f, cycleLength: e.target.value }))}
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                      Règles (j)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={cycleForm.periodDuration}
+                      onChange={e => setCycleForm(f => ({ ...f, periodDuration: e.target.value }))}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                  <motion.button
+                    onClick={handleSaveCycle}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                    style={{
+                      flex: 1, padding: '7px',
+                      background: 'var(--ink)', color: 'var(--cream)',
+                      border: 'none', borderRadius: '7px', cursor: 'pointer',
+                      fontSize: '0.78rem', fontFamily: 'inherit',
+                    }}
+                  >
+                    Enregistrer
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowCycleForm(false)}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                    style={{
+                      padding: '7px 10px',
+                      background: 'transparent', color: 'var(--stone)',
+                      border: '1px solid var(--border)', borderRadius: '7px', cursor: 'pointer',
+                      fontSize: '0.78rem', fontFamily: 'inherit',
+                    }}
+                  >
+                    Annuler
+                  </motion.button>
+                  {cycle && (
+                    <motion.button
+                      onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                      style={{
+                        padding: '7px 10px',
+                        background: 'transparent', color: 'var(--terra)',
+                        border: '1px solid var(--border)', borderRadius: '7px', cursor: 'pointer',
+                        fontSize: '0.78rem', fontFamily: 'inherit',
+                      }}
+                    >
+                      Supprimer
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            ) : cycle ? (
+              <motion.div
+                key="cycle-summary"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+              >
+                <CycleSummary cycle={cycle} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="cycle-empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '10px 0 4px' }}
+              >
+                <div style={{ fontSize: '1.4rem', lineHeight: 1 }}>🩸</div>
+                <div style={{ fontSize: '0.76rem', color: 'var(--stone)', textAlign: 'center', lineHeight: 1.4 }}>
+                  Suis ton cycle directement<br />dans l&apos;agenda
+                </div>
+                <motion.button
+                  onClick={openCycleForm}
+                  whileHover={{ background: 'var(--ink)', color: 'var(--cream)' }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  style={{
+                    padding: '6px 14px', marginTop: '2px',
+                    background: 'transparent', color: 'var(--ink)',
+                    border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.76rem', fontFamily: 'inherit',
+                  }}
+                >
+                  Configurer mon cycle
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>}
+
         {/* Events list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {loading ? (
@@ -458,7 +668,7 @@ export default function AgendaView() {
 // ─── Month grid ───────────────────────────────────────────────────────────────
 
 function MonthGrid({
-  days, firstDayOffset, weekDayLabels, events, selectedDate, onSelectDate,
+  days, firstDayOffset, weekDayLabels, events, selectedDate, onSelectDate, cycleDays,
 }: {
   days: Date[];
   firstDayOffset: number;
@@ -466,6 +676,7 @@ function MonthGrid({
   events: Event[];
   selectedDate: Date;
   onSelectDate: (d: Date) => void;
+  cycleDays: CycleDay[];
 }) {
   return (
     <div style={{
@@ -494,6 +705,12 @@ function MonthGrid({
           const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
           const selected = isSameDay(day, selectedDate);
           const today = isToday(day);
+          const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
+          const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
+            : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
+            : cycleDay?.type === 'fertile' ? 'rgba(107, 143, 113, 0.08)'
+            : cycleDay?.type === 'cycle' ? 'rgba(26, 23, 20, 0.025)'
+            : undefined;
           return (
             <div
               key={day.toString()}
@@ -504,21 +721,31 @@ function MonthGrid({
                 minHeight: '80px',
                 padding: '8px',
                 cursor: 'pointer',
-                background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
+                background: selected ? 'rgba(122, 140, 110, 0.12)' : cycleBg ?? 'transparent',
                 transition: 'background 0.1s',
               }}
             >
-              <div style={{
-                width: '26px', height: '26px',
-                borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.82rem',
-                background: today ? 'var(--terra)' : 'transparent',
-                color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
-                fontWeight: today || selected ? '500' : '300',
-                marginBottom: '4px'
-              }}>
-                {format(day, 'd')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                <div style={{
+                  width: '26px', height: '26px',
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.82rem',
+                  background: today ? 'var(--terra)' : 'transparent',
+                  color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
+                  fontWeight: today || selected ? '500' : '300',
+                }}>
+                  {format(day, 'd')}
+                </div>
+                {cycleDay && cycleDay.type !== 'cycle' && (
+                  <div style={{
+                    width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
+                    background: cycleDay.type === 'period' ? 'var(--terra)'
+                      : cycleDay.type === 'predicted-period' ? 'rgba(192,99,74,0.4)'
+                      : cycleDay.type === 'fertile' ? 'var(--sage)'
+                      : 'transparent',
+                  }} />
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {dayEvents.slice(0, 2).map(e => (
@@ -548,12 +775,13 @@ function MonthGrid({
 const HOUR_HEIGHT = 52; // px per hour row
 
 function WeekGrid({
-  weekDays, events, selectedDate, onSelectDate,
+  weekDays, events, selectedDate, onSelectDate, cycleDays,
 }: {
   weekDays: Date[];
   events: Event[];
   selectedDate: Date;
   onSelectDate: (d: Date) => void;
+  cycleDays: CycleDay[];
 }) {
   return (
     <div style={{
@@ -574,6 +802,12 @@ function WeekGrid({
         {weekDays.map(day => {
           const selected = isSameDay(day, selectedDate);
           const today = isToday(day);
+          const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
+          const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
+            : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
+            : cycleDay?.type === 'fertile' ? 'rgba(107, 143, 113, 0.08)'
+            : cycleDay?.type === 'cycle' ? 'rgba(26, 23, 20, 0.025)'
+            : undefined;
           return (
             <div
               key={day.toString()}
@@ -583,7 +817,7 @@ function WeekGrid({
                 textAlign: 'center',
                 cursor: 'pointer',
                 borderRight: '1px solid var(--border)',
-                background: selected ? 'rgba(122, 140, 110, 0.08)' : 'transparent',
+                background: selected ? 'rgba(122, 140, 110, 0.08)' : cycleBg ?? 'transparent',
                 transition: 'background 0.1s',
               }}
             >
@@ -603,6 +837,15 @@ function WeekGrid({
               }}>
                 {format(day, 'd')}
               </div>
+              {cycleDay && cycleDay.type !== 'cycle' && (
+                <div style={{
+                  width: '5px', height: '5px', borderRadius: '50%',
+                  margin: '2px auto 0', flexShrink: 0,
+                  background: cycleDay.type === 'period' ? 'var(--terra)'
+                    : cycleDay.type === 'predicted-period' ? 'rgba(192,99,74,0.4)'
+                    : 'var(--sage)',
+                }} />
+              )}
             </div>
           );
         })}
@@ -682,6 +925,54 @@ function WeekGrid({
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Cycle summary ────────────────────────────────────────────────────────────
+
+function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
+  const days = daysUntilNextPeriod(cycle);
+
+  const badges = [
+    { label: `🩸 Règles · ${cycle.periodDuration}j`, bg: 'rgba(192,99,74,0.12)', color: 'var(--terra)' },
+    { label: `🌿 Cycle · ${cycle.cycleLength}j`, bg: 'rgba(107,143,113,0.12)', color: 'var(--sage)' },
+  ];
+
+  return (
+    <>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {badges.map((badge, i) => (
+          <motion.span
+            key={badge.label}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: i * 0.06, ease: [0.23, 1, 0.32, 1] }}
+            style={{
+              fontSize: '0.68rem', padding: '3px 8px', borderRadius: '10px',
+              background: badge.bg, color: badge.color,
+              display: 'inline-block',
+            }}
+          >
+            {badge.label}
+          </motion.span>
+        ))}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
+        <motion.span
+          key={days}
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+          className="font-display"
+          style={{ fontSize: '1.3rem', color: 'var(--ink)', lineHeight: 1 }}
+        >
+          {days === 0 ? '·' : days}
+        </motion.span>
+        <span style={{ fontSize: '0.74rem', color: 'var(--stone)' }}>
+          {days === 0 ? 'Cycle en cours' : `jour${days > 1 ? 's' : ''} avant le prochain cycle`}
+        </span>
+      </div>
+    </>
   );
 }
 
