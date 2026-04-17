@@ -114,6 +114,13 @@ button, input, textarea, select {
 ::-webkit-scrollbar-thumb { background: var(--stone-light); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--stone); }
 
+/* ── Placeholder for contentEditable ── */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--stone);
+  pointer-events: none;
+}
+
 /* ── Animations — inspired by the reference site ── */
 
 /* Enter: starts scale(0.95) + opacity(0), ends at scale(1) + opacity(1) */
