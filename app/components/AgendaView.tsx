@@ -708,8 +708,6 @@ function MonthGrid({
           const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
           const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
             : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
-            : cycleDay?.type === 'fertile' ? 'rgba(107, 143, 113, 0.08)'
-            : cycleDay?.type === 'cycle' ? 'rgba(26, 23, 20, 0.025)'
             : undefined;
           return (
             <div
@@ -737,13 +735,10 @@ function MonthGrid({
                 }}>
                   {format(day, 'd')}
                 </div>
-                {cycleDay && cycleDay.type !== 'cycle' && (
+                {(cycleDay?.type === 'period' || cycleDay?.type === 'predicted-period') && (
                   <div style={{
                     width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
-                    background: cycleDay.type === 'period' ? 'var(--terra)'
-                      : cycleDay.type === 'predicted-period' ? 'rgba(192,99,74,0.4)'
-                      : cycleDay.type === 'fertile' ? 'var(--sage)'
-                      : 'transparent',
+                    background: '#C2185B',
                   }} />
                 )}
               </div>
@@ -805,8 +800,6 @@ function WeekGrid({
           const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
           const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
             : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
-            : cycleDay?.type === 'fertile' ? 'rgba(107, 143, 113, 0.08)'
-            : cycleDay?.type === 'cycle' ? 'rgba(26, 23, 20, 0.025)'
             : undefined;
           return (
             <div
@@ -837,13 +830,11 @@ function WeekGrid({
               }}>
                 {format(day, 'd')}
               </div>
-              {cycleDay && cycleDay.type !== 'cycle' && (
+              {(cycleDay?.type === 'period' || cycleDay?.type === 'predicted-period') && (
                 <div style={{
                   width: '5px', height: '5px', borderRadius: '50%',
                   margin: '2px auto 0', flexShrink: 0,
-                  background: cycleDay.type === 'period' ? 'var(--terra)'
-                    : cycleDay.type === 'predicted-period' ? 'rgba(192,99,74,0.4)'
-                    : 'var(--sage)',
+                  background: '#C2185B',
                 }} />
               )}
             </div>
