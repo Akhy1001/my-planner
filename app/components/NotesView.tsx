@@ -1,9 +1,9 @@
 'use client';
 import AddButton from './AddButton';
-import { Star } from './animate-ui';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotes, Note } from '@/hooks/useNotes';
+import FormatToolbar from './FormatToolbar';
 
 const tagColors: Record<string, string> = {
   'Idées': 'var(--gold)',
@@ -17,9 +17,66 @@ export default function NotesView() {
   const [selected, setSelected] = useState<Note | null>(null);
   const [search, setSearch] = useState('');
   const [filterTag, setFilterTag] = useState<string | null>(null);
+  const [toolbarPos, setToolbarPos] = useState<{ top: number; left: number } | null>(null);
+  const [formatState, setFormatState] = useState({ bold: false, underline: false });
+  const editorRef = useRef<HTMLDivElement>(null);
+  const prevNoteIdRef = useRef<string | undefined>(undefined);
+  const savedRangeRef = useRef<Range | null>(null);
 
   // Keep selected in sync when notes update
   const selectedNote = selected ? notes.find(n => n.id === selected.id) ?? null : null;
+
+  // Sync editor innerHTML only when the note ID changes (not on every content update)
+  // prevNoteIdRef tracks the last synced ID so typing doesn't reset the cursor
+  useEffect(() => {
+    if (!editorRef.current) return;
+    if (prevNoteIdRef.current === selectedNote?.id) return;
+    prevNoteIdRef.current = selectedNote?.id;
+    editorRef.current.innerHTML = selectedNote?.content ?? '';
+  }, [selectedNote?.id, selectedNote?.content]);
+
+  const handleEditorInput = () => {
+    if (!selectedNote || !editorRef.current) return;
+    updateNote(selectedNote.id, 'content', editorRef.current.innerHTML);
+  };
+
+  useEffect(() => {
+    const onSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        setToolbarPos(null);
+        return;
+      }
+      if (!editorRef.current?.contains(selection.anchorNode)) {
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.width === 0) { setToolbarPos(null); return; }
+      savedRangeRef.current = range.cloneRange();
+      setToolbarPos({ top: rect.top - 48, left: rect.left + rect.width / 2 });
+      setFormatState({
+        bold: document.queryCommandState('bold'),
+        underline: document.queryCommandState('underline'),
+      });
+    };
+    document.addEventListener('selectionchange', onSelectionChange);
+    return () => document.removeEventListener('selectionchange', onSelectionChange);
+  }, []);
+
+  const applyFormat = (command: string, value?: string) => {
+    if (savedRangeRef.current && editorRef.current) {
+      editorRef.current.focus();
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(savedRangeRef.current);
+    }
+    document.execCommand(command, false, value);
+    setFormatState({
+      bold: document.queryCommandState('bold'),
+      underline: document.queryCommandState('underline'),
+    });
+  };
 
   const filtered = notes
     .filter(n => !filterTag || n.tag === filterTag)
@@ -126,7 +183,7 @@ export default function NotesView() {
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     marginBottom: '6px'
                   }}>
-                    {note.content || 'Vide…'}
+                    {note.content.replace(/<[^>]+>/g, '') || 'Vide…'}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{
@@ -192,17 +249,21 @@ export default function NotesView() {
                   fontWeight: '500'
                 }}
               />
-              <textarea
-                value={selectedNote.content}
-                onChange={e => handleUpdateNote('content', e.target.value)}
-                placeholder="Commencez à écrire…"
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onInput={handleEditorInput}
+                data-placeholder="Commencez à écrire…"
                 style={{
                   width: '100%', minHeight: '400px', border: 'none', outline: 'none',
                   fontSize: '0.9rem', color: 'var(--ink-light)',
-                  background: 'transparent', resize: 'none',
-                  lineHeight: '1.8', fontFamily: 'inherit', fontWeight: '300'
+                  background: 'transparent',
+                  lineHeight: '1.8', fontFamily: 'inherit', fontWeight: '300',
+                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}
               />
+              <FormatToolbar position={toolbarPos} isBold={formatState.bold} isUnderline={formatState.underline} onFormat={applyFormat} />
             </div>
           </>
         ) : (
