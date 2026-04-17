@@ -101,5 +101,22 @@ export function useHabits() {
     if (!error && data) setHabits(prev => [...prev, { ...data, completedDays: [], streak: 0 }]);
   };
 
-  return { habits, loading, toggleToday, addHabit };
+  const deleteHabit = async (habitId: string) => {
+    if (!userId) return;
+    const previous = habits.find(h => h.id === habitId);
+    setHabits(prev => prev.filter(h => h.id !== habitId));
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', habitId)
+      .eq('user_id', userId);
+    if (error && previous) {
+      setHabits(prev => {
+        const withoutDuplicate = prev.filter(h => h.id !== habitId);
+        return [...withoutDuplicate, previous];
+      });
+    }
+  };
+
+  return { habits, loading, toggleToday, addHabit, deleteHabit };
 }
