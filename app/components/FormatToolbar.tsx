@@ -6,6 +6,7 @@ interface FormatToolbarProps {
   position: { top: number; left: number } | null;
   isBold?: boolean;
   isUnderline?: boolean;
+  onFormat: (command: string, value?: string) => void;
 }
 
 const HIGHLIGHT_COLORS = [
@@ -17,11 +18,7 @@ const HIGHLIGHT_COLORS = [
   { label: 'Violet', value: '#E9D5FF' },
 ];
 
-function applyFormat(command: string, value?: string) {
-  document.execCommand(command, false, value);
-}
-
-export default function FormatToolbar({ position, isBold = false, isUnderline = false }: FormatToolbarProps) {
+export default function FormatToolbar({ position, isBold = false, isUnderline = false, onFormat }: FormatToolbarProps) {
   const colorInputRef = useRef<HTMLInputElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -56,7 +53,7 @@ export default function FormatToolbar({ position, isBold = false, isUnderline = 
           {/* Gras */}
           <motion.button
             whileTap={{ scale: 0.92 }}
-            onClick={() => applyFormat('bold')}
+            onClick={() => onFormat('bold')}
             title={isBold ? 'Retirer le gras' : 'Gras'}
             style={{
               width: '30px', height: '30px', borderRadius: '6px',
@@ -75,7 +72,7 @@ export default function FormatToolbar({ position, isBold = false, isUnderline = 
           {/* Souligné */}
           <motion.button
             whileTap={{ scale: 0.92 }}
-            onClick={() => applyFormat('underline')}
+            onClick={() => onFormat('underline')}
             title={isUnderline ? 'Retirer le soulignage' : 'Souligné'}
             style={{
               width: '30px', height: '30px', borderRadius: '6px',
@@ -100,7 +97,7 @@ export default function FormatToolbar({ position, isBold = false, isUnderline = 
             <motion.button
               key={value}
               whileTap={{ scale: 0.88 }}
-              onClick={() => applyFormat('hiliteColor', value)}
+              onClick={() => onFormat('hiliteColor', value)}
               title={`Surligner en ${label}`}
               style={{
                 width: '18px', height: '18px', borderRadius: '4px',
@@ -114,7 +111,7 @@ export default function FormatToolbar({ position, isBold = false, isUnderline = 
           {/* Effacer le surlignage */}
           <motion.button
             whileTap={{ scale: 0.88 }}
-            onClick={() => applyFormat('hiliteColor', 'transparent')}
+            onClick={() => onFormat('hiliteColor', 'transparent')}
             title="Enlever le surlignage"
             style={{
               width: '18px', height: '18px', borderRadius: '4px',
@@ -153,7 +150,7 @@ export default function FormatToolbar({ position, isBold = false, isUnderline = 
             ref={colorInputRef}
             type="color"
             defaultValue="#FBBF24"
-            onChange={e => applyFormat('hiliteColor', e.target.value)}
+            onChange={e => onFormat('hiliteColor', e.target.value)}
             style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
           />
         </motion.div>

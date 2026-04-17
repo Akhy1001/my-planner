@@ -21,6 +21,7 @@ export default function NotesView() {
   const [formatState, setFormatState] = useState({ bold: false, underline: false });
   const editorRef = useRef<HTMLDivElement>(null);
   const prevNoteIdRef = useRef<string | undefined>(undefined);
+  const savedRangeRef = useRef<Range | null>(null);
 
   // Keep selected in sync when notes update
   const selectedNote = selected ? notes.find(n => n.id === selected.id) ?? null : null;
@@ -52,6 +53,7 @@ export default function NotesView() {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       if (rect.width === 0) { setToolbarPos(null); return; }
+      savedRangeRef.current = range.cloneRange();
       setToolbarPos({ top: rect.top - 48, left: rect.left + rect.width / 2 });
       setFormatState({
         bold: document.queryCommandState('bold'),
@@ -61,6 +63,20 @@ export default function NotesView() {
     document.addEventListener('selectionchange', onSelectionChange);
     return () => document.removeEventListener('selectionchange', onSelectionChange);
   }, []);
+
+  const applyFormat = (command: string, value?: string) => {
+    if (savedRangeRef.current && editorRef.current) {
+      editorRef.current.focus();
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(savedRangeRef.current);
+    }
+    document.execCommand(command, false, value);
+    setFormatState({
+      bold: document.queryCommandState('bold'),
+      underline: document.queryCommandState('underline'),
+    });
+  };
 
   const filtered = notes
     .filter(n => !filterTag || n.tag === filterTag)
@@ -247,7 +263,7 @@ export default function NotesView() {
                   whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}
               />
-              <FormatToolbar position={toolbarPos} isBold={formatState.bold} isUnderline={formatState.underline} />
+              <FormatToolbar position={toolbarPos} isBold={formatState.bold} isUnderline={formatState.underline} onFormat={applyFormat} />
             </div>
           </>
         ) : (
