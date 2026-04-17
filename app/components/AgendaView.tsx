@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const CYCLE_ALLOWED_EMAIL = 'rstrpn05@gmail.com';
 
-const COLORS = ['var(--sage)', 'var(--terra)', 'var(--gold)', 'var(--lavender)'];
+const PRESET_COLORS = ['#6B8F71', '#C0634A', '#C9973C', '#8075A8', '#4A90D9', '#E07B8A'];
 
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   none: 'Aucune',
@@ -49,7 +49,7 @@ const defaultForm: EventFormState = {
   title: '',
   time: '',
   duration: '1h',
-  color: COLORS[0],
+  color: PRESET_COLORS[0],
   category: 'Personnel',
   recurrence: 'none',
 };
@@ -306,12 +306,21 @@ export default function AgendaView() {
         </div>
 
         {/* Add / Edit form */}
+        <AnimatePresence>
         {showForm && (
-          <div style={{
-            background: 'var(--warm-white)', borderRadius: '12px',
-            padding: '16px', marginBottom: '16px',
-            border: '1px solid var(--border)'
-          }}>
+          <motion.div
+            key="event-form"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            style={{
+              background: 'var(--warm-white)', borderRadius: '12px',
+              padding: '16px', marginBottom: '16px',
+              border: '1px solid var(--border)',
+              transformOrigin: 'top center',
+            }}
+          >
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
             </div>
@@ -323,11 +332,20 @@ export default function AgendaView() {
               style={inputStyle}
             />
 
-            {formError && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--terra)', marginTop: '6px' }}>
-                {formError}
-              </div>
-            )}
+            <AnimatePresence>
+              {formError && (
+                <motion.div
+                  key="form-error"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ fontSize: '0.75rem', color: 'var(--terra)', marginTop: '6px' }}
+                >
+                  {formError}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
               <input
@@ -362,40 +380,98 @@ export default function AgendaView() {
             )}
 
             {/* Color picker */}
-            <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-              {COLORS.map(c => (
-                <div key={c} onClick={() => setFormData({ ...formData, color: c })} style={{
-                  width: '22px', height: '22px', borderRadius: '50%',
-                  background: c, cursor: 'pointer',
-                  border: formData.color === c ? '2px solid var(--ink)' : '2px solid transparent',
-                  transition: 'border 0.15s'
-                }} />
+            <div style={{ display: 'flex', gap: '6px', marginTop: '8px', alignItems: 'center' }}>
+              {PRESET_COLORS.map((c, i) => (
+                <motion.div
+                  key={c}
+                  onClick={() => setFormData({ ...formData, color: c })}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.18, delay: i * 0.04, ease: [0.23, 1, 0.32, 1] }}
+                  whileHover={{ scale: 1.18 }}
+                  whileTap={{ scale: 0.88 }}
+                  style={{
+                    width: '22px', height: '22px', borderRadius: '50%',
+                    background: c, cursor: 'pointer', flexShrink: 0,
+                    border: formData.color === c ? '2px solid var(--ink)' : '2px solid transparent',
+                    outline: formData.color === c ? '2px solid var(--warm-white)' : 'none',
+                    outlineOffset: '-4px',
+                    transition: 'border 150ms cubic-bezier(0.23, 1, 0.32, 1), outline 150ms cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                />
               ))}
+              {/* Sélecteur libre — pastille arc-en-ciel */}
+              <motion.label
+                title="Couleur personnalisée"
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.18, delay: PRESET_COLORS.length * 0.04, ease: [0.23, 1, 0.32, 1] }}
+                whileHover={{ scale: 1.18 }}
+                whileTap={{ scale: 0.88 }}
+                style={{
+                  width: '22px', height: '22px', borderRadius: '50%',
+                  background: !PRESET_COLORS.includes(formData.color)
+                    ? formData.color
+                    : 'conic-gradient(#6B8F71, #C9973C, #C0634A, #8075A8, #4A90D9, #E07B8A, #6B8F71)',
+                  cursor: 'pointer', flexShrink: 0, overflow: 'hidden',
+                  border: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--ink)' : '2px solid transparent',
+                  outline: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--warm-white)' : 'none',
+                  outlineOffset: '-4px',
+                  transition: 'border 150ms cubic-bezier(0.23, 1, 0.32, 1), background 150ms ease-out',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  position: 'relative',
+                }}
+              >
+                <input
+                  type="color"
+                  aria-label="Choisir une couleur personnalisée"
+                  value={/^#[0-9A-Fa-f]{6}$/.test(formData.color) ? formData.color : PRESET_COLORS[0]}
+                  onChange={e => setFormData({ ...formData, color: e.target.value })}
+                  style={{
+                    position: 'absolute', inset: 0,
+                    opacity: 0, width: '100%', height: '100%',
+                    cursor: 'pointer', border: 'none', padding: 0,
+                  }}
+                />
+              </motion.label>
             </div>
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-              <button onClick={handleSubmit} style={{
-                flex: 1, padding: '8px',
-                background: 'var(--ink)', color: 'var(--cream)',
-                border: 'none', borderRadius: '8px', cursor: 'pointer',
-                fontSize: '0.82rem', fontFamily: 'inherit'
-              }}>
+              <motion.button
+                onClick={handleSubmit}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
+                style={{
+                  flex: 1, padding: '8px',
+                  background: 'var(--ink)', color: 'var(--cream)',
+                  border: 'none', borderRadius: '8px', cursor: 'pointer',
+                  fontSize: '0.82rem', fontFamily: 'inherit',
+                }}
+              >
                 {editingBaseId ? 'Enregistrer' : 'Ajouter'}
-              </button>
-              <button onClick={closeForm} style={{
-                padding: '8px 12px',
-                background: 'transparent', color: 'var(--stone)',
-                border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
-                fontSize: '0.82rem', fontFamily: 'inherit'
-              }}>
+              </motion.button>
+              <motion.button
+                onClick={closeForm}
+                whileHover={{ background: 'var(--border)' }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                style={{
+                  padding: '8px 12px',
+                  background: 'transparent', color: 'var(--stone)',
+                  border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
+                  fontSize: '0.82rem', fontFamily: 'inherit',
+                }}
+              >
                 Annuler
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
         {isCycleUser && <motion.div
+          layout
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
@@ -563,7 +639,7 @@ export default function AgendaView() {
         </motion.div>}
 
         {/* Events list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <motion.div layout style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
           ) : selectedEvents.length === 0 ? (
@@ -659,7 +735,7 @@ export default function AgendaView() {
               ))}
             </AnimatePresence>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

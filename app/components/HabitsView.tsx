@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Heart } from './animate-ui';
+import { Trash } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
@@ -11,9 +11,10 @@ const last30Days = eachDayOfInterval({ start: subDays(new Date(), 29), end: new 
 const last7 = last30Days.slice(-7);
 
 export default function HabitsView() {
-  const { habits, loading, toggleToday, addHabit } = useHabits();
+  const { habits, loading, toggleToday, addHabit, deleteHabit } = useHabits();
   const [showAdd, setShowAdd] = useState(false);
   const [newHabit, setNewHabit] = useState({ name: '', icon: '⭐', color: 'var(--sage)', target: 7 });
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const handleAddHabit = async () => {
     if (!newHabit.name.trim()) return;
@@ -134,6 +135,58 @@ export default function HabitsView() {
                       <div style={{ fontSize: '0.78rem', color: 'var(--stone)' }}>{weekRate}%</div>
                       <div style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>cette sem.</div>
                     </div>
+                    {confirmingId === habit.id ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <motion.button
+                          initial={{ opacity: 0, scale: 0.95, x: -4 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => { deleteHabit(habit.id); setConfirmingId(null); }}
+                          style={{
+                            padding: '4px 10px', borderRadius: '6px',
+                            border: '1px solid var(--terra)',
+                            background: 'var(--terra)', color: 'white',
+                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                          }}
+                        >
+                          Confirmer
+                        </motion.button>
+                        <motion.button
+                          initial={{ opacity: 0, scale: 0.95, x: -4 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setConfirmingId(null)}
+                          style={{
+                            padding: '4px 8px', borderRadius: '6px',
+                            border: '1px solid var(--border)',
+                            background: 'transparent', color: 'var(--stone)',
+                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                          }}
+                        >
+                          Annuler
+                        </motion.button>
+                      </div>
+                    ) : (
+                      <motion.button
+                        onClick={() => setConfirmingId(habit.id)}
+                        title="Supprimer l'habitude"
+                        whileTap={{ scale: 0.97 }}
+                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                        style={{
+                          width: '28px', height: '28px', borderRadius: '6px',
+                          border: '1px solid var(--border)',
+                          background: 'transparent', color: 'var(--stone)',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', fontSize: '0.8rem', lineHeight: 1
+                        }}
+                      >
+                        <Trash size={14} color="var(--terra)" />
+                      </motion.button>
+                    )}
                     <motion.button
                       onClick={() => toggleToday(habit.id)}
                       whileTap={{ scale: 0.9 }}
