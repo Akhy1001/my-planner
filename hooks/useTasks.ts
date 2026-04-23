@@ -14,7 +14,7 @@ export interface Task {
 }
 
 export function useTasks() {
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const [today, setToday] = useState(() => format(new Date(), 'yyyy-MM-dd'));
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -23,6 +23,12 @@ export function useTasks() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserId(session?.user?.id ?? null);
     });
+  }, []);
+
+  useEffect(() => {
+    const checkDate = () => setToday(format(new Date(), 'yyyy-MM-dd'));
+    document.addEventListener('visibilitychange', checkDate);
+    return () => document.removeEventListener('visibilitychange', checkDate);
   }, []);
 
   useEffect(() => {
