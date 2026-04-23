@@ -5,15 +5,25 @@ import { useState } from 'react';
 import { CirclePlus, Trash, CheckCircle } from './icons';
 import { usePlayfulTodos } from '@/hooks/usePlayfulTodos';
 
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
+
 export function PlayfulTodolist() {
-  const { todos, loading, addTodo, toggleTodo, removeTodo } = usePlayfulTodos();
+  const { todos, loading, addTodo, completeTodo, removeTodo } = usePlayfulTodos();
   const [newItem, setNewItem] = useState('');
+  const [completing, setCompleting] = useState<Set<string>>(new Set());
 
   const handleAdd = () => {
     const trimmed = newItem.trim();
     if (!trimmed) return;
     addTodo(trimmed);
     setNewItem('');
+  };
+
+  const handleComplete = (id: string) => {
+    setCompleting(prev => new Set(prev).add(id));
+    setTimeout(() => {
+      completeTodo(id);
+    }, 280);
   };
 
   return (
@@ -55,8 +65,10 @@ export function PlayfulTodolist() {
             fontSize: '0.9rem',
           }}
         />
-        <button
+        <motion.button
           onClick={handleAdd}
+          whileTap={{ scale: 0.93 }}
+          transition={{ duration: 0.12, ease: EASE_OUT }}
           style={{
             width: '48px',
             height: '48px',
@@ -72,7 +84,7 @@ export function PlayfulTodolist() {
           aria-label="Ajouter tâche"
         >
           <CirclePlus size={20} color="white" />
-        </button>
+        </motion.button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -82,75 +94,89 @@ export function PlayfulTodolist() {
           </div>
         ) : (
           <AnimatePresence>
-            {todos.map(item => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '12px',
-                  padding: '12px 14px',
-                  borderRadius: '16px',
-                  background: item.done ? 'rgba(192, 99, 74, 0.1)' : 'var(--warm-white)',
-                  border: item.done ? '1px solid rgba(192, 99, 74, 0.18)' : '1px solid var(--border)',
-                  color: item.done ? 'var(--stone)' : 'var(--ink)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+            {todos.map((item, index) => {
+              const isDone = completing.has(item.id);
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: -4 }}
+                  transition={{
+                    duration: 0.22,
+                    ease: EASE_OUT,
+                    delay: index < 6 ? index * 0.05 : 0,
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                    padding: '12px 14px',
+                    borderRadius: '16px',
+                    background: isDone ? 'rgba(107, 142, 120, 0.08)' : 'var(--warm-white)',
+                    border: isDone ? '1px solid rgba(107, 142, 120, 0.22)' : '1px solid var(--border)',
+                    color: isDone ? 'var(--stone)' : 'var(--ink)',
+                    transition: 'background 0.18s ease, border-color 0.18s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                    <motion.button
+                      onClick={() => !isDone && handleComplete(item.id)}
+                      whileTap={isDone ? {} : { scale: 0.88 }}
+                      transition={{ duration: 0.12, ease: EASE_OUT }}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '10px',
+                        border: isDone ? '1px solid rgba(107, 142, 120, 0.4)' : '1px solid var(--border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: isDone ? 'var(--sage)' : 'transparent',
+                        color: isDone ? 'white' : 'var(--ink)',
+                        cursor: isDone ? 'default' : 'pointer',
+                        fontSize: '13px',
+                        flexShrink: 0,
+                        transition: 'background 0.18s ease, border-color 0.18s ease',
+                      }}
+                    >
+                      {isDone ? '✔' : ''}
+                    </motion.button>
+                    <span style={{
+                      fontSize: '0.9rem',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      textDecoration: isDone ? 'line-through' : 'none',
+                      transition: 'text-decoration 0.1s ease',
+                    }}>
+                      {item.label}
+                    </span>
+                  </div>
                   <motion.button
-                    onClick={() => toggleTodo(item.id)}
-                    whileTap={{ scale: 0.92 }}
+                    onClick={() => removeTodo(item.id)}
+                    whileTap={{ scale: 0.88 }}
+                    transition={{ duration: 0.12, ease: EASE_OUT }}
                     style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '10px',
-                      border: '1px solid var(--border)',
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--terra)',
+                      cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: item.done ? 'var(--terra)' : 'transparent',
-                      color: item.done ? 'white' : 'var(--ink)',
-                      cursor: 'pointer',
                     }}
+                    aria-label="Supprimer tâche"
                   >
-                    {item.done ? '✔' : ''}
+                    <Trash size={18} color="var(--terra)" />
                   </motion.button>
-                  <span style={{
-                    fontSize: '0.9rem',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    textDecoration: item.done ? 'line-through' : 'none',
-                  }}>
-                    {item.label}
-                  </span>
-                </div>
-                <motion.button
-                  onClick={() => removeTodo(item.id)}
-                  whileTap={{ scale: 0.92 }}
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '12px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'var(--terra)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  aria-label="Supprimer tâche"
-                >
-                  <Trash size={18} color="var(--terra)" />
-                </motion.button>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         )}
       </div>
