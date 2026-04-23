@@ -25,8 +25,8 @@ const defaultEntry = (date: string): JournalEntry => ({
 });
 
 export function useJournal() {
-  const today = format(new Date(), 'yyyy-MM-dd');
-  const [journal, setJournal] = useState<JournalEntry>(defaultEntry(today));
+  const [today, setToday] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+  const [journal, setJournal] = useState<JournalEntry>(() => defaultEntry(format(new Date(), 'yyyy-MM-dd')));
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -34,6 +34,12 @@ export function useJournal() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserId(session?.user?.id ?? null);
     });
+  }, []);
+
+  useEffect(() => {
+    const checkDate = () => setToday(format(new Date(), 'yyyy-MM-dd'));
+    document.addEventListener('visibilitychange', checkDate);
+    return () => document.removeEventListener('visibilitychange', checkDate);
   }, []);
 
   useEffect(() => {
