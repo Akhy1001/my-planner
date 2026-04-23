@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, Flag, PlayfulTodolist, CheckCircle } from './animate-ui';
+import { Trash, Flag, PlayfulTodolist, CheckCircle, Edit } from './animate-ui';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -257,7 +257,7 @@ export default function TodayView() {
       </div>
 
       {/* Right column */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
+      <div style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {/* Water intake */}
         <div style={{
           background: 'var(--warm-white)', borderRadius: '14px',
@@ -267,7 +267,24 @@ export default function TodayView() {
         }}>
           <WaterTracker
             glasses={journal.water_glasses}
+            target={journal.water_target}
             onChange={(glasses) => updateJournal({ water_glasses: glasses })}
+            onTargetChange={(target) => updateJournal({ water_target: target })}
+          />
+        </div>
+
+        {/* Reading tracker */}
+        <div style={{
+          background: 'var(--warm-white)', borderRadius: '14px',
+          padding: '20px',
+          border: '1px solid var(--border)',
+          boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
+        }}>
+          <ReadingTracker
+            pages={journal.reading_pages}
+            target={journal.reading_target}
+            onPagesChange={(pages) => updateJournal({ reading_pages: pages })}
+            onTargetChange={(target) => updateJournal({ reading_target: target })}
           />
         </div>
       </div>
@@ -276,15 +293,88 @@ export default function TodayView() {
   );
 }
 
-function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: number) => void }) {
-  const target = 8;
+function WaterTracker({
+  glasses,
+  target,
+  onChange,
+  onTargetChange,
+}: {
+  glasses: number;
+  target: number;
+  onChange: (n: number) => void;
+  onTargetChange: (n: number) => void;
+}) {
+  const [editingTarget, setEditingTarget] = useState(false);
+  const [draftTarget, setDraftTarget] = useState(String(target));
+
+  const confirmTarget = () => {
+    const parsed = parseInt(draftTarget, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 20) {
+      onTargetChange(parsed);
+    } else {
+      setDraftTarget(String(target));
+    }
+    setEditingTarget(false);
+  };
+
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-        <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
-          Hydratation
-        </h2>
-        <span style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>{glasses}/{target} gourde{target > 1 ? 's' : ''} remplie{glasses > 1 ? 's' : ''}</span>
+      <div style={{ marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
+            Hydratation
+          </h2>
+          <motion.button
+            onClick={() => { setDraftTarget(String(target)); setEditingTarget(v => !v); }}
+            whileTap={{ scale: 0.9 }}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              padding: '2px', display: 'flex', alignItems: 'center',
+              opacity: editingTarget ? 1 : 0.45,
+            }}
+            aria-label="Modifier l'objectif d'hydratation"
+          >
+            <Edit size={14} color="var(--stone)" />
+          </motion.button>
+        </div>
+        <div style={{ marginTop: '4px', minHeight: '20px' }}>
+          <AnimatePresence mode="wait">
+            {editingTarget ? (
+              <motion.input
+                key="input"
+                type="number"
+                min={1}
+                max={20}
+                value={draftTarget}
+                onChange={e => setDraftTarget(e.target.value)}
+                onBlur={confirmTarget}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') confirmTarget();
+                  if (e.key === 'Escape') { setDraftTarget(String(target)); setEditingTarget(false); }
+                }}
+                autoFocus
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                style={{
+                  width: '64px', padding: '2px 8px', borderRadius: '8px',
+                  border: '1px solid #6BA3BE', background: 'var(--warm-white)',
+                  color: 'var(--ink)', fontSize: '0.8rem', outline: 'none',
+                  textAlign: 'center', fontFamily: 'inherit',
+                }}
+              />
+            ) : (
+              <motion.span
+                key="label"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                style={{ fontSize: '0.8rem', color: 'var(--stone)' }}
+              >
+                {glasses}/{target} gourde{target > 1 ? 's' : ''} remplie{glasses > 1 ? 's' : ''}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
         {Array.from({ length: target }).map((_, i) => (
@@ -338,3 +428,152 @@ function WaterTracker({ glasses, onChange }: { glasses: number; onChange: (n: nu
     </>
   );
 }
+
+// ─── Reading Tracker ───────────────────────────────────────────────────────────
+
+function ReadingTracker({
+  pages,
+  target,
+  onPagesChange,
+  onTargetChange,
+}: {
+  pages: number;
+  target: number;
+  onPagesChange: (n: number) => void;
+  onTargetChange: (n: number) => void;
+}) {
+  const [editingTarget, setEditingTarget] = useState(false);
+  const [draftTarget, setDraftTarget] = useState(String(target));
+  const progress = Math.min(pages / target, 1);
+
+  const confirmTarget = () => {
+    const parsed = parseInt(draftTarget, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 500) {
+      onTargetChange(parsed);
+    } else {
+      setDraftTarget(String(target));
+    }
+    setEditingTarget(false);
+  };
+
+  const adjust = (delta: number) => {
+    const next = Math.max(0, pages + delta);
+    onPagesChange(next);
+  };
+
+  return (
+    <>
+      <div style={{ marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
+            Lecture
+          </h2>
+          <motion.button
+            onClick={() => { setDraftTarget(String(target)); setEditingTarget(v => !v); }}
+            whileTap={{ scale: 0.9 }}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px',
+              display: 'flex', alignItems: 'center', opacity: editingTarget ? 1 : 0.45 }}
+            aria-label="Modifier l'objectif de lecture"
+          >
+            <Edit size={14} color="var(--stone)" />
+          </motion.button>
+        </div>
+        <div style={{ marginTop: '4px', minHeight: '20px' }}>
+          <AnimatePresence mode="wait">
+            {editingTarget ? (
+              <motion.input
+                key="input"
+                type="number"
+                min={1}
+                max={500}
+                value={draftTarget}
+                onChange={e => setDraftTarget(e.target.value)}
+                onBlur={confirmTarget}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') confirmTarget();
+                  if (e.key === 'Escape') { setDraftTarget(String(target)); setEditingTarget(false); }
+                }}
+                autoFocus
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                style={{
+                  width: '64px', padding: '2px 8px', borderRadius: '8px',
+                  border: '1px solid var(--gold)', background: 'var(--warm-white)',
+                  color: 'var(--ink)', fontSize: '0.8rem', outline: 'none',
+                  textAlign: 'center', fontFamily: 'inherit',
+                }}
+              />
+            ) : (
+              <motion.span key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>
+                {pages}/{target} pages
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ height: '6px', borderRadius: '99px', background: 'var(--border)', marginBottom: '14px', overflow: 'hidden' }}>
+        <motion.div
+          animate={{ width: `${progress * 100}%` }}
+          transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+          style={{ height: '100%', borderRadius: '99px', background: 'var(--gold)' }}
+        />
+      </div>
+
+      {/* Controls */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {[-5, -1].map(d => (
+            <motion.button key={d} onClick={() => adjust(d)} whileTap={{ scale: 0.9 }}
+              disabled={pages === 0}
+              style={{
+                width: '34px', height: '34px', borderRadius: '10px',
+                border: '1px solid var(--border)', background: 'transparent',
+                color: pages === 0 ? 'var(--border)' : 'var(--ink)',
+                cursor: pages === 0 ? 'not-allowed' : 'pointer',
+                fontSize: '0.8rem', fontWeight: 600,
+              }}>
+              {d}
+            </motion.button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {[1, 5].map(d => (
+            <motion.button key={d} onClick={() => adjust(d)} whileTap={{ scale: 0.9 }}
+              style={{
+                width: '34px', height: '34px', borderRadius: '10px',
+                border: '1px solid var(--border)', background: 'transparent',
+                color: 'var(--ink)', cursor: 'pointer',
+                fontSize: '0.8rem', fontWeight: 600,
+              }}>
+              +{d}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {pages >= target ? (
+          <motion.div key="done"
+            initial={{ opacity: 0, scale: 0.88, y: 4 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            style={{ fontSize: '0.76rem', color: 'var(--gold)', marginTop: '10px', fontWeight: 600 }}>
+            ✓ Objectif atteint !
+          </motion.div>
+        ) : pages > 0 ? (
+          <motion.div key="progress"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{ fontSize: '0.76rem', color: 'var(--stone)', marginTop: '10px' }}>
+            {`Plus que ${target - pages} page${target - pages > 1 ? 's' : ''} à lire`}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </>
+  );
+}
+
