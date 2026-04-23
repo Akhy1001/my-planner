@@ -138,7 +138,21 @@ create policy "notes: insert own" on notes for insert with check (auth.uid() = u
 create policy "notes: update own" on notes for update using (auth.uid() = user_id);
 create policy "notes: delete own" on notes for delete using (auth.uid() = user_id);
 
--- 9. CYCLE MENSTRUEL
+-- 9. PLAYFUL TODOLIST
+create table if not exists playful_todos (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
+  label text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+alter table playful_todos enable row level security;
+create policy "playful_todos: select own" on playful_todos for select using (auth.uid() = user_id);
+create policy "playful_todos: insert own" on playful_todos for insert with check (auth.uid() = user_id);
+create policy "playful_todos: update own" on playful_todos for update using (auth.uid() = user_id);
+create policy "playful_todos: delete own" on playful_todos for delete using (auth.uid() = user_id);
+
+-- 10. CYCLE MENSTRUEL
 create table if not exists menstrual_cycles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
