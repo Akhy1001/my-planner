@@ -9,6 +9,9 @@ export interface JournalEntry {
   mood: number | null;
   gratitude: string[];
   water_glasses: number;
+  water_target: number;
+  reading_pages: number;
+  reading_target: number;
 }
 
 const defaultEntry = (date: string): JournalEntry => ({
@@ -16,6 +19,9 @@ const defaultEntry = (date: string): JournalEntry => ({
   mood: null,
   gratitude: ['', '', ''],
   water_glasses: 0,
+  water_target: 8,
+  reading_pages: 0,
+  reading_target: 20,
 });
 
 export function useJournal() {
