@@ -49,12 +49,9 @@ export function usePlayfulTodos() {
     }
   };
 
-  const toggleTodo = async (id: string) => {
-    const todo = todos.find(t => t.id === id);
-    if (!todo) return;
-    const done = !todo.done;
-    setTodos(prev => prev.map(t => t.id === id ? { ...t, done } : t));
-    await supabase.from('playful_todos').update({ done }).eq('id', id);
+  const completeTodo = async (id: string) => {
+    setTodos(prev => prev.filter(t => t.id !== id));
+    await supabase.from('playful_todos').delete().eq('id', id);
   };
 
   const removeTodo = async (id: string) => {
@@ -62,5 +59,5 @@ export function usePlayfulTodos() {
     await supabase.from('playful_todos').delete().eq('id', id);
   };
 
-  return { todos, loading, addTodo, toggleTodo, removeTodo };
+  return { todos, loading, addTodo, completeTodo, removeTodo };
 }
