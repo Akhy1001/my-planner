@@ -19,8 +19,9 @@ export default function Home() {
   const { user, loading, signOut } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('today');
-  const [showSplash, setShowSplash] = useState(true);
-  const [appVisible, setAppVisible] = useState(false);
+  const alreadySeen = typeof window !== 'undefined' && sessionStorage.getItem('splash-seen') === '1';
+  const [showSplash, setShowSplash] = useState(!alreadySeen);
+  const [appVisible, setAppVisible] = useState(alreadySeen);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -44,8 +45,8 @@ export default function Home() {
   }, [user, isPinkUser, isSandUser, isDark]);
 
   const handleSplashComplete = useCallback(() => {
+    sessionStorage.setItem('splash-seen', '1');
     setShowSplash(false);
-    // Small delay so the app reveals smoothly after splash
     setTimeout(() => setAppVisible(true), 50);
   }, []);
 
