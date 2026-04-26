@@ -34,7 +34,7 @@ const RECURRENCE_BADGE: Record<RecurrenceType, string> = {
 };
 
 const WEEK_OPTS = { weekStartsOn: 1 as const };
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const HOURS = Array.from({ length: 16 }, (_, i) => i + 8);
 
 interface EventFormState {
   title: string;
@@ -773,9 +773,9 @@ function MonthGrid({
       </div>
 
       {/* Days */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '90px' }}>
         {Array.from({ length: firstDayOffset }).map((_, i) => (
-          <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', minHeight: '80px' }} />
+          <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} />
         ))}
         {days.map(day => {
           const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
@@ -792,7 +792,7 @@ function MonthGrid({
               style={{
                 borderRight: '1px solid var(--border)',
                 borderBottom: '1px solid var(--border)',
-                minHeight: '80px',
+                overflow: 'hidden',
                 padding: '8px',
                 cursor: 'pointer',
                 background: selected ? 'rgba(122, 140, 110, 0.12)' : cycleBg ?? 'transparent',
@@ -954,36 +954,53 @@ function WeekGrid({
                       height: `${HOUR_HEIGHT}px`,
                       borderRight: '1px solid var(--border)',
                       borderBottom: '1px solid var(--border)',
-                      padding: '2px 3px',
                       cursor: 'pointer',
                       background: selected ? 'rgba(122, 140, 110, 0.05)' : 'transparent',
                       transition: 'background 0.1s',
-                      overflow: 'hidden',
                       position: 'relative',
                     }}
                   >
-                    {dayEvents.map(e => (
-                      <div
-                        key={e.id}
-                        title={`${e.time} – ${e.title}`}
-                        style={{
-                          background: e.color,
-                          color: 'white',
-                          borderRadius: '4px',
-                          padding: '2px 5px',
-                          fontSize: '0.65rem',
-                          lineHeight: 1.3,
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          marginBottom: '1px',
-                        }}
-                      >
-                        <span style={{ opacity: 0.85, marginRight: '3px' }}>{e.time}</span>
-                        {e.recurrence !== 'none' && <span style={{ opacity: 0.75, marginRight: '2px' }}>↻</span>}
-                        {e.title}
-                      </div>
-                    ))}
+                    {dayEvents.map(e => {
+                      const durationH = parseDurationHours(e.duration);
+                      const topOffset = parseStartMinutes(e.time) * (HOUR_HEIGHT / 60);
+                      const blockHeight = Math.max(durationH, 0.25) * HOUR_HEIGHT - 2;
+                      return (
+                        <div
+                          key={e.id}
+                          title={`${e.time} – ${e.title} (${e.duration})`}
+                          style={{
+                            position: 'absolute',
+                            top: `${topOffset}px`,
+                            left: '3px',
+                            right: '3px',
+                            height: `${blockHeight}px`,
+                            background: e.color + '18',
+                            borderLeft: `3px solid ${e.color}`,
+                            color: 'var(--ink)',
+                            borderRadius: '6px',
+                            padding: '3px 5px',
+                            fontSize: '0.65rem',
+                            lineHeight: 1.3,
+                            overflow: 'hidden',
+                            zIndex: 1,
+                            cursor: 'default',
+                            animation: 'eventFadeIn 180ms cubic-bezier(0.23, 1, 0.32, 1) both',
+                            transition: 'opacity 120ms ease',
+                          }}
+                          onMouseEnter={e2 => (e2.currentTarget.style.opacity = '0.75')}
+                          onMouseLeave={e2 => (e2.currentTarget.style.opacity = '1')}
+                        >
+                          <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {e.title}
+                          </div>
+                          {durationH >= 0.5 && (
+                            <div style={{ opacity: 0.7, fontSize: '0.63rem', marginTop: '1px' }}>
+                              {e.time}{e.recurrence !== 'none' ? ' ↻' : ''}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -1048,6 +1065,26 @@ function parseHour(time: string): number {
   const [h] = time.split(':');
   const n = parseInt(h, 10);
   return isNaN(n) ? 0 : n;
+}
+
+function parseStartMinutes(time: string): number {
+  if (!time) return 0;
+  const parts = time.split(':');
+  return parts.length >= 2 ? (parseInt(parts[1], 10) || 0) : 0;
+}
+
+function parseDurationHours(duration: string): number {
+  if (!duration) return 1;
+  const s = duration.trim().toLowerCase();
+  // "1h30min" ou "1h30" ou "1h"
+  const hMin = s.match(/^(\d+(?:\.\d+)?)h\s*(\d+)?(?:min)?$/);
+  if (hMin) return parseFloat(hMin[1]) + (hMin[2] ? parseInt(hMin[2], 10) / 60 : 0);
+  // "30min"
+  const min = s.match(/^(\d+)\s*min$/);
+  if (min) return parseInt(min[1], 10) / 60;
+  // nombre seul → heures
+  const n = parseFloat(s);
+  return isNaN(n) ? 1 : n;
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
