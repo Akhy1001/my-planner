@@ -85,6 +85,41 @@
   border-color: var(--sage);
 }
 
+/* ── Thème Sand (anas.fz1001@gmail.com) ── */
+[data-theme="sand"] {
+  --cream: #fdfdfc;
+  --warm-white: #f9f9f8;
+  --ink: #21201c;
+  --ink-light: #63635e;
+  --sage: #6f6e69;
+  --sage-light: #a9a9a2;
+  --terra: #4a4945;
+  --terra-light: #8d8d86;
+  --gold: #82827c;
+  --gold-light: #bcbbb5;
+  --lavender: #6f6e69;
+  --stone: #8d8d86;
+  --stone-light: #dad9d6;
+  --border: #e9e8e6;
+}
+
+[data-theme="sand"] .paper-bg {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(111, 110, 105, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(74, 73, 69, 0.04) 0%, transparent 60%);
+}
+
+[data-theme="sand"] .task-check:hover {
+  border-color: var(--sage);
+  background: rgba(111, 110, 105, 0.07);
+}
+
+[data-theme="sand"] .task-check.checked {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
 
 * {
   box-sizing: border-box;

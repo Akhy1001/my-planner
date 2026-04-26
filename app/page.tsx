@@ -28,16 +28,20 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // Pink theme takes priority over dark mode for rstrpn05@gmail.com
+  // Per-user theme overrides (take priority over dark mode)
   const isPinkUser = user?.email === 'rstrpn05@gmail.com';
+  const isSandUser = user?.email === 'anas.fz1001@gmail.com';
 
   useEffect(() => {
-    if (isPinkUser) {
+    if (isDark) return; // useTheme gère data-theme="dark"
+    if (isSandUser) {
+      document.documentElement.setAttribute('data-theme', 'sand');
+    } else if (isPinkUser) {
       document.documentElement.setAttribute('data-theme', 'pink');
-    } else if (!isDark) {
+    } else {
       document.documentElement.removeAttribute('data-theme');
     }
-  }, [user, isPinkUser, isDark]);
+  }, [user, isPinkUser, isSandUser, isDark]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
