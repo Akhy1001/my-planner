@@ -151,8 +151,11 @@ create table if not exists playful_todos (
   user_id uuid not null references auth.users(id),
   label text not null,
   done boolean not null default false,
+  completed_at timestamptz,
   created_at timestamptz not null default now()
 );
+-- Migration DEV2-21 : ajout de completed_at pour tracker l'historique
+-- ALTER TABLE playful_todos ADD COLUMN IF NOT EXISTS completed_at timestamptz;
 alter table playful_todos enable row level security;
 create policy "playful_todos: select own" on playful_todos for select using (auth.uid() = user_id);
 create policy "playful_todos: insert own" on playful_todos for insert with check (auth.uid() = user_id);
