@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { User } from '@supabase/supabase-js';
@@ -42,18 +43,28 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
       flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ padding: '0 22px 28px' }} className="animate-slide-in">
-        <div className="font-display" style={{
-          fontSize: '1.35rem', color: 'var(--ink)',
-          fontWeight: '700', letterSpacing: '-0.03em',
-        }}>
-          Mon Planner
-        </div>
-        <div style={{
-          fontSize: '0.68rem', color: 'var(--stone)',
-          letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '3px',
-        }}>
-          Digital Journal
+      <div style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }} className="animate-slide-in">
+        <Image
+          src="/logo.jpg"
+          alt="Mon Planner logo"
+          width={38}
+          height={38}
+          style={{ borderRadius: '10px', flexShrink: 0 }}
+          priority
+        />
+        <div>
+          <div className="font-display" style={{
+            fontSize: '1.1rem', color: 'var(--ink)',
+            fontWeight: '700', letterSpacing: '-0.03em',
+          }}>
+            Mon Planner
+          </div>
+          <div style={{
+            fontSize: '0.65rem', color: 'var(--stone)',
+            letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '2px',
+          }}>
+            Digital Journal
+          </div>
         </div>
       </div>
 

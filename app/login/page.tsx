@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -71,15 +72,14 @@ export default function LoginPage() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-          <div style={{
-            width: '52px', height: '52px', borderRadius: '18px',
-            background: 'linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px',
-            fontSize: '1.4rem', color: 'white',
-          }}>
-            ✦
-          </div>
+          <Image
+            src="/logo.jpg"
+            alt="Mon Planner logo"
+            width={52}
+            height={52}
+            style={{ borderRadius: '18px', margin: '0 auto 16px', display: 'block' }}
+            priority
+          />
           <div className="font-display" style={{
             fontSize: '1.8rem', color: 'var(--ink)',
             fontWeight: '700', letterSpacing: '-0.04em',
