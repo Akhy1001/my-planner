@@ -180,5 +180,32 @@ export function usePlayfulTodos() {
     await supabase.from('playful_subtasks').delete().eq('id', subtaskId);
   };
 
-  return { todos, loading, weekStats, addTodo, completeTodo, removeTodo, addSubtask, toggleSubtask, removeSubtask };
+  const updateTodo = async (id: string, label: string) => {
+    const prev = todos.find(t => t.id === id);
+    if (!prev || label === prev.label) return;
+    setTodos(p => p.map(t => t.id === id ? { ...t, label } : t));
+    const { error } = await supabase.from('playful_todos').update({ label }).eq('id', id);
+    if (error) setTodos(p => p.map(t => t.id === id ? { ...t, label: prev.label } : t));
+  };
+
+  const updateSubtask = async (todoId: string, subtaskId: string, label: string) => {
+    const todo = todos.find(t => t.id === todoId);
+    const prevSub = todo?.subtasks.find(s => s.id === subtaskId);
+    if (!prevSub || label === prevSub.label) return;
+    setTodos(p => p.map(t =>
+      t.id === todoId
+        ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, label } : s) }
+        : t
+    ));
+    const { error } = await supabase.from('playful_subtasks').update({ label }).eq('id', subtaskId);
+    if (error) {
+      setTodos(p => p.map(t =>
+        t.id === todoId
+          ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, label: prevSub.label } : s) }
+          : t
+      ));
+    }
+  };
+
+  return { todos, loading, weekStats, addTodo, completeTodo, removeTodo, addSubtask, toggleSubtask, removeSubtask, updateTodo, updateSubtask };
 }

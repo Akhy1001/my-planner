@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { CirclePlus, Trash, CheckCircle } from './icons';
 import { usePlayfulTodos, DayStat } from '@/hooks/usePlayfulTodos';
@@ -217,14 +217,19 @@ function SubtaskZone({
   onAdd,
   onToggle,
   onRemove,
+  onUpdate,
 }: {
   todoId: string;
   subtasks: { id: string; label: string; done: boolean }[];
   onAdd: (todoId: string, label: string) => void;
   onToggle: (todoId: string, subtaskId: string) => void;
   onRemove: (todoId: string, subtaskId: string) => void;
+  onUpdate: (todoId: string, subtaskId: string, label: string) => void;
 }) {
   const [newLabel, setNewLabel] = useState('');
+  const [editingSubId, setEditingSubId] = useState<string | null>(null);
+  const [editingSubValue, setEditingSubValue] = useState('');
+  const subEscapedRef = useRef(false);
 
   const handleAdd = () => {
     const trimmed = newLabel.trim();
@@ -297,19 +302,73 @@ function SubtaskZone({
               </motion.button>
 
               {/* Label */}
-              <span style={{
-                flex: 1,
-                fontSize: '0.82rem',
-                color: sub.done ? 'var(--stone)' : 'var(--ink)',
-                textDecoration: sub.done ? 'line-through' : 'none',
-                opacity: sub.done ? 0.6 : 1,
-                transition: 'opacity 0.15s ease',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}>
-                {sub.label}
-              </span>
+              {editingSubId === sub.id ? (
+                <motion.input
+                  autoFocus
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.12, ease: EASE_OUT }}
+                  value={editingSubValue}
+                  onChange={e => setEditingSubValue(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      subEscapedRef.current = false;
+                      const trimmed = editingSubValue.trim();
+                      if (trimmed) onUpdate(todoId, sub.id, trimmed);
+                      setEditingSubId(null);
+                    } else if (e.key === 'Escape') {
+                      subEscapedRef.current = true;
+                      e.preventDefault();
+                      setEditingSubId(null);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (subEscapedRef.current) { subEscapedRef.current = false; return; }
+                    const trimmed = editingSubValue.trim();
+                    if (trimmed) onUpdate(todoId, sub.id, trimmed);
+                    setEditingSubId(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    fontSize: '0.82rem',
+                    fontFamily: 'inherit',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid transparent',
+                    outline: 'none',
+                    color: 'var(--ink)',
+                    padding: '1px 0',
+                    minWidth: 0,
+                    transition: 'border-color 0.12s ease',
+                  }}
+                  onFocus={e => { e.currentTarget.style.borderBottomColor = 'var(--border)'; }}
+                />
+              ) : (
+                <motion.span
+                  onClick={() => {
+                    if (sub.done) return;
+                    subEscapedRef.current = false;
+                    setEditingSubId(sub.id);
+                    setEditingSubValue(sub.label);
+                  }}
+                  whileHover={sub.done ? {} : { opacity: 0.65 }}
+                  transition={{ duration: 0.12 }}
+                  style={{
+                    flex: 1,
+                    fontSize: '0.82rem',
+                    color: sub.done ? 'var(--stone)' : 'var(--ink)',
+                    textDecoration: sub.done ? 'line-through' : 'none',
+                    opacity: sub.done ? 0.6 : 1,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: sub.done ? 'default' : 'text',
+                    display: 'block',
+                  }}
+                >
+                  {sub.label}
+                </motion.span>
+              )}
 
               {/* Supprimer sous-tâche */}
               <motion.button
@@ -390,12 +449,15 @@ function SubtaskZone({
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function PlayfulTodolist() {
-  const { todos, loading, weekStats, addTodo, completeTodo, removeTodo, addSubtask, toggleSubtask, removeSubtask } = usePlayfulTodos();
+  const { todos, loading, weekStats, addTodo, completeTodo, removeTodo, addSubtask, toggleSubtask, removeSubtask, updateTodo, updateSubtask } = usePlayfulTodos();
   const [newItem, setNewItem] = useState('');
   const [completing, setCompleting] = useState<Set<string>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const [editingTodoValue, setEditingTodoValue] = useState('');
+  const todoEscapedRef = useRef(false);
 
   const handleAdd = () => {
     const trimmed = newItem.trim();
@@ -608,18 +670,70 @@ export function PlayfulTodolist() {
 
                         {/* Label + compteur sous-tâches */}
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <span style={{
-                            fontSize: '0.9rem',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: 'block',
-                            textDecoration: isDone ? 'line-through' : 'none',
-                            opacity: isDone ? 0.6 : 1,
-                            transition: 'opacity 0.15s ease',
-                          }}>
-                            {item.label}
-                          </span>
+                          {editingTodoId === item.id ? (
+                            <motion.input
+                              autoFocus
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.12, ease: EASE_OUT }}
+                              value={editingTodoValue}
+                              onChange={e => setEditingTodoValue(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  todoEscapedRef.current = false;
+                                  const trimmed = editingTodoValue.trim();
+                                  if (trimmed) updateTodo(item.id, trimmed);
+                                  setEditingTodoId(null);
+                                } else if (e.key === 'Escape') {
+                                  todoEscapedRef.current = true;
+                                  e.preventDefault();
+                                  setEditingTodoId(null);
+                                }
+                              }}
+                              onBlur={() => {
+                                if (todoEscapedRef.current) { todoEscapedRef.current = false; return; }
+                                const trimmed = editingTodoValue.trim();
+                                if (trimmed) updateTodo(item.id, trimmed);
+                                setEditingTodoId(null);
+                              }}
+                              style={{
+                                width: '100%',
+                                fontSize: '0.9rem',
+                                fontFamily: 'inherit',
+                                background: 'transparent',
+                                border: 'none',
+                                borderBottom: '1px solid transparent',
+                                outline: 'none',
+                                color: 'var(--ink)',
+                                padding: '1px 0',
+                                transition: 'border-color 0.12s ease',
+                              }}
+                              onFocus={e => { e.currentTarget.style.borderBottomColor = 'var(--border)'; }}
+                            />
+                          ) : (
+                            <motion.span
+                              onClick={() => {
+                                if (isDone) return;
+                                todoEscapedRef.current = false;
+                                setEditingTodoId(item.id);
+                                setEditingTodoValue(item.label);
+                              }}
+                              whileHover={isDone ? {} : { opacity: 0.65 }}
+                              transition={{ duration: 0.12 }}
+                              style={{
+                                fontSize: '0.9rem',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: 'block',
+                                textDecoration: isDone ? 'line-through' : 'none',
+                                opacity: isDone ? 0.6 : 1,
+                                cursor: isDone ? 'default' : 'text',
+                              }}
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
                           {subCount > 0 && !isDone && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px' }}>
                               <div style={{
@@ -724,6 +838,7 @@ export function PlayfulTodolist() {
                           onAdd={addSubtask}
                           onToggle={toggleSubtask}
                           onRemove={removeSubtask}
+                          onUpdate={updateSubtask}
                         />
                       )}
                     </AnimatePresence>
