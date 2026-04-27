@@ -3,10 +3,17 @@ import { useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 
+export interface SubTask {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
 export interface PlayfulTodo {
   id: string;
   label: string;
   done: boolean;
+  subtasks: SubTask[];
 }
 
 export interface DayStat {
@@ -47,11 +54,16 @@ export function usePlayfulTodos() {
     const fetchTodos = async () => {
       const { data, error } = await supabase
         .from('playful_todos')
-        .select('id, label, done')
+        .select('id, label, done, playful_subtasks(id, label, done)')
         .eq('user_id', userId)
         .eq('done', false)
         .order('created_at', { ascending: true });
-      if (!error && data) setTodos(data as PlayfulTodo[]);
+      if (!error && data) {
+        setTodos(data.map(row => ({
+          ...row,
+          subtasks: (row.playful_subtasks ?? []) as SubTask[],
+        })));
+      }
       setLoading(false);
     };
 
@@ -83,14 +95,16 @@ export function usePlayfulTodos() {
   const addTodo = async (label: string) => {
     if (!userId) return;
     const optimisticId = `temp-${Date.now()}`;
-    setTodos(prev => [{ id: optimisticId, label, done: false }, ...prev]);
+    setTodos(prev => [{ id: optimisticId, label, done: false, subtasks: [] }, ...prev]);
     const { data, error } = await supabase
       .from('playful_todos')
       .insert({ label, done: false, user_id: userId })
       .select('id, label, done')
       .single();
     if (!error && data) {
-      setTodos(prev => prev.map(t => t.id === optimisticId ? (data as PlayfulTodo) : t));
+      setTodos(prev => prev.map(t =>
+        t.id === optimisticId ? { ...(data as Omit<PlayfulTodo, 'subtasks'>), subtasks: [] } : t
+      ));
     } else {
       setTodos(prev => prev.filter(t => t.id !== optimisticId));
     }
@@ -98,14 +112,11 @@ export function usePlayfulTodos() {
 
   const completeTodo = async (id: string) => {
     const completedAt = new Date().toISOString();
-    // Retire immédiatement de la liste active (optimiste)
     setTodos(prev => prev.filter(t => t.id !== id));
-    // Marque comme done avec la date de complétion (pour l'historique)
     await supabase
       .from('playful_todos')
       .update({ done: true, completed_at: completedAt })
       .eq('id', id);
-    // Incrémente le compteur du jour dans les stats locales
     const today = format(new Date(), 'yyyy-MM-dd');
     setWeekStats(prev => prev.map(s =>
       s.date === today ? { ...s, count: s.count + 1 } : s
@@ -117,5 +128,57 @@ export function usePlayfulTodos() {
     await supabase.from('playful_todos').delete().eq('id', id);
   };
 
-  return { todos, loading, weekStats, addTodo, completeTodo, removeTodo };
+  // ── Sous-tâches ──────────────────────────────────────────────────────────────
+
+  const addSubtask = async (todoId: string, label: string) => {
+    if (!userId) return;
+    const optimisticId = `temp-sub-${Date.now()}`;
+    setTodos(prev => prev.map(t =>
+      t.id === todoId
+        ? { ...t, subtasks: [...t.subtasks, { id: optimisticId, label, done: false }] }
+        : t
+    ));
+    const { data, error } = await supabase
+      .from('playful_subtasks')
+      .insert({ label, done: false, todo_id: todoId, user_id: userId })
+      .select('id, label, done')
+      .single();
+    if (!error && data) {
+      setTodos(prev => prev.map(t =>
+        t.id === todoId
+          ? { ...t, subtasks: t.subtasks.map(s => s.id === optimisticId ? (data as SubTask) : s) }
+          : t
+      ));
+    } else {
+      setTodos(prev => prev.map(t =>
+        t.id === todoId
+          ? { ...t, subtasks: t.subtasks.filter(s => s.id !== optimisticId) }
+          : t
+      ));
+    }
+  };
+
+  const toggleSubtask = async (todoId: string, subtaskId: string) => {
+    const todo = todos.find(t => t.id === todoId);
+    const sub = todo?.subtasks.find(s => s.id === subtaskId);
+    if (!sub) return;
+    const done = !sub.done;
+    setTodos(prev => prev.map(t =>
+      t.id === todoId
+        ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, done } : s) }
+        : t
+    ));
+    await supabase.from('playful_subtasks').update({ done }).eq('id', subtaskId);
+  };
+
+  const removeSubtask = async (todoId: string, subtaskId: string) => {
+    setTodos(prev => prev.map(t =>
+      t.id === todoId
+        ? { ...t, subtasks: t.subtasks.filter(s => s.id !== subtaskId) }
+        : t
+    ));
+    await supabase.from('playful_subtasks').delete().eq('id', subtaskId);
+  };
+
+  return { todos, loading, weekStats, addTodo, completeTodo, removeTodo, addSubtask, toggleSubtask, removeSubtask };
 }
