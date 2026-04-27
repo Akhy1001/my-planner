@@ -211,6 +211,22 @@ button, input, textarea, select {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes ghostFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Resize handle: hidden by default, visible on event block hover (pointer devices only) */
+@media (hover: hover) and (pointer: fine) {
+  [data-event-block] [data-resize-handle] {
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  [data-event-block]:hover [data-resize-handle] {
+    opacity: 1;
+  }
+}
+
 @keyframes iconBounce {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }

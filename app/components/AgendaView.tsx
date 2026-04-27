@@ -1,7 +1,7 @@
 'use client';
 import AddButton from './AddButton';
 import { Trash } from './animate-ui';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -284,6 +284,7 @@ export default function AgendaView() {
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
             cycleDays={cycleDays}
+            onUpdateEvent={updateEvent}
           />
         )}
       </div>
@@ -845,15 +846,144 @@ function MonthGrid({
 
 const HOUR_HEIGHT = 52; // px per hour row
 
+interface DragState {
+  eventId: string;
+  baseId: string;
+  previewDay: Date;
+  previewTime: string;
+  grabOffsetMin: number;
+  durationMin: number;
+  color: string;
+  title: string;
+}
+
+interface ResizeState {
+  eventId: string;
+  baseId: string;
+  startClientY: number;
+  origDurationMin: number;
+  currentDurationMin: number;
+}
+
+function formatTime(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function formatDurationFromMin(totalMin: number): string {
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h${m}`;
+}
+
 function WeekGrid({
-  weekDays, events, selectedDate, onSelectDate, cycleDays,
+  weekDays, events, selectedDate, onSelectDate, cycleDays, onUpdateEvent,
 }: {
   weekDays: Date[];
   events: Event[];
   selectedDate: Date;
   onSelectDate: (d: Date) => void;
   cycleDays: CycleDay[];
+  onUpdateEvent: (id: string, fields: Partial<Omit<Event, 'id' | 'baseId'>>) => void;
 }) {
+  const scrollableRef = useRef<HTMLDivElement>(null);
+  const [dragState, setDragState] = useState<DragState | null>(null);
+  const [resizeState, setResizeState] = useState<ResizeState | null>(null);
+
+  const handleEventPointerDown = (e: React.PointerEvent, event: Event) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const el = scrollableRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const relY = e.clientY - rect.top + el.scrollTop;
+    const eventTopPx = (parseHour(event.time) - 8) * HOUR_HEIGHT + parseStartMinutes(event.time) * (HOUR_HEIGHT / 60);
+    const durationMin = Math.round(parseDurationHours(event.duration) * 60);
+    const grabOffsetMin = Math.max(0, Math.min(durationMin - 15, (relY - eventTopPx) / HOUR_HEIGHT * 60));
+    setDragState({
+      eventId: event.id,
+      baseId: event.baseId ?? event.id,
+      previewDay: event.date,
+      previewTime: event.time,
+      grabOffsetMin: Math.round(grabOffsetMin / 15) * 15,
+      durationMin,
+      color: event.color,
+      title: event.title,
+    });
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const handleResizePointerDown = (e: React.PointerEvent, event: Event) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const el = scrollableRef.current;
+    if (!el) return;
+    const origDurationMin = Math.round(parseDurationHours(event.duration) * 60);
+    setResizeState({
+      eventId: event.id,
+      baseId: event.baseId ?? event.id,
+      startClientY: e.clientY,
+      origDurationMin,
+      currentDurationMin: origDurationMin,
+    });
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const el = scrollableRef.current;
+    if (!el || (!dragState && !resizeState)) return;
+
+    if (dragState) {
+      const rect = el.getBoundingClientRect();
+      const scrollTop = el.scrollTop;
+
+      // Compute new hour+min from Y (snap to 15min), accounting for grab offset
+      const relY = e.clientY - rect.top + scrollTop - dragState.grabOffsetMin * (HOUR_HEIGHT / 60);
+      const totalMin = Math.max(0, relY / HOUR_HEIGHT * 60);
+      const rawHour = Math.floor(totalMin / 60) + 8;
+      const rawMin = totalMin % 60;
+      const snappedMin = Math.round(rawMin / 15) * 15;
+      const overflow = snappedMin >= 60 ? 1 : 0;
+      const finalMin = snappedMin % 60;
+      const finalHour = Math.min(22, Math.max(8, rawHour + overflow));
+
+      // Compute target day column from X
+      const colWidth = (rect.width - 48) / 7;
+      const relX = e.clientX - rect.left - 48;
+      const colIdx = Math.min(6, Math.max(0, Math.floor(relX / colWidth)));
+
+      setDragState(prev => prev ? {
+        ...prev,
+        previewDay: weekDays[colIdx],
+        previewTime: formatTime(finalHour, finalMin),
+      } : null);
+    }
+
+    if (resizeState) {
+      const deltaY = e.clientY - resizeState.startClientY;
+      const deltaMins = deltaY / HOUR_HEIGHT * 60;
+      const newDuration = Math.max(15, Math.round((resizeState.origDurationMin + deltaMins) / 15) * 15);
+      setResizeState(prev => prev ? { ...prev, currentDurationMin: newDuration } : null);
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (dragState) {
+      onUpdateEvent(dragState.baseId, {
+        date: startOfDay(dragState.previewDay),
+        time: dragState.previewTime,
+      });
+      setDragState(null);
+    }
+    if (resizeState) {
+      onUpdateEvent(resizeState.baseId, {
+        duration: formatDurationFromMin(resizeState.currentDurationMin),
+      });
+      setResizeState(null);
+    }
+  };
+
   return (
     <div style={{
       background: 'var(--warm-white)', borderRadius: '14px',
@@ -919,23 +1049,26 @@ function WeekGrid({
       </div>
 
       {/* Scrollable time grid */}
-      <div style={{ overflowY: 'auto', maxHeight: '580px' }}>
+      <div
+        ref={scrollableRef}
+        style={{ overflowY: 'auto', maxHeight: '580px', position: 'relative' }}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
         <div style={{ display: 'grid', gridTemplateColumns: '48px repeat(7, 1fr)' }}>
-          {/* Hour labels column + rows */}
           {HOURS.map(hour => (
             <React.Fragment key={hour}>
               {/* Hour label */}
-              <div
-                style={{
-                  height: `${HOUR_HEIGHT}px`,
-                  borderRight: '1px solid var(--border)',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end',
-                  paddingRight: '6px', paddingTop: '4px',
-                  fontSize: '0.65rem', color: 'var(--stone)',
-                  userSelect: 'none',
-                }}
-              >
+              <div style={{
+                height: `${HOUR_HEIGHT}px`,
+                borderRight: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end',
+                paddingRight: '6px', paddingTop: '4px',
+                fontSize: '0.65rem', color: 'var(--stone)',
+                userSelect: 'none',
+              }}>
                 {String(hour).padStart(2, '0')}h
               </div>
 
@@ -961,12 +1094,18 @@ function WeekGrid({
                     }}
                   >
                     {dayEvents.map(e => {
-                      const durationH = parseDurationHours(e.duration);
+                      const isDragging = dragState?.eventId === e.id;
+                      const isResizing = resizeState?.eventId === e.id;
+                      const durationMin = isResizing
+                        ? resizeState!.currentDurationMin
+                        : Math.round(parseDurationHours(e.duration) * 60);
+                      const durationH = durationMin / 60;
                       const topOffset = parseStartMinutes(e.time) * (HOUR_HEIGHT / 60);
                       const blockHeight = Math.max(durationH, 0.25) * HOUR_HEIGHT - 2;
                       return (
                         <div
                           key={e.id}
+                          data-event-block
                           title={`${e.time} – ${e.title} (${e.duration})`}
                           style={{
                             position: 'absolute',
@@ -974,21 +1113,22 @@ function WeekGrid({
                             left: '3px',
                             right: '3px',
                             height: `${blockHeight}px`,
-                            background: e.color + '18',
+                            background: e.color + (isDragging ? '10' : '18'),
                             borderLeft: `3px solid ${e.color}`,
                             color: 'var(--ink)',
                             borderRadius: '6px',
-                            padding: '3px 5px',
+                            padding: '3px 5px 10px',
                             fontSize: '0.65rem',
                             lineHeight: 1.3,
                             overflow: 'hidden',
-                            zIndex: 1,
-                            cursor: 'default',
-                            animation: 'eventFadeIn 180ms cubic-bezier(0.23, 1, 0.32, 1) both',
-                            transition: 'opacity 120ms ease',
+                            zIndex: isDragging ? 0 : 1,
+                            opacity: isDragging ? 0.25 : 1,
+                            cursor: (dragState || resizeState) ? 'grabbing' : 'grab',
+                            userSelect: 'none',
+                            transition: 'opacity 140ms cubic-bezier(0.23, 1, 0.32, 1), background 140ms cubic-bezier(0.23, 1, 0.32, 1)',
+                            animation: isDragging ? 'none' : 'eventFadeIn 180ms cubic-bezier(0.23, 1, 0.32, 1) both',
                           }}
-                          onMouseEnter={e2 => (e2.currentTarget.style.opacity = '0.75')}
-                          onMouseLeave={e2 => (e2.currentTarget.style.opacity = '1')}
+                          onPointerDown={e2 => handleEventPointerDown(e2, e)}
                         >
                           <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {e.title}
@@ -998,6 +1138,23 @@ function WeekGrid({
                               {e.time}{e.recurrence !== 'none' ? ' ↻' : ''}
                             </div>
                           )}
+                          {/* Resize handle */}
+                          <div
+                            data-resize-handle
+                            onPointerDown={e2 => handleResizePointerDown(e2, e)}
+                            style={{
+                              position: 'absolute',
+                              bottom: 0, left: 0, right: 0,
+                              height: '10px',
+                              cursor: 'ns-resize',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}
+                          >
+                            <div style={{
+                              width: '24px', height: '2px', borderRadius: '1px',
+                              background: e.color,
+                            }} />
+                          </div>
                         </div>
                       );
                     })}
@@ -1007,6 +1164,47 @@ function WeekGrid({
             </React.Fragment>
           ))}
         </div>
+
+        {/* Drag ghost */}
+        {dragState && (() => {
+          const el = scrollableRef.current;
+          const colWidth = el ? (el.offsetWidth - 48) / 7 : 100;
+          const colIdx = weekDays.findIndex(d => isSameDay(d, dragState.previewDay));
+          if (colIdx === -1) return null;
+          const ghostHour = parseHour(dragState.previewTime);
+          const ghostMin = parseStartMinutes(dragState.previewTime);
+          const top = (ghostHour - 8) * HOUR_HEIGHT + ghostMin * (HOUR_HEIGHT / 60);
+          const height = Math.max(dragState.durationMin, 15) * HOUR_HEIGHT / 60 - 2;
+          return (
+            <div style={{
+              position: 'absolute',
+              top: `${top}px`,
+              left: `${48 + colIdx * colWidth + 3}px`,
+              width: `${colWidth - 6}px`,
+              height: `${height}px`,
+              background: dragState.color + '33',
+              borderLeft: `3px solid ${dragState.color}`,
+              borderRadius: '6px',
+              padding: '3px 5px',
+              fontSize: '0.65rem',
+              lineHeight: 1.3,
+              color: 'var(--ink)',
+              zIndex: 10,
+              pointerEvents: 'none',
+              boxShadow: `0 8px 32px rgba(0,0,0,0.16), 0 2px 8px ${dragState.color}22`,
+              fontWeight: 600,
+              overflow: 'hidden',
+              userSelect: 'none',
+              animation: 'ghostFadeIn 120ms cubic-bezier(0.23, 1, 0.32, 1) both',
+              transition: 'top 70ms cubic-bezier(0.23, 1, 0.32, 1), left 70ms cubic-bezier(0.23, 1, 0.32, 1), height 70ms cubic-bezier(0.23, 1, 0.32, 1)',
+            }}>
+              {dragState.title}
+              <div style={{ opacity: 0.7, fontSize: '0.63rem', marginTop: '1px' }}>
+                {dragState.previewTime}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
