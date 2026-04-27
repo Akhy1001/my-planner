@@ -5,6 +5,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Mon Planner — Votre espace de productivité",
   description: "Un planner digital moderne pour une vie intentionnelle",
+  icons: {
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
