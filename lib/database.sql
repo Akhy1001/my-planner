@@ -162,7 +162,22 @@ create policy "playful_todos: insert own" on playful_todos for insert with check
 create policy "playful_todos: update own" on playful_todos for update using (auth.uid() = user_id);
 create policy "playful_todos: delete own" on playful_todos for delete using (auth.uid() = user_id);
 
--- 10. CYCLE MENSTRUEL
+-- 10. SOUS-TÂCHES PLAYFUL TODOLIST
+create table if not exists playful_subtasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
+  todo_id uuid not null references playful_todos(id) on delete cascade,
+  label text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+alter table playful_subtasks enable row level security;
+create policy "playful_subtasks: select own" on playful_subtasks for select using (auth.uid() = user_id);
+create policy "playful_subtasks: insert own" on playful_subtasks for insert with check (auth.uid() = user_id);
+create policy "playful_subtasks: update own" on playful_subtasks for update using (auth.uid() = user_id);
+create policy "playful_subtasks: delete own" on playful_subtasks for delete using (auth.uid() = user_id);
+
+-- 11. CYCLE MENSTRUEL
 create table if not exists menstrual_cycles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
