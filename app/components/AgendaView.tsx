@@ -1166,6 +1166,7 @@ function WeekGrid({
         </div>
 
         {/* Drag ghost */}
+        {/* eslint-disable-next-line react-hooks/refs */}
         {dragState && (() => {
           const el = scrollableRef.current;
           const colWidth = el ? (el.offsetWidth - 48) / 7 : 100;

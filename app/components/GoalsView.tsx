@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Target } from './animate-ui';
+import { Target, ScribbleStrikethrough } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGoals, Goal } from '@/hooks/useGoals';
@@ -211,8 +211,11 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
               </div>
               <span style={{
                 fontSize: '0.85rem', color: ms.done ? 'var(--stone)' : 'var(--ink)',
-                textDecoration: ms.done ? 'line-through' : 'none',
-              }}>{ms.text}</span>
+                position: 'relative', display: 'inline',
+              }}>
+                {ms.text}
+                <ScribbleStrikethrough active={ms.done} color="var(--stone)" />
+              </span>
             </div>
           ))}
         </div>
