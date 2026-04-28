@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, Flag, PlayfulTodolist, CheckCircle, Edit } from './animate-ui';
+import { Trash, Flag, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough } from './animate-ui';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -157,12 +157,16 @@ export default function TodayView() {
                     )}
                   </motion.div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className={task.done ? 'task-text-done' : ''} style={{
+                    <div style={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      maxWidth: '100%',
                       fontSize: '0.85rem', color: task.done ? 'var(--stone)' : 'var(--ink)',
                       transition: 'color 0.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
                       opacity: task.done ? 0.78 : 1,
                     }}>
                       {task.text}
+                      <ScribbleStrikethrough active={task.done} color="var(--stone)" />
                     </div>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '3px', alignItems: 'center' }}>
                       {task.time && <span style={{ fontSize: '0.7rem', color: 'var(--stone)' }}>⏱ {task.time}</span>}

@@ -16,6 +16,8 @@ export {
   Flag,
 } from './icons';
 
+export { ScribbleStrikethrough } from './icons/scribble-strikethrough';
+
 export type * from './icons';
 export { PlayfulTodolist } from './PlayfulTodolist';
 
