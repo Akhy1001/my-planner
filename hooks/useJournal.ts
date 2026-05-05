@@ -59,10 +59,15 @@ export function useJournal() {
 
   const updateJournal = async (updates: Partial<Omit<JournalEntry, 'id' | 'date'>>) => {
     if (!userId) return;
+    const previous = journal;
     setJournal(prev => ({ ...prev, ...updates }));
-    await supabase
+    const { error } = await supabase
       .from('daily_journal')
       .upsert({ date: today, user_id: userId, ...updates }, { onConflict: 'date,user_id' });
+    if (error) {
+      console.error('[useJournal] updateJournal failed:', error.message);
+      setJournal(previous);
+    }
   };
 
   return { journal, loading, updateJournal };
