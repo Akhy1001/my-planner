@@ -33,6 +33,7 @@ export function useJournal() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserId(session?.user?.id ?? null);
+      if (!session) setLoading(false);
     });
   }, []);
 
@@ -45,14 +46,17 @@ export function useJournal() {
   useEffect(() => {
     if (!userId) return;
     const fetchJournal = async () => {
-      const { data } = await supabase
-        .from('daily_journal')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('date', today)
-        .maybeSingle();
-      if (data) setJournal(data as JournalEntry);
-      setLoading(false);
+      try {
+        const { data } = await supabase
+          .from('daily_journal')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', today)
+          .maybeSingle();
+        if (data) setJournal(data as JournalEntry);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchJournal();
   }, [userId, today]);
