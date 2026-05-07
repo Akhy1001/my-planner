@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, Flag, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough } from './animate-ui';
+import { Trash, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough } from './animate-ui';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -14,13 +14,17 @@ export default function TodayView() {
   const [newTask, setNewTask] = useState('');
   const [newPriority, setNewPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [newCategory, setNewCategory] = useState('Personnel');
-
   const handleAddTask = async () => {
     if (!newTask.trim()) return;
     await addTask({ text: newTask, priority: newPriority, category: newCategory });
     setNewTask('');
   };
 
+  const priorityConfig = {
+    high: { label: 'Haute', bg: 'var(--terra)', bgLight: 'rgba(192,99,74,0.15)', color: 'var(--terra)', fontWeight: 'bold' },
+    medium: { label: 'Moyenne', bg: 'var(--gold)', bgLight: 'rgba(201,151,60,0.15)', color: 'var(--gold)', fontWeight: '600' },
+    low: { label: 'Basse', bg: 'var(--sage)', bgLight: 'rgba(107,143,113,0.15)', color: 'var(--sage)', fontWeight: '500' },
+  } as const;
   const doneTasks = tasks.filter(t => t.done).length;
   const progress = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
 
@@ -89,7 +93,7 @@ export default function TodayView() {
           <h2 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}>
             Tâches du jour
           </h2>
-          
+
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               {[0, 1, 2].map(i => (
@@ -124,7 +128,7 @@ export default function TodayView() {
                       width: '26px', height: '26px', borderRadius: '10px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', border: '1px solid var(--border)',
-                      background: task.done ? 'var(--terra)' : 'transparent',
+                      backgroundColor: task.done ? 'var(--terra)' : 'transparent',
                       color: task.done ? 'white' : 'var(--ink)',
                       position: 'relative',
                       overflow: 'hidden',
@@ -170,15 +174,22 @@ export default function TodayView() {
                     </div>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '3px', alignItems: 'center' }}>
                       {task.time && <span style={{ fontSize: '0.7rem', color: 'var(--stone)' }}>⏱ {task.time}</span>}
-                      <span style={{ 
+                      <span style={{
                         fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px',
                         background: 'var(--warm-white)', color: 'var(--stone)',
                         border: '1px solid var(--border)'
                       }}>{task.category}</span>
+                      <span style={{
+                        fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px',
+                        background: priorityConfig[task.priority].bgLight,
+                        color: priorityConfig[task.priority].color,
+                        fontWeight: priorityConfig[task.priority].fontWeight,
+                        border: `1px solid ${priorityConfig[task.priority].bg}`,
+                        opacity: task.done ? 0.5 : 1,
+                      }}>{priorityConfig[task.priority].label}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {task.priority === 'high' && <Flag size={14} color="var(--terra)" />}
                     <button 
                       onClick={() => removeTask(task.id)} 
                       title="Supprimer"
@@ -218,25 +229,17 @@ export default function TodayView() {
             <div style={{ display: 'flex', gap: '8px' }}>
               {(['high', 'medium', 'low'] as const).map(p => {
                 const isSelected = newPriority === p;
-                const priorityConfig = {
-                  high: { label: 'Haute', bg: 'var(--terra)', bgLight: 'rgba(192,99,74,0.15)', color: isSelected ? 'white' : 'var(--terra)', fontWeight: 'bold' },
-                  medium: { label: 'Moyenne', bg: 'var(--gold)', bgLight: 'rgba(201,151,60,0.15)', color: isSelected ? 'white' : 'var(--gold)', fontWeight: '600' },
-                  low: { label: 'Basse', bg: 'var(--sage)', bgLight: 'rgba(107,143,113,0.15)', color: isSelected ? 'white' : 'var(--sage)', fontWeight: '500' },
-                };
-                const config = priorityConfig[p];
+                const cfg = priorityConfig[p];
                 return (
                   <motion.button
                     key={p}
                     onClick={() => setNewPriority(p)}
                     whileTap={{ scale: 0.96 }}
                     animate={{
-                      background: isSelected ? config.bg : config.bgLight,
-                      color: isSelected ? 'white' : config.color,
+                      background: isSelected ? cfg.bg : cfg.bgLight,
+                      color: isSelected ? 'white' : cfg.color,
                     }}
-                    whileHover={!isSelected ? {
-                      background: config.bg,
-                      color: 'white',
-                    } : {}}
+                    whileHover={!isSelected ? { background: cfg.bg, color: 'white' } : {}}
                     transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
                     style={{
                       padding: '8px 16px',
@@ -245,10 +248,10 @@ export default function TodayView() {
                       fontSize: '0.8rem',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
-                      fontWeight: config.fontWeight,
+                      fontWeight: cfg.fontWeight,
                     }}
                   >
-                    {config.label}
+                    {cfg.label}
                   </motion.button>
                 );
               })}
