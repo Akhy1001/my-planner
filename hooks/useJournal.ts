@@ -10,7 +10,7 @@ export interface JournalEntry {
   gratitude: string[];
   water_glasses: number;
   water_target: number;
-  reading_pages: number;
+  reading_chapters: number;
   reading_target: number;
 }
 
@@ -20,8 +20,8 @@ const defaultEntry = (date: string): JournalEntry => ({
   gratitude: ['', '', ''],
   water_glasses: 0,
   water_target: 8,
-  reading_pages: 0,
-  reading_target: 20,
+  reading_chapters: 0,
+  reading_target: 5,
 });
 
 export function useJournal() {
@@ -53,7 +53,28 @@ export function useJournal() {
           .eq('user_id', userId)
           .eq('date', today)
           .maybeSingle();
-        if (data) setJournal(data as JournalEntry);
+
+        if (data) {
+          setJournal(data as JournalEntry);
+        } else {
+          // Aucune entrée pour aujourd'hui → hériter les objectifs du dernier jour connu
+          const { data: previous } = await supabase
+            .from('daily_journal')
+            .select('water_target, reading_target')
+            .eq('user_id', userId)
+            .lt('date', today)
+            .order('date', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (previous) {
+            setJournal(prev => ({
+              ...prev,
+              water_target: previous.water_target,
+              reading_target: previous.reading_target,
+            }));
+          }
+        }
       } finally {
         setLoading(false);
       }

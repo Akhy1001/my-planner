@@ -288,9 +288,9 @@ export default function TodayView() {
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
         }}>
           <ReadingTracker
-            pages={journal.reading_pages}
+            chapters={journal.reading_chapters}
             target={journal.reading_target}
-            onPagesChange={(pages) => updateJournal({ reading_pages: pages })}
+            onChaptersChange={(chapters) => updateJournal({ reading_chapters: chapters })}
             onTargetChange={(target) => updateJournal({ reading_target: target })}
           />
         </div>
@@ -439,23 +439,23 @@ function WaterTracker({
 // ─── Reading Tracker ───────────────────────────────────────────────────────────
 
 function ReadingTracker({
-  pages,
+  chapters,
   target,
-  onPagesChange,
+  onChaptersChange,
   onTargetChange,
 }: {
-  pages: number;
+  chapters: number;
   target: number;
-  onPagesChange: (n: number) => void;
+  onChaptersChange: (n: number) => void;
   onTargetChange: (n: number) => void;
 }) {
   const [editingTarget, setEditingTarget] = useState(false);
   const [draftTarget, setDraftTarget] = useState(String(target));
-  const progress = Math.min(pages / target, 1);
+  const progress = Math.min(chapters / target, 1);
 
   const confirmTarget = () => {
     const parsed = parseInt(draftTarget, 10);
-    if (!isNaN(parsed) && parsed >= 1 && parsed <= 500) {
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {
       onTargetChange(parsed);
     } else {
       setDraftTarget(String(target));
@@ -464,8 +464,8 @@ function ReadingTracker({
   };
 
   const adjust = (delta: number) => {
-    const next = Math.max(0, pages + delta);
-    onPagesChange(next);
+    const next = Math.max(0, chapters + delta);
+    onChaptersChange(next);
   };
 
   return (
@@ -492,7 +492,7 @@ function ReadingTracker({
                 key="input"
                 type="number"
                 min={1}
-                max={500}
+                max={100}
                 value={draftTarget}
                 onChange={e => setDraftTarget(e.target.value)}
                 onBlur={confirmTarget}
@@ -515,7 +515,7 @@ function ReadingTracker({
             ) : (
               <motion.span key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>
-                {pages}/{target} pages
+                {chapters}/{target} chapitres
               </motion.span>
             )}
           </AnimatePresence>
@@ -536,12 +536,12 @@ function ReadingTracker({
         <div style={{ display: 'flex', gap: '6px' }}>
           {[-5, -1].map(d => (
             <motion.button key={d} onClick={() => adjust(d)} whileTap={{ scale: 0.9 }}
-              disabled={pages === 0}
+              disabled={chapters === 0}
               style={{
                 width: '34px', height: '34px', borderRadius: '10px',
                 border: '1px solid var(--border)', background: 'transparent',
-                color: pages === 0 ? 'var(--border)' : 'var(--ink)',
-                cursor: pages === 0 ? 'not-allowed' : 'pointer',
+                color: chapters === 0 ? 'var(--border)' : 'var(--ink)',
+                cursor: chapters === 0 ? 'not-allowed' : 'pointer',
                 fontSize: '0.8rem', fontWeight: 600,
               }}>
               {d}
@@ -564,19 +564,19 @@ function ReadingTracker({
       </div>
 
       <AnimatePresence mode="wait">
-        {pages >= target ? (
+        {chapters >= target ? (
           <motion.div key="done"
             initial={{ opacity: 0, scale: 0.88, y: 4 }} animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 22 }}
             style={{ fontSize: '0.76rem', color: 'var(--gold)', marginTop: '10px', fontWeight: 600 }}>
             ✓ Objectif atteint !
           </motion.div>
-        ) : pages > 0 ? (
+        ) : chapters > 0 ? (
           <motion.div key="progress"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             style={{ fontSize: '0.76rem', color: 'var(--stone)', marginTop: '10px' }}>
-            {`Plus que ${target - pages} page${target - pages > 1 ? 's' : ''} à lire`}
+            {`Plus que ${target - chapters} chapitre${target - chapters > 1 ? 's' : ''} à lire`}
           </motion.div>
         ) : null}
       </AnimatePresence>
