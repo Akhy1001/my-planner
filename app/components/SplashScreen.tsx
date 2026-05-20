@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
@@ -39,18 +40,26 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         opacity: phase === 'out' ? 0 : 1,
         transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
       }}>
-        {/* Icon */}
+        {/* Icon replaced by Logo */}
         <div style={{
-          width: '56px', height: '56px',
-          borderRadius: '20px',
-          background: 'rgba(255,255,255,0.08)',
+          width: '80px', height: '80px',
+          borderRadius: '22px',
+          overflow: 'hidden',
           border: '1px solid rgba(255,255,255,0.12)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px',
-          fontSize: '1.4rem',
+          margin: '0 auto 24px',
+          background: 'rgba(255,255,255,0.04)',
           backdropFilter: 'blur(8px)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         }}>
-          ✦
+          <Image 
+            src="/logo.jpg" 
+            alt="Mon Planner Logo" 
+            width={80} 
+            height={80}
+            priority
+            style={{ objectFit: 'cover' }}
+          />
         </div>
 
         <div style={{
