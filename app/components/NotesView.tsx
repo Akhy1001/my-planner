@@ -1,5 +1,6 @@
 'use client';
 import AddButton from './AddButton';
+import { TextReveal } from './animate-ui';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotes, Note } from '@/hooks/useNotes';
@@ -112,6 +113,16 @@ export default function NotesView() {
       }}>
         {/* Search + Add */}
         <div style={{ padding: '20px 16px 12px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <TextReveal
+              as="h1"
+              delay={0.06}
+              className="font-display"
+              style={{ fontSize: '1.5rem', color: 'var(--ink)' }}
+            >
+              Notes
+            </TextReveal>
+          </div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
             <input
               value={search}

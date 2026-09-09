@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { User } from '@supabase/supabase-js';
 import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
 import { ThemeToggle } from './animate-ui/icons/theme-toggle';
+import { TextReveal } from './animate-ui';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
@@ -79,24 +80,34 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
         textAlign: 'center',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
       }} className="animate-slide-in">
-        <div className="font-display" style={{
-          fontSize: '2.6rem', fontWeight: '700',
-          color: 'var(--ink)', lineHeight: 1,
-        }}>
+        <TextReveal
+          delay={0.06}
+          className="font-display"
+          style={{
+            fontSize: '2.6rem', fontWeight: '700',
+            color: 'var(--ink)', lineHeight: 1,
+          }}
+        >
           {format(today, 'd')}
-        </div>
-        <div style={{
-          fontSize: '0.82rem', color: 'var(--stone)',
-          fontWeight: '500', marginTop: '4px',
-        }}>
+        </TextReveal>
+        <TextReveal
+          delay={0.12}
+          style={{
+            fontSize: '0.82rem', color: 'var(--stone)',
+            fontWeight: '500', marginTop: '4px',
+          }}
+        >
           {format(today, 'MMMM yyyy', { locale: fr })}
-        </div>
-        <div style={{
-          fontSize: '0.7rem', color: 'var(--stone-light)',
-          letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
-        }}>
+        </TextReveal>
+        <TextReveal
+          delay={0.18}
+          style={{
+            fontSize: '0.7rem', color: 'var(--stone-light)',
+            letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
+          }}
+        >
           {format(today, 'eeee', { locale: fr })}
-        </div>
+        </TextReveal>
       </div>
 
       {/* Nav */}

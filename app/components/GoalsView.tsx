@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Target, ScribbleStrikethrough } from './animate-ui';
+import { Target, ScribbleStrikethrough, TextReveal } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGoals, Goal } from '@/hooks/useGoals';
@@ -54,7 +54,14 @@ export default function GoalsView() {
         overflowY: 'auto', padding: '24px 16px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 4px' }}>
-          <h1 className="font-display" style={{ fontSize: '1.6rem', color: 'var(--ink)' }}>Objectifs</h1>
+          <TextReveal
+            as="h1"
+            delay={0.06}
+            className="font-display"
+            style={{ fontSize: '1.6rem', color: 'var(--ink)' }}
+          >
+            Objectifs
+          </TextReveal>
           <AddButton onClick={() => setShowAdd(!showAdd)} />
         </div>
 
@@ -175,9 +182,15 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
             📅 {new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
           </span>}
         </div>
-        <h2 className="font-display" style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '8px' }}>
+        <TextReveal
+          as="h2"
+          key={goal.id}
+          delay={0.05}
+          className="font-display"
+          style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '8px' }}
+        >
           {goal.title}
-        </h2>
+        </TextReveal>
         <p style={{ fontSize: '0.88rem', color: 'var(--stone)', lineHeight: 1.6 }}>{goal.description}</p>
       </div>
 

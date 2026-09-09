@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash } from './animate-ui';
+import { Trash, TextReveal } from './animate-ui';
 import { useState, useRef } from 'react';
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -208,9 +208,15 @@ export default function AgendaView() {
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '12px' }}>
-          <h1 className="font-display" style={{ fontSize: '1.8rem', color: 'var(--ink)', flexShrink: 0 }}>
+          <TextReveal
+            as="h1"
+            key={headerTitle}
+            delay={0.06}
+            className="font-display"
+            style={{ fontSize: '1.8rem', color: 'var(--ink)', flexShrink: 0 }}
+          >
             {headerTitle}
-          </h1>
+          </TextReveal>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {/* View toggle */}
             <div style={{
@@ -318,12 +324,22 @@ export default function AgendaView() {
           alignItems: 'center', marginBottom: '16px'
         }}>
           <div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <TextReveal
+              key={format(selectedDate, 'yyyy-MM-dd') + '-day'}
+              delay={0.04}
+              style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+            >
               {format(selectedDate, 'eeee', { locale: fr })}
-            </div>
-            <div className="font-display" style={{ fontSize: '1.4rem', color: 'var(--ink)' }}>
+            </TextReveal>
+            <TextReveal
+              key={format(selectedDate, 'yyyy-MM-dd') + '-date'}
+              as="h2"
+              delay={0.1}
+              className="font-display"
+              style={{ fontSize: '1.4rem', color: 'var(--ink)' }}
+            >
               {format(selectedDate, 'd MMMM', { locale: fr })}
-            </div>
+            </TextReveal>
           </div>
           <AddButton onClick={openAddForm} />
         </div>

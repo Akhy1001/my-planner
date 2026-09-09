@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash } from './animate-ui';
+import { Trash, TextReveal } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
@@ -30,12 +30,20 @@ export default function HabitsView() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
         <div>
-          <h1 className="font-display" style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '4px' }}>
+          <TextReveal
+            as="h1"
+            delay={0.06}
+            className="font-display"
+            style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '4px' }}
+          >
             Habitudes
-          </h1>
-          <div style={{ fontSize: '0.82rem', color: 'var(--stone)' }}>
+          </TextReveal>
+          <TextReveal
+            delay={0.14}
+            style={{ fontSize: '0.82rem', color: 'var(--stone)' }}
+          >
             {loading ? 'Chargement…' : `${overallProgress}/${habits.length} complétées aujourd'hui`}
-          </div>
+          </TextReveal>
         </div>
         <AddButton onClick={() => setShowAdd(!showAdd)} label="Habitude" />
       </div>

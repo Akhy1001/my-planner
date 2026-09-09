@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough } from './animate-ui';
+import { Trash, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough, TextReveal } from './animate-ui';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -33,13 +33,21 @@ export default function TodayView() {
   return (
     <div style={{ padding: '32px', height: '100%', overflowY: 'auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: '28px' }} className="animate-fade-in">
-        <div style={{ fontSize: '0.75rem', color: 'var(--stone)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '4px' }}>
+      <div style={{ marginBottom: '28px' }}>
+        <TextReveal
+          delay={0.05}
+          style={{ fontSize: '0.75rem', color: 'var(--stone)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '4px' }}
+        >
           {format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}
-        </div>
-        <h1 className="font-display" style={{ fontSize: '2rem', fontWeight: '500', color: 'var(--ink)', lineHeight: 1.2 }}>
+        </TextReveal>
+        <TextReveal
+          as="h1"
+          delay={0.12}
+          className="font-display"
+          style={{ fontSize: '2rem', fontWeight: '500', color: 'var(--ink)', lineHeight: 1.2 }}
+        >
           Bonjour ✦
-        </h1>
+        </TextReveal>
       </div>
 
       {/* Two columns */}
@@ -90,9 +98,14 @@ export default function TodayView() {
           border: '1px solid var(--border)',
           boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
         }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}>
+          <TextReveal
+            as="h2"
+            delay={0.15}
+            className="font-display"
+            style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}
+          >
             Tâches du jour
-          </h2>
+          </TextReveal>
 
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -331,9 +344,14 @@ function WaterTracker({
     <>
       <div style={{ marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
+          <TextReveal
+            as="h2"
+            delay={0.2}
+            className="font-display"
+            style={{ fontSize: '1.1rem', color: 'var(--ink)' }}
+          >
             Hydratation
-          </h2>
+          </TextReveal>
           <motion.button
             onClick={() => { setDraftTarget(String(target)); setEditingTarget(v => !v); }}
             whileTap={{ scale: 0.9 }}
@@ -475,9 +493,14 @@ function ReadingTracker({
     <>
       <div style={{ marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 className="font-display" style={{ fontSize: '1.1rem', color: 'var(--ink)' }}>
+          <TextReveal
+            as="h2"
+            delay={0.25}
+            className="font-display"
+            style={{ fontSize: '1.1rem', color: 'var(--ink)' }}
+          >
             Lecture
-          </h2>
+          </TextReveal>
           <motion.button
             onClick={() => { setDraftTarget(String(target)); setEditingTarget(v => !v); }}
             whileTap={{ scale: 0.9 }}

@@ -20,6 +20,7 @@ export { ScribbleStrikethrough } from './icons/scribble-strikethrough';
 
 export type * from './icons';
 export { PlayfulTodolist } from './PlayfulTodolist';
+export { TextReveal } from './TextReveal';
 
 export {
   spinVariants,
