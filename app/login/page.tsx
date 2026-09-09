@@ -131,27 +131,24 @@ export default function LoginPage() {
               width: '64px',
               height: '64px',
               borderRadius: '18px',
-              background: '#FFFFFF',
-              padding: '3px',
+              overflow: 'hidden',
               border: '1px solid rgba(255, 255, 255, 0.9)',
               boxShadow: '0 10px 28px -4px rgba(59, 130, 246, 0.35), 0 0 14px rgba(139, 92, 246, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
-              position: 'relative',
+              background: '#FFFFFF',
             }}
           >
-            <div style={{ width: '100%', height: '100%', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
-              <Image
-                src="/logo.jpg"
-                alt="My Planner logo"
-                width={64}
-                height={64}
-                style={{ objectFit: 'cover' }}
-                priority
-              />
-            </div>
+            <Image
+              src="/logo.jpg"
+              alt="My Planner logo"
+              width={64}
+              height={64}
+              style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+              priority
+            />
           </motion.div>
 
           {/* Sparkle badge */}
