@@ -29,21 +29,21 @@ export default function AddButton({ onClick, label, size = 20 }: AddButtonProps)
         background: 'var(--ink)',
         color: 'var(--cream)',
         border: 'none',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-md, 8px)',
         cursor: 'pointer',
         fontSize: '0.82rem',
         fontFamily: 'inherit',
         fontWeight: '600',
         letterSpacing: '0.01em',
-        boxShadow: '0 2px 8px rgba(24,24,27,0.18)',
+        boxShadow: '0 2px 6px rgba(15,23,42,0.12)',
       }}
       onMouseEnter={e => {
         e.currentTarget.style.background = 'var(--ink-light)';
-        e.currentTarget.style.boxShadow = '0 4px 16px rgba(24,24,27,0.24)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,23,42,0.18)';
       }}
       onMouseLeave={e => {
         e.currentTarget.style.background = 'var(--ink)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,24,27,0.18)';
+        e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.12)';
       }}
     >
       <CirclePlus size={size} color="var(--cream)" className="" />

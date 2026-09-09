@@ -311,28 +311,40 @@ export default function AgendaView() {
         {showForm && (
           <motion.div
             key="event-form"
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              background: 'var(--warm-white)', borderRadius: '12px',
-              padding: '16px', marginBottom: '16px',
+              background: 'var(--card, var(--warm-white))',
+              borderRadius: 'var(--radius-xl, 14px)',
+              padding: '16px',
+              marginBottom: '16px',
               border: '1px solid var(--border)',
+              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
               transformOrigin: 'top center',
             }}
           >
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div className="font-display" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink)' }}>
+                {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
+              </div>
+              <span style={{
+                fontSize: '0.62rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                background: 'var(--accent-soft)',
+                color: 'var(--accent)',
+              }}>
+                {editingBaseId ? 'Édition' : 'Agenda'}
+              </span>
             </div>
 
-            <input
-              value={formData.title}
-              onChange={e => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Titre de l'événement"
-              style={inputStyle}
-            />
-
+            {/* Error */}
             <AnimatePresence>
               {formError && (
                 <motion.div
@@ -340,127 +352,181 @@ export default function AgendaView() {
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  style={{ fontSize: '0.75rem', color: 'var(--terra)', marginTop: '6px' }}
+                  transition={{ duration: 0.15 }}
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--priority-high)',
+                    background: 'var(--priority-high-bg)',
+                    border: '1px solid var(--priority-high)',
+                    borderRadius: 'var(--radius-md, 8px)',
+                    padding: '6px 10px',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 500,
+                  }}
                 >
-                  {formError}
+                  <span>⚠</span> {formError}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            {/* Titre */}
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Titre
+              </label>
               <input
-                type="time"
-                value={formData.time}
-                onChange={e => setFormData({ ...formData, time: e.target.value })}
-                style={{ ...inputStyle, flex: 1 }}
-              />
-              <input
-                value={formData.duration}
-                onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                placeholder="1h"
-                style={{ ...inputStyle, width: '60px' }}
+                value={formData.title}
+                onChange={e => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Ex: Rendez-vous, Réunion…"
+                style={inputStyle}
+                autoFocus
               />
             </div>
 
-            {/* Recurrence selector */}
-            <select
-              value={formData.recurrence}
-              onChange={e => setFormData({ ...formData, recurrence: e.target.value as RecurrenceType })}
-              style={{ ...inputStyle, marginTop: '8px', cursor: 'pointer' }}
-            >
-              {(Object.keys(RECURRENCE_LABELS) as RecurrenceType[]).map(r => (
-                <option key={r} value={r}>{RECURRENCE_LABELS[r]}</option>
-              ))}
-            </select>
-
-            {editingBaseId && formData.recurrence !== 'none' && (
-              <div style={{ fontSize: '0.72rem', color: 'var(--stone)', marginTop: '6px', fontStyle: 'italic' }}>
-                La modification s&apos;applique à toutes les occurrences.
+            {/* Time & Duration */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Horaire
+                </label>
+                <input
+                  type="time"
+                  value={formData.time}
+                  onChange={e => setFormData({ ...formData, time: e.target.value })}
+                  style={inputStyle}
+                />
               </div>
-            )}
+              <div style={{ width: '80px' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Durée
+                </label>
+                <input
+                  value={formData.duration}
+                  onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                  placeholder="1h"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            {/* Recurrence */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Récurrence
+              </label>
+              <select
+                value={formData.recurrence}
+                onChange={e => setFormData({ ...formData, recurrence: e.target.value as RecurrenceType })}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                {(Object.keys(RECURRENCE_LABELS) as RecurrenceType[]).map(r => (
+                  <option key={r} value={r}>{RECURRENCE_LABELS[r]}</option>
+                ))}
+              </select>
+              {editingBaseId && formData.recurrence !== 'none' && (
+                <div style={{ fontSize: '0.7rem', color: 'var(--stone)', marginTop: '4px', fontStyle: 'italic' }}>
+                  La modification s&apos;applique à toutes les occurrences.
+                </div>
+              )}
+            </div>
 
             {/* Color picker */}
-            <div style={{ display: 'flex', gap: '6px', marginTop: '8px', alignItems: 'center' }}>
-              {PRESET_COLORS.map((c, i) => (
-                <motion.div
-                  key={c}
-                  onClick={() => setFormData({ ...formData, color: c })}
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.18, delay: i * 0.04, ease: [0.23, 1, 0.32, 1] }}
-                  whileHover={{ scale: 1.18 }}
-                  whileTap={{ scale: 0.88 }}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Couleur de l&apos;étiquette
+              </label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {PRESET_COLORS.map((c, i) => {
+                  const isSelected = formData.color === c;
+                  return (
+                    <motion.button
+                      key={c}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, color: c })}
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      style={{
+                        width: '24px', height: '24px', borderRadius: '50%',
+                        background: c, cursor: 'pointer', flexShrink: 0,
+                        border: isSelected ? '2px solid var(--ink)' : '2px solid transparent',
+                        boxShadow: isSelected ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {isSelected && (
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
+                      )}
+                    </motion.button>
+                  );
+                })}
+                {/* Sélecteur libre — pastille arc-en-ciel */}
+                <motion.label
+                  title="Couleur personnalisée"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
                   style={{
-                    width: '22px', height: '22px', borderRadius: '50%',
-                    background: c, cursor: 'pointer', flexShrink: 0,
-                    border: formData.color === c ? '2px solid var(--ink)' : '2px solid transparent',
-                    outline: formData.color === c ? '2px solid var(--warm-white)' : 'none',
-                    outlineOffset: '-4px',
-                    transition: 'border 150ms cubic-bezier(0.23, 1, 0.32, 1), outline 150ms cubic-bezier(0.23, 1, 0.32, 1)',
+                    width: '24px', height: '24px', borderRadius: '50%',
+                    background: !PRESET_COLORS.includes(formData.color)
+                      ? formData.color
+                      : 'conic-gradient(#6B8F71, #C9973C, #C0634A, #8075A8, #4A90D9, #E07B8A, #6B8F71)',
+                    cursor: 'pointer', flexShrink: 0, overflow: 'hidden',
+                    border: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--ink)' : '2px solid transparent',
+                    boxShadow: !PRESET_COLORS.includes(formData.color) ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    position: 'relative',
+                    transition: 'all 0.15s ease',
                   }}
-                />
-              ))}
-              {/* Sélecteur libre — pastille arc-en-ciel */}
-              <motion.label
-                title="Couleur personnalisée"
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.18, delay: PRESET_COLORS.length * 0.04, ease: [0.23, 1, 0.32, 1] }}
-                whileHover={{ scale: 1.18 }}
-                whileTap={{ scale: 0.88 }}
-                style={{
-                  width: '22px', height: '22px', borderRadius: '50%',
-                  background: !PRESET_COLORS.includes(formData.color)
-                    ? formData.color
-                    : 'conic-gradient(#6B8F71, #C9973C, #C0634A, #8075A8, #4A90D9, #E07B8A, #6B8F71)',
-                  cursor: 'pointer', flexShrink: 0, overflow: 'hidden',
-                  border: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--ink)' : '2px solid transparent',
-                  outline: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--warm-white)' : 'none',
-                  outlineOffset: '-4px',
-                  transition: 'border 150ms cubic-bezier(0.23, 1, 0.32, 1), background 150ms ease-out',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  position: 'relative',
-                }}
-              >
-                <input
-                  type="color"
-                  aria-label="Choisir une couleur personnalisée"
-                  value={/^#[0-9A-Fa-f]{6}$/.test(formData.color) ? formData.color : PRESET_COLORS[0]}
-                  onChange={e => setFormData({ ...formData, color: e.target.value })}
-                  style={{
-                    position: 'absolute', inset: 0,
-                    opacity: 0, width: '100%', height: '100%',
-                    cursor: 'pointer', border: 'none', padding: 0,
-                  }}
-                />
-              </motion.label>
+                >
+                  <input
+                    type="color"
+                    aria-label="Choisir une couleur personnalisée"
+                    value={/^#[0-9A-Fa-f]{6}$/.test(formData.color) ? formData.color : PRESET_COLORS[0]}
+                    onChange={e => setFormData({ ...formData, color: e.target.value })}
+                    style={{
+                      position: 'absolute', inset: 0,
+                      opacity: 0, width: '100%', height: '100%',
+                      cursor: 'pointer', border: 'none', padding: 0,
+                    }}
+                  />
+                  {!PRESET_COLORS.includes(formData.color) && (
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
+                  )}
+                </motion.label>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '8px' }}>
               <motion.button
                 onClick={handleSubmit}
                 whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
+                whileHover={{ opacity: 0.92, transform: 'translateY(-1px)' }}
+                transition={{ duration: 0.15 }}
                 style={{
-                  flex: 1, padding: '8px',
-                  background: 'var(--ink)', color: 'var(--cream)',
-                  border: 'none', borderRadius: '8px', cursor: 'pointer',
-                  fontSize: '0.82rem', fontFamily: 'inherit',
+                  flex: 1, padding: '9px 12px',
+                  background: 'var(--accent)', color: 'white',
+                  border: 'none', borderRadius: 'var(--radius-md, 8px)', cursor: 'pointer',
+                  fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
                 {editingBaseId ? 'Enregistrer' : 'Ajouter'}
               </motion.button>
               <motion.button
                 onClick={closeForm}
-                whileHover={{ background: 'var(--border)' }}
+                whileHover={{ background: 'var(--muted)' }}
                 whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ duration: 0.15 }}
                 style={{
-                  padding: '8px 12px',
+                  padding: '9px 14px',
                   background: 'transparent', color: 'var(--stone)',
-                  border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
-                  fontSize: '0.82rem', fontFamily: 'inherit',
+                  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)', cursor: 'pointer',
+                  fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 500,
                 }}
               >
                 Annuler
@@ -1352,16 +1418,18 @@ function parseDurationHours(duration: string): number {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const btnStyle: React.CSSProperties = {
-  padding: '6px 10px', background: 'var(--warm-white)',
-  border: '1px solid var(--border)', borderRadius: '8px',
-  cursor: 'pointer', fontSize: '1rem', color: 'var(--ink)',
-  fontFamily: 'inherit'
+  padding: '6px 12px', background: 'var(--card, var(--warm-white))',
+  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
+  cursor: 'pointer', fontSize: '0.875rem', color: 'var(--ink)',
+  fontFamily: 'inherit',
+  transition: 'all 0.15s ease',
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '7px 10px',
-  border: '1px solid var(--border)', borderRadius: '7px',
-  background: 'var(--warm-white)', fontSize: '0.82rem',
+  width: '100%', padding: '8px 12px',
+  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
+  background: 'var(--cream)', fontSize: '0.84rem',
   color: 'var(--ink)', outline: 'none', fontFamily: 'inherit',
   boxSizing: 'border-box',
+  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
 };
