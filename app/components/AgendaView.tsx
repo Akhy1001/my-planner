@@ -773,26 +773,31 @@ export default function AgendaView() {
               {selectedEvents.map((event, i) => (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  layout
+                  initial={{ opacity: 0, y: 14, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                  exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
                   transition={{
-                    duration: 0.22,
-                    delay: i * 0.05,
-                    ease: [0.23, 1, 0.32, 1],
+                    duration: 0.35,
+                    delay: Math.min(i * 0.05, 0.25),
+                    ease: [0.16, 1, 0.3, 1],
                   }}
+                  whileHover={{ y: -2, boxShadow: '0 6px 16px rgba(15, 23, 42, 0.08)' }}
                   style={{
                     background: 'var(--card, var(--warm-white))',
-                    borderRadius: 'var(--radius-lg, 10px)',
+                    borderRadius: '14px',
                     padding: '14px 16px',
                     border: '1px solid var(--border)',
                     borderLeft: `4px solid ${event.color}`,
-                    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                    transition: 'border-color 0.2s ease',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.88rem', fontWeight: '500', color: 'var(--ink)' }}>{event.title}</div>
+                      <TextReveal delay={0.06 + Math.min(i * 0.04, 0.2)} duration={0.4}>
+                        <div style={{ fontSize: '0.88rem', fontWeight: '600', color: 'var(--ink)' }}>{event.title}</div>
+                      </TextReveal>
                       <div style={{ fontSize: '0.75rem', color: 'var(--stone)', marginTop: '4px' }}>
                         ⏱ {event.time} · {event.duration}
                       </div>
@@ -801,12 +806,12 @@ export default function AgendaView() {
                       <motion.button
                         onClick={() => openEditForm(event)}
                         title="Modifier l'événement"
-                        whileTap={{ scale: 0.93 }}
-                        whileHover={{ background: 'var(--warm-white)' }}
-                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                         style={{
                           padding: '7px 10px', borderRadius: '10px',
-                          border: '1px solid var(--border)', background: 'var(--cream)',
+                          border: '1px solid var(--border)', background: 'var(--card, var(--warm-white))',
                           cursor: 'pointer', color: 'var(--ink)',
                           display: 'inline-flex', alignItems: 'center',
                         }}
@@ -816,17 +821,17 @@ export default function AgendaView() {
                       <motion.button
                         onClick={() => handleDelete(event)}
                         title="Supprimer l'événement"
-                        whileTap={{ scale: 0.93 }}
-                        whileHover={{ background: 'var(--terra-light)' }}
-                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
+                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                         style={{
                           padding: '7px 10px', borderRadius: '10px',
-                          border: '1px solid var(--border)', background: 'var(--cream)',
-                          cursor: 'pointer', color: 'var(--terra)',
+                          border: '1px solid var(--border)', background: 'var(--card, var(--warm-white))',
+                          cursor: 'pointer', color: 'var(--priority-high)',
                           display: 'inline-flex', alignItems: 'center',
                         }}
                       >
-                        <Trash size={14} color="var(--terra)" />
+                        <Trash size={14} color="var(--priority-high)" />
                       </motion.button>
                     </div>
                   </div>
@@ -938,9 +943,13 @@ function MonthGrid({
                   const bg = isHex ? `${e.color}15` : 'var(--accent-soft)';
                   const border = isHex ? `${e.color}35` : 'var(--border)';
                   return (
-                    <div
+                    <motion.div
                       key={e.id}
                       title={`${e.time} ${e.title}`}
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ y: -1, scale: 1.02 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       style={{
                         fontSize: '0.67rem',
                         padding: '3px 6px',
@@ -955,18 +964,8 @@ function MonthGrid({
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
-                        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.03)',
-                      }}
-                      onMouseEnter={ev => {
-                        ev.currentTarget.style.background = isHex ? `${e.color}25` : 'var(--accent-soft)';
-                        ev.currentTarget.style.transform = 'translateY(-1px)';
-                        ev.currentTarget.style.boxShadow = '0 2px 5px rgba(15, 23, 42, 0.08)';
-                      }}
-                      onMouseLeave={ev => {
-                        ev.currentTarget.style.background = bg;
-                        ev.currentTarget.style.transform = 'translateY(0)';
-                        ev.currentTarget.style.boxShadow = '0 1px 2px rgba(15, 23, 42, 0.03)';
+                        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+                        cursor: 'pointer',
                       }}
                     >
                       <span style={{
@@ -989,7 +988,7 @@ function MonthGrid({
                       }}>
                         {e.title}
                       </span>
-                    </div>
+                    </motion.div>
                   );
                 })}
                 {dayEvents.length > 2 && (
@@ -1276,20 +1275,21 @@ function WeekGrid({
                       const topOffset = parseStartMinutes(e.time) * (HOUR_HEIGHT / 60);
                       const blockHeight = Math.max(durationH, 0.25) * HOUR_HEIGHT - 2;
                       return (
-                        <div
+                        <motion.div
                           key={e.id}
                           data-event-block
                           title={`${e.time} – ${e.title} (${e.duration})`}
+                          whileHover={!isDragging && !isResizing ? { scale: 1.01, boxShadow: '0 4px 12px rgba(15, 23, 42, 0.1)' } : undefined}
                           style={{
                             position: 'absolute',
                             top: `${topOffset}px`,
                             left: '3px',
                             right: '3px',
-                            background: e.color + (isDragging ? '10' : '15'),
+                            background: e.color + (isDragging ? '10' : '18'),
                             border: `1px solid ${e.color}35`,
                             borderLeft: `3px solid ${e.color}`,
                             color: 'var(--ink)',
-                            borderRadius: 'var(--radius-md, 8px)',
+                            borderRadius: '10px',
                             padding: '4px 7px 10px',
                             fontSize: '0.67rem',
                             lineHeight: 1.35,
@@ -1299,8 +1299,8 @@ function WeekGrid({
                             opacity: isDragging ? 0.25 : 1,
                             cursor: (dragState || resizeState) ? 'grabbing' : 'grab',
                             userSelect: 'none',
-                            transition: 'opacity 140ms cubic-bezier(0.23, 1, 0.32, 1), background 140ms cubic-bezier(0.23, 1, 0.32, 1)',
-                            animation: isDragging ? 'none' : 'eventFadeIn 180ms cubic-bezier(0.23, 1, 0.32, 1) both',
+                            transition: 'opacity 140ms cubic-bezier(0.16, 1, 0.3, 1), background 140ms cubic-bezier(0.16, 1, 0.3, 1)',
+                            animation: isDragging ? 'none' : 'eventFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both',
                           }}
                           onPointerDown={e2 => handleEventPointerDown(e2, e)}
                         >
@@ -1329,7 +1329,7 @@ function WeekGrid({
                               background: e.color,
                             }} />
                           </div>
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
