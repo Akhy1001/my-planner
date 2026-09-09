@@ -190,18 +190,19 @@ export default function TodayView() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button 
+                    <motion.button 
                       onClick={() => removeTask(task.id)} 
                       title="Supprimer"
+                      whileHover={{ scale: 1.15, background: 'var(--priority-high-bg)' }}
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ duration: 0.15 }}
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
-                        padding: '4px', opacity: 0.6, transition: 'opacity 0.2s'
+                        padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-                      onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
                     >
-                      <Trash size={16} color="var(--terra)" />
-                    </button>
+                      <Trash size={16} color="var(--priority-high)" />
+                    </motion.button>
                   </div>
                 </motion.div>
               ))}
@@ -537,10 +538,13 @@ function ReadingTracker({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: '6px' }}>
           {[-5, -1].map(d => (
-            <motion.button key={d} onClick={() => adjust(d)} whileTap={{ scale: 0.9 }}
+            <motion.button key={d} onClick={() => adjust(d)}
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.08 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               disabled={chapters === 0}
               style={{
-                width: '34px', height: '34px', borderRadius: '10px',
+                width: '36px', height: '36px', borderRadius: '12px',
                 border: '1px solid var(--border)', background: 'transparent',
                 color: chapters === 0 ? 'var(--border)' : 'var(--ink)',
                 cursor: chapters === 0 ? 'not-allowed' : 'pointer',
@@ -552,9 +556,12 @@ function ReadingTracker({
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {[1, 5].map(d => (
-            <motion.button key={d} onClick={() => adjust(d)} whileTap={{ scale: 0.9 }}
+            <motion.button key={d} onClick={() => adjust(d)}
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.08 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                width: '34px', height: '34px', borderRadius: '10px',
+                width: '36px', height: '36px', borderRadius: '12px',
                 border: '1px solid var(--border)', background: 'transparent',
                 color: 'var(--ink)', cursor: 'pointer',
                 fontSize: '0.8rem', fontWeight: 600,

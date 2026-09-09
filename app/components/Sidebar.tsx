@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { motion } from 'motion/react';
 import { User } from '@supabase/supabase-js';
 import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
 import { ThemeToggle } from './animate-ui/icons/theme-toggle';
@@ -103,9 +104,12 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
         {navItems.map((item, i) => {
           const active = activeTab === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              whileHover={{ scale: 1.02, x: 2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -118,29 +122,28 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                   ? (isPinkUser ? 'var(--accent)' : 'var(--ink)') 
                   : 'transparent',
                 color: active ? (isPinkUser ? 'white' : 'var(--cream)') : 'var(--stone)',
+                boxShadow: active ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
                 fontWeight: active ? '600' : '400',
-                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 textAlign: 'left',
                 marginBottom: '3px',
                 animationDelay: `${i * 0.05}s`,
                 fontFamily: 'inherit',
                 position: 'relative',
                 overflow: 'hidden',
+                transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
               onMouseEnter={(e) => {
                 if (!active) {
                   e.currentTarget.style.background = isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.12)';
                   e.currentTarget.style.color = 'var(--ink-light)';
-                  e.currentTarget.style.transform = 'translateX(2px)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!active) {
                   e.currentTarget.style.background = 'transparent';
                   e.currentTarget.style.color = 'var(--stone)';
-                  e.currentTarget.style.transform = 'translateX(0)';
                 }
               }}
             >
@@ -180,7 +183,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                   animation: 'enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                 }} />
               )}
-            </button>
+            </motion.button>
           );
         })}
       </nav>
@@ -244,28 +247,21 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
               </div>
             </div>
             {/* Logout */}
-            <button
+            <motion.button
               onClick={onSignOut}
               title="Se déconnecter"
+              whileHover={{ scale: 1.1, background: 'var(--priority-high-bg)', color: 'var(--priority-high)' }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--stone)', fontSize: '1.1rem', padding: '4px',
-                borderRadius: '8px', transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                color: 'var(--stone)', fontSize: '1.1rem', padding: '6px',
+                borderRadius: '10px',
                 flexShrink: 0, lineHeight: 1,
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--priority-high)';
-                e.currentTarget.style.background = 'var(--priority-high-bg)';
-                e.currentTarget.style.transform = 'scale(1.12)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'var(--stone)';
-                e.currentTarget.style.background = 'none';
-                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               ⎋
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>

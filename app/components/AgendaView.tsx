@@ -260,9 +260,9 @@ export default function AgendaView() {
             </div>
             {/* Navigation */}
             <div style={{ display: 'flex', gap: '6px' }}>
-              <button onClick={goPrev} style={btnStyle}>‹</button>
-              <button onClick={goToToday} style={{ ...btnStyle, fontSize: '0.76rem', padding: '6px 12px' }}>Aujourd&apos;hui</button>
-              <button onClick={goNext} style={btnStyle}>›</button>
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goPrev} style={btnStyle}>‹</motion.button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goToToday} style={{ ...btnStyle, fontSize: '0.78rem', padding: '6px 14px', fontWeight: 600 }}>Aujourd&apos;hui</motion.button>
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goNext} style={btnStyle}>›</motion.button>
             </div>
           </div>
         </div>
@@ -503,29 +503,32 @@ export default function AgendaView() {
             <div style={{ display: 'flex', gap: '8px' }}>
               <motion.button
                 onClick={handleSubmit}
-                whileTap={{ scale: 0.97 }}
-                whileHover={{ background: 'var(--ink-light)', transform: 'translateY(-1px)' }}
-                transition={{ duration: 0.15 }}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 style={{
-                  flex: 1, padding: '9px 12px',
-                  background: 'var(--ink)', color: 'var(--cream)',
-                  border: 'none', borderRadius: 'var(--radius-md, 8px)', cursor: 'pointer',
+                  flex: 1, padding: '10px 14px',
+                  background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                  border: 'none', borderRadius: '14px', cursor: 'pointer',
                   fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
-                  boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
+                  boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
               >
                 {editingBaseId ? 'Enregistrer' : 'Ajouter'}
               </motion.button>
               <motion.button
                 onClick={closeForm}
-                whileHover={{ background: 'var(--muted)' }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.15 }}
+                whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 style={{
-                  padding: '9px 14px',
+                  padding: '10px 16px',
                   background: 'transparent', color: 'var(--stone)',
-                  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)', cursor: 'pointer',
+                  border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
                   fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 500,
                 }}
               >
@@ -621,26 +624,29 @@ export default function AgendaView() {
                 <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                   <motion.button
                     onClick={handleSaveCycle}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                    whileTap={{ scale: 0.96 }}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     style={{
-                      flex: 1, padding: '7px',
-                      background: 'var(--ink)', color: 'var(--cream)',
-                      border: 'none', borderRadius: '7px', cursor: 'pointer',
-                      fontSize: '0.78rem', fontFamily: 'inherit',
+                      flex: 1, padding: '8px 12px',
+                      background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                      border: 'none', borderRadius: '14px', cursor: 'pointer',
+                      fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
+                      boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                     }}
                   >
                     Enregistrer
                   </motion.button>
                   <motion.button
                     onClick={() => setShowCycleForm(false)}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                    whileTap={{ scale: 0.96 }}
+                    whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     style={{
-                      padding: '7px 10px',
+                      padding: '8px 12px',
                       background: 'transparent', color: 'var(--stone)',
-                      border: '1px solid var(--border)', borderRadius: '7px', cursor: 'pointer',
-                      fontSize: '0.78rem', fontFamily: 'inherit',
+                      border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
+                      fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
                     }}
                   >
                     Annuler
@@ -648,13 +654,14 @@ export default function AgendaView() {
                   {cycle && (
                     <motion.button
                       onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
-                      whileTap={{ scale: 0.97 }}
-                      transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        padding: '7px 10px',
-                        background: 'transparent', color: 'var(--terra)',
-                        border: '1px solid var(--border)', borderRadius: '7px', cursor: 'pointer',
-                        fontSize: '0.78rem', fontFamily: 'inherit',
+                        padding: '8px 12px',
+                        background: 'transparent', color: 'var(--priority-high)',
+                        border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
+                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
                       }}
                     >
                       Supprimer
@@ -1418,18 +1425,18 @@ function parseDurationHours(duration: string): number {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const btnStyle: React.CSSProperties = {
-  padding: '6px 12px', background: 'var(--card, var(--warm-white))',
-  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
-  cursor: 'pointer', fontSize: '0.875rem', color: 'var(--ink)',
-  fontFamily: 'inherit',
-  transition: 'all 0.15s ease',
+  padding: '6px 14px', background: 'var(--card, var(--warm-white))',
+  border: '1px solid var(--border)', borderRadius: '14px',
+  cursor: 'pointer', fontSize: '0.84rem', color: 'var(--ink)',
+  fontFamily: 'inherit', fontWeight: 500,
+  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 12px',
-  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
+  width: '100%', padding: '10px 14px',
+  border: '1px solid var(--border)', borderRadius: '14px',
   background: 'var(--cream)', fontSize: '0.84rem',
   color: 'var(--ink)', outline: 'none', fontFamily: 'inherit',
   boxSizing: 'border-box',
-  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+  transition: 'border-color 0.22s ease, box-shadow 0.22s ease',
 };

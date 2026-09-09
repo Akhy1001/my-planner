@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -201,23 +202,26 @@ export default function LoginPage() {
           )}
 
           {/* Submit */}
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
+            whileHover={!loading ? { scale: 1.02 } : {}}
+            whileTap={!loading ? { scale: 0.97 } : {}}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              width: '100%', padding: '12px',
-              background: loading ? 'var(--stone-light)' : 'var(--ink)',
-              color: 'var(--cream)',
-              border: 'none', borderRadius: 'var(--radius-md, 8px)',
+              width: '100%', padding: '13px',
+              background: loading ? 'var(--stone-light)' : 'var(--primary-btn-bg, var(--ink))',
+              color: 'var(--primary-btn-fg, var(--cream))',
+              border: 'none', borderRadius: '14px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem', fontFamily: 'inherit',
+              fontSize: '0.88rem', fontFamily: 'inherit',
               fontWeight: '600',
-              transition: 'all 0.18s ease',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              boxShadow: loading ? 'none' : '0 2px 8px rgba(15, 23, 42, 0.15)',
+              boxShadow: loading ? 'none' : '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.15))',
+              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            onMouseEnter={e => { if (!loading) { e.currentTarget.style.opacity = '0.92'; } }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+            onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; } }}
+            onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; } }}
           >
             {loading ? (
               <>
@@ -232,7 +236,7 @@ export default function LoginPage() {
             ) : (
               'Se connecter →'
             )}
-          </button>
+          </motion.button>
         </form>
 
         {/* Footer */}

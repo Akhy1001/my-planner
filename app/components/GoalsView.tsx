@@ -74,11 +74,21 @@ export default function GoalsView() {
             </select>
             <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({...newGoal, deadline: e.target.value})}
               style={{ ...iS, marginBottom: '8px' }} />
-            <button onClick={handleAddGoal} style={{
-              width: '100%', padding: '7px', background: 'var(--ink)', color: 'var(--cream)',
-              border: 'none', borderRadius: '7px', cursor: 'pointer',
-              fontSize: '0.8rem', fontFamily: 'inherit'
-            }}>Créer</button>
+            <motion.button
+              onClick={handleAddGoal}
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                width: '100%', padding: '10px',
+                background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                border: 'none', borderRadius: '14px', cursor: 'pointer',
+                fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+                boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+              }}
+            >
+              Créer
+            </motion.button>
           </div>
         )}
 
@@ -219,14 +229,23 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+        <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '14px', alignItems: 'center' }}>
           <input value={newMs} onChange={e => setNewMs(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { onAddMilestone(goal.id, newMs); setNewMs(''); } }}
             placeholder="Ajouter une étape…" style={{ flex: 1, ...iS }} />
-          <button onClick={() => { onAddMilestone(goal.id, newMs); setNewMs(''); }} style={{
-            padding: '7px 14px', background: 'var(--ink)', color: 'var(--cream)',
-            border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit'
-          }}>+</button>
+          <motion.button
+            onClick={() => { onAddMilestone(goal.id, newMs); setNewMs(''); }}
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              padding: '9px 16px', background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+              border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+              boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+            }}
+          >
+            +
+          </motion.button>
         </div>
       </div>
     </div>
@@ -234,8 +253,9 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
 }
 
 const iS: React.CSSProperties = {
-  width: '100%', padding: '7px 10px',
-  border: '1px solid var(--border)', borderRadius: '7px',
-  background: 'var(--warm-white)', fontSize: '0.82rem',
-  color: 'var(--ink)', outline: 'none', fontFamily: 'inherit'
+  width: '100%', padding: '9px 12px',
+  border: '1px solid var(--border)', borderRadius: '14px',
+  background: 'var(--warm-white)', fontSize: '0.84rem',
+  color: 'var(--ink)', outline: 'none', fontFamily: 'inherit',
+  transition: 'all 0.22s ease',
 };

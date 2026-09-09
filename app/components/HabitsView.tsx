@@ -53,23 +53,42 @@ export default function HabitsView() {
             <input value={newHabit.name} onChange={e => setNewHabit({...newHabit, name: e.target.value})}
               placeholder="Nom de l'habitude" style={{ flex: 1, ...inputStyle }} />
           </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.78rem', color: 'var(--stone)' }}>Objectif:</span>
             {[3, 5, 7].map(n => (
-              <button key={n} onClick={() => setNewHabit({...newHabit, target: n})} style={{
-                padding: '4px 10px', borderRadius: '6px',
-                border: '1px solid var(--border)',
-                background: newHabit.target === n ? 'var(--ink)' : 'transparent',
-                color: newHabit.target === n ? 'white' : 'var(--stone)',
-                cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit'
-              }}>{n}j/sem</button>
+              <motion.button
+                key={n}
+                onClick={() => setNewHabit({...newHabit, target: n})}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  padding: '5px 12px', borderRadius: '14px',
+                  border: '1px solid var(--border)',
+                  background: newHabit.target === n ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
+                  color: newHabit.target === n ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
+                  cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit', fontWeight: 600,
+                }}
+              >
+                {n}j/sem
+              </motion.button>
             ))}
           </div>
-          <button onClick={handleAddHabit} style={{
-            width: '100%', padding: '8px', background: 'var(--sage)', color: 'white',
-            border: 'none', borderRadius: '8px', cursor: 'pointer',
-            fontSize: '0.82rem', fontFamily: 'inherit'
-          }}>Créer l&apos;habitude</button>
+          <motion.button
+            onClick={handleAddHabit}
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              width: '100%', padding: '11px',
+              background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, white)',
+              border: 'none', borderRadius: '14px', cursor: 'pointer',
+              fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+              boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+            }}
+          >
+            Créer l&apos;habitude
+          </motion.button>
         </div>
       )}
 
@@ -144,10 +163,10 @@ export default function HabitsView() {
                           whileTap={{ scale: 0.97 }}
                           onClick={() => { deleteHabit(habit.id); setConfirmingId(null); }}
                           style={{
-                            padding: '4px 10px', borderRadius: '6px',
-                            border: '1px solid var(--terra)',
-                            background: 'var(--terra)', color: 'white',
-                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                            padding: '5px 12px', borderRadius: '12px',
+                            border: '1px solid var(--priority-high)',
+                            background: 'var(--priority-high)', color: 'white',
+                            cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
                           }}
                         >
                           Confirmer
@@ -156,13 +175,14 @@ export default function HabitsView() {
                           initial={{ opacity: 0, scale: 0.95, x: -4 }}
                           animate={{ opacity: 1, scale: 1, x: 0 }}
                           transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                          whileTap={{ scale: 0.97 }}
+                          whileTap={{ scale: 0.96 }}
+                          whileHover={{ scale: 1.02, background: 'var(--muted)' }}
                           onClick={() => setConfirmingId(null)}
                           style={{
-                            padding: '4px 8px', borderRadius: '6px',
+                            padding: '5px 10px', borderRadius: '12px',
                             border: '1px solid var(--border)',
                             background: 'transparent', color: 'var(--stone)',
-                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                            cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 500,
                           }}
                         >
                           Annuler
@@ -172,12 +192,11 @@ export default function HabitsView() {
                       <motion.button
                         onClick={() => setConfirmingId(habit.id)}
                         title="Supprimer l'habitude"
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={{ scale: 0.96 }}
+                        whileHover={{ scale: 1.05, background: 'var(--priority-high-bg)' }}
                         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                         style={{
-                          width: '28px', height: '28px', borderRadius: '6px',
+                          width: '32px', height: '32px', borderRadius: '10px',
                           border: '1px solid var(--border)',
                           background: 'transparent', color: 'var(--stone)',
                           cursor: 'pointer', display: 'flex', alignItems: 'center',

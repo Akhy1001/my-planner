@@ -127,22 +127,39 @@ export default function NotesView() {
             <AddButton onClick={handleAddNote} size={18} />
           </div>
           {/* Tags filter */}
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            <button onClick={() => setFilterTag(null)} style={{
-              padding: '3px 8px', borderRadius: '6px',
-              border: '1px solid var(--border)',
-              background: !filterTag ? 'var(--ink)' : 'transparent',
-              color: !filterTag ? 'white' : 'var(--stone)',
-              cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit'
-            }}>Tout</button>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <motion.button
+              onClick={() => setFilterTag(null)}
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                padding: '4px 10px', borderRadius: '12px',
+                border: '1px solid var(--border)',
+                background: !filterTag ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
+                color: !filterTag ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
+                cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
+              }}
+            >
+              Tout
+            </motion.button>
             {Object.keys(tagColors).map(tag => (
-              <button key={tag} onClick={() => setFilterTag(filterTag === tag ? null : tag)} style={{
-                padding: '3px 8px', borderRadius: '6px',
-                border: `1px solid ${tagColors[tag]}`,
-                background: filterTag === tag ? tagColors[tag] : 'transparent',
-                color: filterTag === tag ? 'white' : 'var(--stone)',
-                cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit'
-              }}>{tag}</button>
+              <motion.button
+                key={tag}
+                onClick={() => setFilterTag(filterTag === tag ? null : tag)}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  padding: '4px 10px', borderRadius: '12px',
+                  border: `1px solid ${tagColors[tag]}`,
+                  background: filterTag === tag ? tagColors[tag] : 'transparent',
+                  color: filterTag === tag ? 'white' : 'var(--stone)',
+                  cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
+                }}
+              >
+                {tag}
+              </motion.button>
             ))}
           </div>
         </div>
@@ -212,26 +229,52 @@ export default function NotesView() {
             }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 {Object.entries(tagColors).map(([tag, color]) => (
-                  <button key={tag} onClick={() => handleUpdateNote('tag', tag)} style={{
-                    padding: '4px 10px', borderRadius: '6px',
-                    border: `1px solid ${color}50`,
-                    background: selectedNote.tag === tag ? color + '20' : 'transparent',
-                    color: selectedNote.tag === tag ? color : 'var(--stone)',
-                    cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit',
-                    fontWeight: selectedNote.tag === tag ? '500' : '300'
-                  }}>{tag}</button>
+                  <motion.button
+                    key={tag}
+                    onClick={() => handleUpdateNote('tag', tag)}
+                    whileTap={{ scale: 0.96 }}
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                    style={{
+                      padding: '4px 10px', borderRadius: '12px',
+                      border: `1px solid ${color}50`,
+                      background: selectedNote.tag === tag ? color + '20' : 'transparent',
+                      color: selectedNote.tag === tag ? color : 'var(--stone)',
+                      cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit',
+                      fontWeight: selectedNote.tag === tag ? '600' : '400'
+                    }}
+                  >
+                    {tag}
+                  </motion.button>
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => togglePin(selectedNote.id)} style={{
-                  padding: '6px 10px', border: '1px solid var(--border)', borderRadius: '8px',
-                  background: selectedNote.pinned ? 'var(--gold-light)' : 'transparent',
-                  cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit', color: 'var(--stone)'
-                }}>📌</button>
-                <button onClick={() => { deleteNote(selectedNote.id); setSelected(null); }} style={{
-                  padding: '6px 10px', border: '1px solid var(--border)', borderRadius: '8px',
-                  background: 'transparent', cursor: 'pointer', fontSize: '0.78rem', color: 'var(--terra)'
-                }}>Supprimer</button>
+                <motion.button
+                  onClick={() => togglePin(selectedNote.id)}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    padding: '6px 12px', border: '1px solid var(--border)', borderRadius: '12px',
+                    background: selectedNote.pinned ? 'var(--gold-light)' : 'transparent',
+                    cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit', color: 'var(--stone)'
+                  }}
+                >
+                  📌
+                </motion.button>
+                <motion.button
+                  onClick={() => { deleteNote(selectedNote.id); setSelected(null); }}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    padding: '6px 14px', border: '1px solid var(--border)', borderRadius: '12px',
+                    background: 'transparent', cursor: 'pointer', fontSize: '0.78rem', color: 'var(--priority-high)',
+                    fontWeight: 500, fontFamily: 'inherit'
+                  }}
+                >
+                  Supprimer
+                </motion.button>
               </div>
             </div>
 
