@@ -752,8 +752,8 @@ export default function AgendaView() {
           </AnimatePresence>
         </motion.div>}
 
-        {/* Events list / Timeline */}
-        <motion.div layout style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Events list / Tickets Minimalistes */}
+        <motion.div layout style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
           ) : selectedEvents.length === 0 ? (
@@ -771,203 +771,167 @@ export default function AgendaView() {
               Aucun événement
             </motion.div>
           ) : (
-            <div style={{ position: 'relative' }}>
-              {/* Rail vertical continu reliant les nœuds */}
-              {selectedEvents.length > 1 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '7px',
-                    top: '20px',
-                    bottom: '24px',
-                    width: '2px',
-                    background: 'var(--border)',
-                    zIndex: 0,
+            <AnimatePresence mode="popLayout">
+              {selectedEvents.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  layout
+                  initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
+                  transition={{
+                    duration: 0.35,
+                    delay: Math.min(i * 0.05, 0.25),
+                    ease: [0.16, 1, 0.3, 1],
                   }}
-                />
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <AnimatePresence mode="popLayout">
-                  {selectedEvents.map((event, i) => (
-                    <motion.div
-                      key={event.id}
-                      layout
-                      initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
-                      transition={{
-                        duration: 0.35,
-                        delay: Math.min(i * 0.05, 0.25),
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      style={{
-                        position: 'relative',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '6px',
-                        zIndex: 1,
-                      }}
-                    >
-                      {/* Nœud chronologique et branche de connexion */}
-                      <div style={{ display: 'flex', alignItems: 'center', paddingTop: '16px', flexShrink: 0 }}>
-                        <motion.div
-                          whileHover={{ scale: 1.25 }}
-                          transition={{ duration: 0.15 }}
-                          style={{
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '50%',
-                            border: `3px solid ${event.color}`,
-                            background: 'var(--card, var(--warm-white))',
-                            boxShadow: `0 0 0 3px ${event.color}25`,
-                            zIndex: 2,
-                            flexShrink: 0,
-                            cursor: 'pointer',
-                          }}
-                          title={`${event.time} — ${event.title}`}
-                        />
-                        {/* Branche horizontale vers la carte */}
-                        <div
-                          style={{
-                            width: '8px',
-                            height: '2px',
-                            background: `${event.color}66`,
-                            flexShrink: 0,
-                          }}
-                        />
-                      </div>
-
-                      {/* Carte événement flottante */}
-                      <motion.div
-                        whileHover={{ x: 4, boxShadow: '0 8px 22px rgba(15, 23, 42, 0.08)', borderColor: `${event.color}66` }}
-                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{
+                    y: -3,
+                    boxShadow: `0 10px 26px rgba(15, 23, 42, 0.08), 0 0 0 1px ${event.color}44`,
+                  }}
+                  style={{
+                    position: 'relative',
+                    background: `radial-gradient(ellipse at 0% 0%, ${event.color}14 0%, transparent 70%), var(--card, var(--warm-white))`,
+                    borderRadius: '16px',
+                    padding: '14px 16px',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+                    transition: 'border-color 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* En-tête : Puce lumineuse Glow LED + Catégorie + Actions */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                      <span
                         style={{
-                          flex: 1,
-                          minWidth: 0,
-                          background: 'var(--card, var(--warm-white))',
-                          borderRadius: '14px',
-                          padding: '13px 15px',
-                          border: '1px solid var(--border)',
-                          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
-                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                          width: '7px',
+                          height: '7px',
+                          borderRadius: '50%',
+                          background: event.color,
+                          boxShadow: `0 0 8px ${event.color}, 0 0 2px ${event.color}`,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          letterSpacing: '0.07em',
+                          textTransform: 'uppercase',
+                          color: 'var(--stone)',
                         }}
                       >
-                        {/* Rangée supérieure : Capsule Heure & Durée + Actions */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                fontSize: '0.76rem',
-                                fontWeight: 600,
-                                color: 'var(--ink)',
-                                background: `${event.color}15`,
-                                padding: '3px 8px',
-                                borderRadius: '8px',
-                              }}
-                            >
-                              <Clock size={12} color={event.color} />
-                              {event.time}
-                            </span>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--stone)', fontWeight: 500 }}>
-                              {event.duration}
-                            </span>
-                          </div>
-
-                          {/* Actions boutons (Modifier & Supprimer) */}
-                          <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                            <motion.button
-                              onClick={() => openEditForm(event)}
-                              title="Modifier l'événement"
-                              whileTap={{ scale: 0.92 }}
-                              whileHover={{ scale: 1.08, background: 'var(--muted)' }}
-                              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                              style={{
-                                padding: '5px 7px',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border)',
-                                background: 'transparent',
-                                cursor: 'pointer',
-                                color: 'var(--stone)',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                transition: 'color 0.15s ease, background 0.15s ease',
-                              }}
-                            >
-                              <Pencil size={13} />
-                            </motion.button>
-                            <motion.button
-                              onClick={() => handleDelete(event)}
-                              title="Supprimer l'événement"
-                              whileTap={{ scale: 0.92 }}
-                              whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
-                              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                              style={{
-                                padding: '5px 7px',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border)',
-                                background: 'transparent',
-                                cursor: 'pointer',
-                                color: 'var(--priority-high)',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                transition: 'background 0.15s ease',
-                              }}
-                            >
-                              <Trash size={13} color="var(--priority-high)" />
-                            </motion.button>
-                          </div>
-                        </div>
-
-                        {/* Titre avec animation TextReveal */}
-                        <TextReveal delay={0.06 + Math.min(i * 0.04, 0.2)} duration={0.4}>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink)', lineHeight: 1.35 }}>
-                            {event.title}
-                          </div>
-                        </TextReveal>
-
-                        {/* Rangée inférieure : Badges Catégorie et Récurrence */}
-                        <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-                          <div style={{
+                        {event.category}
+                      </span>
+                      {event.recurrence !== 'none' && (
+                        <span
+                          style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px',
-                            fontSize: '0.68rem',
-                            padding: '2px 8px',
-                            borderRadius: '8px',
+                            gap: '3px',
+                            fontSize: '0.65rem',
+                            color: 'var(--stone)',
                             background: 'var(--warm-white)',
+                            padding: '1px 6px',
+                            borderRadius: '6px',
                             border: '1px solid var(--border)',
-                            color: 'var(--stone)'
-                          }}>
-                            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: event.color }} />
-                            {event.category}
-                          </div>
-                          {event.recurrence !== 'none' && (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              fontSize: '0.68rem',
-                              padding: '2px 8px',
-                              borderRadius: '8px',
-                              background: `${event.color}18`,
-                              color: 'var(--ink)',
-                              fontWeight: 500,
-                            }}>
-                              <Repeat size={10} color={event.color} />
-                              {RECURRENCE_LABELS[event.recurrence]}
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </div>
+                          }}
+                        >
+                          <Repeat size={9} />
+                          {RECURRENCE_LABELS[event.recurrence]}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions boutons (Modifier & Supprimer) */}
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <motion.button
+                        onClick={() => openEditForm(event)}
+                        title="Modifier l'événement"
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                        style={{
+                          padding: '5px 7px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          color: 'var(--stone)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          transition: 'color 0.15s ease, background 0.15s ease',
+                        }}
+                      >
+                        <Pencil size={13} />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleDelete(event)}
+                        title="Supprimer l'événement"
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
+                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                        style={{
+                          padding: '5px 7px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          color: 'var(--priority-high)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          transition: 'background 0.15s ease',
+                        }}
+                      >
+                        <Trash size={13} color="var(--priority-high)" />
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Ligne pointillée fine style ticket */}
+                  <div
+                    style={{
+                      height: '1px',
+                      margin: '10px 0 11px 0',
+                      borderBottom: '1px dashed var(--border)',
+                      opacity: 0.85,
+                    }}
+                  />
+
+                  {/* Titre de l'événement avec TextReveal */}
+                  <TextReveal delay={0.06 + Math.min(i * 0.04, 0.2)} duration={0.4}>
+                    <div
+                      style={{
+                        fontSize: '0.92rem',
+                        fontWeight: 600,
+                        color: 'var(--ink)',
+                        lineHeight: 1.38,
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {event.title}
+                    </div>
+                  </TextReveal>
+
+                  {/* Pied du ticket : Heure et Durée */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      marginTop: '10px',
+                      fontSize: '0.75rem',
+                      color: 'var(--stone)',
+                    }}
+                  >
+                    <Clock size={12} style={{ color: event.color }} />
+                    <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{event.time}</span>
+                    <span>·</span>
+                    <span>{event.duration}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </motion.div>
       </div>
