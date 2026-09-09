@@ -579,7 +579,7 @@ export default function LoginPage() {
                   justifyContent: 'center',
                   overflow: 'hidden',
                   marginBottom: '26px',
-                  transform: `rotate(${(progress / 100) * 360}deg) scale(${1 + Math.sin((progress / 100) * Math.PI) * 0.08})`,
+                  transform: `rotate(${(progress / 100) * 720}deg) scale(${1 + Math.sin((progress / 100) * Math.PI * 2) * 0.06})`,
                   willChange: 'transform',
                 }}
               >
