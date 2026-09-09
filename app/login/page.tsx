@@ -33,7 +33,7 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at 50% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 60%), var(--cream, #FAFAFA)',
+        background: 'radial-gradient(ellipse at 50% 15%, rgba(15, 23, 42, 0.035) 0%, transparent 60%), var(--cream, #FAFAFA)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -43,19 +43,19 @@ export default function LoginPage() {
         padding: '24px',
       }}
     >
-      {/* ── Dynamic Ambient Color Orbs ── */}
+      {/* ── Subtle Monochrome Ambient Glows (Profil Anas) ── */}
       <div
         style={{
           position: 'absolute',
           top: '5%',
           left: '12%',
-          width: '480px',
-          height: '480px',
+          width: '500px',
+          height: '500px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, rgba(37, 99, 235, 0.08) 50%, transparent 70%)',
-          filter: 'blur(50px)',
+          background: 'radial-gradient(circle, rgba(15, 23, 42, 0.04) 0%, rgba(15, 23, 42, 0.01) 50%, transparent 70%)',
+          filter: 'blur(55px)',
           pointerEvents: 'none',
-          animation: 'floatOrb1 14s ease-in-out infinite alternate',
+          animation: 'floatOrb1 16s ease-in-out infinite alternate',
         }}
       />
       <div
@@ -66,28 +66,14 @@ export default function LoginPage() {
           width: '520px',
           height: '520px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.07) 50%, transparent 70%)',
-          filter: 'blur(55px)',
-          pointerEvents: 'none',
-          animation: 'floatOrb2 16s ease-in-out infinite alternate',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: '38%',
-          right: '22%',
-          width: '360px',
-          height: '360px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(249, 115, 22, 0.06) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(15, 23, 42, 0.035) 0%, rgba(15, 23, 42, 0.01) 50%, transparent 70%)',
           filter: 'blur(60px)',
           pointerEvents: 'none',
-          animation: 'floatOrb3 18s ease-in-out infinite alternate',
+          animation: 'floatOrb2 18s ease-in-out infinite alternate',
         }}
       />
 
-      {/* ── Main Glassmorphism Card ── */}
+      {/* ── Main Monochrome Card ── */}
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -95,34 +81,31 @@ export default function LoginPage() {
         style={{
           width: '100%',
           maxWidth: '430px',
-          background: 'rgba(255, 255, 255, 0.88)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          background: '#FFFFFF',
           borderRadius: '22px',
           padding: '42px 36px 36px',
-          boxShadow: '0 20px 50px -10px rgba(15, 23, 42, 0.09), 0 10px 20px -5px rgba(59, 130, 246, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.9) inset',
-          border: '1px solid rgba(226, 232, 240, 0.85)',
+          boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)',
+          border: '1px solid var(--border, #E2E8F0)',
           position: 'relative',
           zIndex: 1,
           overflow: 'hidden',
         }}
       >
-        {/* Glowing Gradient Accent Beam on top edge */}
+        {/* Subtle Top Monochrome Accent Line */}
         <div
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
-            height: '3.5px',
-            background: 'linear-gradient(90deg, #3B82F6, #8B5CF6 50%, #EC4899 100%)',
-            boxShadow: '0 2px 14px rgba(139, 92, 246, 0.5)',
+            height: '3px',
+            background: 'linear-gradient(90deg, #0F172A 0%, #475569 50%, #0F172A 100%)',
           }}
         />
 
         {/* Header Branding */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          {/* Logo Badge with colorful glow */}
+          {/* Logo Badge */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -132,8 +115,8 @@ export default function LoginPage() {
               height: '64px',
               borderRadius: '18px',
               overflow: 'hidden',
-              border: '1px solid rgba(255, 255, 255, 0.9)',
-              boxShadow: '0 10px 28px -4px rgba(59, 130, 246, 0.35), 0 0 14px rgba(139, 92, 246, 0.2)',
+              border: '1px solid var(--border, #E2E8F0)',
+              boxShadow: '0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -151,7 +134,7 @@ export default function LoginPage() {
             />
           </motion.div>
 
-          {/* Sparkle badge */}
+          {/* Sparkle badge in B&W */}
           <div
             style={{
               display: 'inline-flex',
@@ -159,16 +142,16 @@ export default function LoginPage() {
               gap: '6px',
               padding: '4px 12px',
               borderRadius: '999px',
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
+              background: 'rgba(15, 23, 42, 0.05)',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
               fontSize: '0.74rem',
               fontWeight: 700,
-              color: '#2563EB',
+              color: '#0F172A',
               marginBottom: '10px',
               letterSpacing: '0.02em',
             }}
           >
-            <Sparkles size={12} style={{ color: '#8B5CF6' }} />
+            <Sparkles size={12} style={{ color: '#0F172A' }} />
             <span>Digital Journal & Todos</span>
           </div>
 
@@ -177,9 +160,7 @@ export default function LoginPage() {
             style={{
               fontSize: '1.95rem',
               fontWeight: 800,
-              background: 'linear-gradient(135deg, #0F172A 35%, #2563EB 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#0F172A',
               letterSpacing: '-0.03em',
               marginBottom: '4px',
             }}
@@ -189,7 +170,7 @@ export default function LoginPage() {
           <p
             style={{
               fontSize: '0.86rem',
-              color: 'var(--stone)',
+              color: 'var(--stone, #64748B)',
               fontWeight: 500,
             }}
           >
@@ -205,7 +186,7 @@ export default function LoginPage() {
               style={{
                 display: 'block',
                 fontSize: '0.76rem',
-                color: focusedField === 'email' ? '#2563EB' : 'var(--stone)',
+                color: focusedField === 'email' ? '#0F172A' : 'var(--stone, #64748B)',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -222,7 +203,7 @@ export default function LoginPage() {
                   left: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: focusedField === 'email' ? '#2563EB' : 'var(--stone)',
+                  color: focusedField === 'email' ? '#0F172A' : 'var(--stone, #64748B)',
                   pointerEvents: 'none',
                   transition: 'color 0.2s ease',
                 }}
@@ -241,15 +222,15 @@ export default function LoginPage() {
                 style={{
                   width: '100%',
                   padding: '11px 14px 11px 40px',
-                  border: focusedField === 'email' ? '1.5px solid #3B82F6' : '1px solid var(--border)',
+                  border: focusedField === 'email' ? '1.5px solid #0F172A' : '1px solid var(--border, #E2E8F0)',
                   borderRadius: '12px',
-                  background: focusedField === 'email' ? '#FFFFFF' : 'rgba(248, 250, 252, 0.8)',
+                  background: focusedField === 'email' ? '#FFFFFF' : 'var(--cream, #FAFAFA)',
                   fontSize: '0.88rem',
-                  color: 'var(--ink)',
+                  color: '#0F172A',
                   outline: 'none',
                   fontFamily: 'inherit',
                   transition: 'all 0.2s ease',
-                  boxShadow: focusedField === 'email' ? '0 0 0 4px rgba(59, 130, 246, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08)' : 'none',
+                  boxShadow: focusedField === 'email' ? '0 0 0 4px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)' : 'none',
                   boxSizing: 'border-box',
                 }}
               />
@@ -262,7 +243,7 @@ export default function LoginPage() {
               style={{
                 display: 'block',
                 fontSize: '0.76rem',
-                color: focusedField === 'password' ? '#2563EB' : 'var(--stone)',
+                color: focusedField === 'password' ? '#0F172A' : 'var(--stone, #64748B)',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -279,7 +260,7 @@ export default function LoginPage() {
                   left: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: focusedField === 'password' ? '#2563EB' : 'var(--stone)',
+                  color: focusedField === 'password' ? '#0F172A' : 'var(--stone, #64748B)',
                   pointerEvents: 'none',
                   transition: 'color 0.2s ease',
                 }}
@@ -298,15 +279,15 @@ export default function LoginPage() {
                 style={{
                   width: '100%',
                   padding: '11px 42px 11px 40px',
-                  border: focusedField === 'password' ? '1.5px solid #3B82F6' : '1px solid var(--border)',
+                  border: focusedField === 'password' ? '1.5px solid #0F172A' : '1px solid var(--border, #E2E8F0)',
                   borderRadius: '12px',
-                  background: focusedField === 'password' ? '#FFFFFF' : 'rgba(248, 250, 252, 0.8)',
+                  background: focusedField === 'password' ? '#FFFFFF' : 'var(--cream, #FAFAFA)',
                   fontSize: '0.88rem',
-                  color: 'var(--ink)',
+                  color: '#0F172A',
                   outline: 'none',
                   fontFamily: 'inherit',
                   transition: 'all 0.2s ease',
-                  boxShadow: focusedField === 'password' ? '0 0 0 4px rgba(59, 130, 246, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08)' : 'none',
+                  boxShadow: focusedField === 'password' ? '0 0 0 4px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)' : 'none',
                   boxSizing: 'border-box',
                 }}
               />
@@ -320,7 +301,7 @@ export default function LoginPage() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: showPassword ? '#2563EB' : 'var(--stone)',
+                  color: showPassword ? '#0F172A' : 'var(--stone, #64748B)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -356,7 +337,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Submit button with vibrant gradient and glow effect */}
+          {/* Submit button - Noir & Blanc Signature Profil Anas */}
           <motion.button
             type="submit"
             disabled={loading}
@@ -368,8 +349,8 @@ export default function LoginPage() {
               padding: '13px 18px',
               marginTop: '6px',
               background: loading
-                ? 'var(--stone-light)'
-                : 'linear-gradient(135deg, #2563EB 0%, #3B82F6 45%, #7C3AED 100%)',
+                ? 'var(--stone-light, #CBD5E1)'
+                : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A',
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '14px',
@@ -383,14 +364,14 @@ export default function LoginPage() {
               gap: '8px',
               boxShadow: loading
                 ? 'none'
-                : '0 8px 24px -4px rgba(37, 99, 235, 0.45), 0 2px 6px rgba(124, 58, 237, 0.25)',
-              transition: 'box-shadow 0.25s ease, filter 0.25s ease',
+                : '0 8px 24px -4px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.12)',
+              transition: 'background 0.22s ease, box-shadow 0.22s ease',
             }}
             onMouseEnter={e => {
-              if (!loading) e.currentTarget.style.filter = 'brightness(1.08)';
+              if (!loading) e.currentTarget.style.background = 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), #1E293B';
             }}
             onMouseLeave={e => {
-              if (!loading) e.currentTarget.style.filter = 'none';
+              if (!loading) e.currentTarget.style.background = 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A';
             }}
           >
             {loading ? (
@@ -423,7 +404,7 @@ export default function LoginPage() {
             textAlign: 'center',
             marginTop: '26px',
             fontSize: '0.74rem',
-            color: 'var(--stone)',
+            color: 'var(--stone, #64748B)',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
@@ -431,7 +412,7 @@ export default function LoginPage() {
             gap: '6px',
           }}
         >
-          <span style={{ color: '#8B5CF6' }}>✦</span>
+          <span style={{ color: '#0F172A' }}>✦</span>
           <span>Accès membre sécurisé · My Planner</span>
         </div>
       </motion.div>
@@ -440,18 +421,13 @@ export default function LoginPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes floatOrb1 {
           0% { transform: translate(0px, 0px) scale(1); }
-          50% { transform: translate(35px, -30px) scale(1.08); }
-          100% { transform: translate(-25px, 20px) scale(0.94); }
+          50% { transform: translate(30px, -25px) scale(1.06); }
+          100% { transform: translate(-20px, 20px) scale(0.95); }
         }
         @keyframes floatOrb2 {
           0% { transform: translate(0px, 0px) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
-          100% { transform: translate(30px, -35px) scale(0.92); }
-        }
-        @keyframes floatOrb3 {
-          0% { transform: translate(0px, 0px) scale(0.94); }
-          50% { transform: translate(25px, 40px) scale(1.1); }
-          100% { transform: translate(-35px, -20px) scale(1); }
+          50% { transform: translate(-30px, 25px) scale(1.05); }
+          100% { transform: translate(25px, -25px) scale(0.94); }
         }
       `}</style>
     </div>
