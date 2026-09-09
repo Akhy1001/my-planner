@@ -1,8 +1,8 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -16,6 +16,61 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
 
+  // État de l'écran de chargement simulé
+  const [isSuccessLoading, setIsSuccessLoading] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [statusText, setStatusText] = useState('Authentification validée…');
+
+  const startLoadingSimulation = (demo = false) => {
+    setIsDemoMode(demo);
+    setProgress(0);
+    setStatusText('Authentification validée…');
+    setIsSuccessLoading(true);
+  };
+
+  useEffect(() => {
+    if (!isSuccessLoading) return;
+
+    // Simulation de progression fluide par étapes
+    const t1 = setTimeout(() => {
+      setProgress(28);
+      setStatusText('Vérification des accès…');
+    }, 250);
+
+    const t2 = setTimeout(() => {
+      setProgress(64);
+      setStatusText('Synchronisation de votre profil…');
+    }, 850);
+
+    const t3 = setTimeout(() => {
+      setProgress(88);
+      setStatusText('Chargement de vos notes & tâches…');
+    }, 1450);
+
+    const t4 = setTimeout(() => {
+      setProgress(100);
+      setStatusText('Bienvenue sur My Planner !');
+    }, 1950);
+
+    const t5 = setTimeout(() => {
+      if (isDemoMode) {
+        setIsSuccessLoading(false);
+        setProgress(0);
+      } else {
+        router.push('/');
+      }
+    }, 2550);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+    };
+  }, [isSuccessLoading, isDemoMode, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -25,7 +80,8 @@ export default function LoginPage() {
       setError('Email ou mot de passe incorrect.');
       setLoading(false);
     } else {
-      router.push('/');
+      setLoading(false);
+      startLoadingSimulation(false);
     }
   };
 
@@ -398,27 +454,270 @@ export default function LoginPage() {
           </motion.button>
         </form>
 
-        {/* Footer info */}
+        {/* Footer info & Test trigger button */}
         <div
           style={{
             textAlign: 'center',
             marginTop: '26px',
-            fontSize: '0.74rem',
-            color: 'var(--stone, #64748B)',
-            fontWeight: 600,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
+            gap: '8px',
           }}
         >
-          <span style={{ color: '#0F172A' }}>✦</span>
-          <span>Accès membre sécurisé · My Planner</span>
+          <div
+            style={{
+              fontSize: '0.74rem',
+              color: 'var(--stone, #64748B)',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ color: '#0F172A' }}>✦</span>
+            <span>Accès membre sécurisé · My Planner</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => startLoadingSimulation(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.72rem',
+              color: '#0F172A',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '8px',
+              opacity: 0.65,
+              transition: 'opacity 0.2s ease, background 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.background = 'rgba(15, 23, 42, 0.05)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.opacity = '0.65';
+              e.currentTarget.style.background = 'none';
+            }}
+          >
+            <span>⚡ Tester l'écran de chargement</span>
+          </button>
         </div>
       </motion.div>
 
+      {/* ── Écran de chargement immersif post-connexion (Monochrome & Effets) ── */}
+      <AnimatePresence>
+        {isSuccessLoading && (
+          <motion.div
+            key="success-loading-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              background: 'var(--cream, #FAFAFA)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
+              overflow: 'hidden',
+            }}
+          >
+            {/* Ambient subtle backdrop glows */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '600px',
+                height: '600px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Central Block */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                position: 'relative',
+                zIndex: 1,
+              }}
+            >
+              {/* ── Logo qui tourne avec effet d'orbite et pulsation ── */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '116px',
+                  height: '116px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '28px',
+                }}
+              >
+                {/* Anneau d'orbite en contre-rotation avec satellite */}
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '50%',
+                    border: '1.5px dashed rgba(15, 23, 42, 0.22)',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {/* Point satellite orbital */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      left: 'calc(50% - 4px)',
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: '#0F172A',
+                      boxShadow: '0 0 8px rgba(15, 23, 42, 0.4)',
+                    }}
+                  />
+                </motion.div>
+
+                {/* Badge du logo avec rotation 360° et pulsation de taille */}
+                <motion.div
+                  animate={{
+                    rotate: 360,
+                    scale: [1, 1.07, 1],
+                  }}
+                  transition={{
+                    rotate: { repeat: Infinity, duration: 3.2, ease: 'linear' },
+                    scale: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
+                  }}
+                  style={{
+                    width: '74px',
+                    height: '74px',
+                    borderRadius: '20px',
+                    background: '#FFFFFF',
+                    border: '1px solid var(--border, #E2E8F0)',
+                    boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.06)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Image
+                    src="/logo.jpg"
+                    alt="My Planner logo"
+                    width={74}
+                    height={74}
+                    style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                    priority
+                  />
+                </motion.div>
+              </div>
+
+              {/* Titre & Sous-titre */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.15 }}
+                style={{ marginBottom: '24px' }}
+              >
+                <div
+                  className="font-display"
+                  style={{
+                    fontSize: '1.75rem',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    letterSpacing: '-0.03em',
+                    marginBottom: '4px',
+                  }}
+                >
+                  My Planner
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.86rem',
+                    color: 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                    minHeight: '20px',
+                    transition: 'color 0.2s ease',
+                  }}
+                >
+                  {statusText}
+                </div>
+              </motion.div>
+
+              {/* ── Barre de chargement avec effet de balayage lumineux (Shimmer) ── */}
+              <div style={{ width: '270px' }}>
+                {/* Track */}
+                <div
+                  style={{
+                    width: '100%',
+                    height: '7px',
+                    background: 'rgba(15, 23, 42, 0.08)',
+                    borderRadius: '999px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
+                  }}
+                >
+                  {/* Fill avec effet shimmer */}
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${progress}%`,
+                      background: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                      backgroundSize: '240% 100%',
+                      animation: 'barShimmer 1.5s infinite linear',
+                      borderRadius: '999px',
+                      position: 'relative',
+                      transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                      boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                    }}
+                  />
+                </div>
+
+                {/* Pourcentage et détails */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '10px',
+                    fontSize: '0.75rem',
+                    color: 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                  }}
+                >
+                  <span>Initialisation</span>
+                  <span style={{ color: '#0F172A', fontWeight: 800 }}>{Math.round(progress)}%</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes barShimmer {
+          0% { background-position: 100% 0; }
+          100% { background-position: -100% 0; }
+        }
         @keyframes floatOrb1 {
           0% { transform: translate(0px, 0px) scale(1); }
           50% { transform: translate(30px, -25px) scale(1.06); }
