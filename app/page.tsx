@@ -19,15 +19,30 @@ export default function Home() {
   const { user, loading, signOut } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('today');
-  const alreadySeen = typeof window !== 'undefined' && sessionStorage.getItem('splash-seen') === '1';
-  const [showSplash, setShowSplash] = useState(!alreadySeen);
-  const [appVisible, setAppVisible] = useState(alreadySeen);
+  const [mounted, setMounted] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
+    setMounted(true);
+    try {
+      if (sessionStorage.getItem('splash-seen') === '1') {
+        setShowSplash(false);
+      }
+    } catch {}
+  }, []);
+
+  const handleSplashComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem('splash-seen', '1');
+    } catch {}
+    setShowSplash(false);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !loading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, mounted, router]);
 
   // Per-user profile themes (Section 3.2: Anas Bleu Tech, Rose Pastel Rose)
   const isPinkUser = user?.email === 'rstrpn05@gmail.com';
@@ -59,12 +74,6 @@ export default function Home() {
     }
   }, [user, isPinkUser, isSandUser, isDark]);
 
-  const handleSplashComplete = useCallback(() => {
-    sessionStorage.setItem('splash-seen', '1');
-    setShowSplash(false);
-    setTimeout(() => setAppVisible(true), 50);
-  }, []);
-
   const handleSignOut = async () => {
     await signOut();
     router.push('/login');
@@ -80,12 +89,20 @@ export default function Home() {
     }
   };
 
-  // Auth loading — show nothing (splash covers it)
-  if (loading || !user) {
+  // Si l'utilisateur n'est pas connecté et que l'auth a fini de vérifier
+  if (mounted && !loading && !user) {
     return (
-      <>
-        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-      </>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--ink)',
+        color: '#FFFFFF',
+        fontFamily: 'inherit',
+      }}>
+        Redirection…
+      </div>
     );
   }
 
@@ -94,40 +111,43 @@ export default function Home() {
       {/* Splash screen overlay */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
-      {/* Main app — reveals after splash */}
+      {/* Main app */}
       <div
         style={{
           display: 'flex',
           height: '100vh',
           overflow: 'hidden',
-          opacity: appVisible ? 1 : 0,
-          transform: appVisible ? 'scale(1)' : 'scale(0.98)',
-          transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          opacity: showSplash ? 0 : 1,
+          transition: 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          user={user}
-          onSignOut={handleSignOut}
-          isDark={isDark}
-          onToggleTheme={toggleTheme}
-          isPinkUser={isPinkUser}
-        />
-        <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6, scale: 0.99 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              style={{ height: '100%', overflowY: 'auto' }}
-            >
-              {renderView()}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        {user && (
+          <>
+            <Sidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              user={user}
+              onSignOut={handleSignOut}
+              isDark={isDark}
+              onToggleTheme={toggleTheme}
+              isPinkUser={isPinkUser}
+            />
+            <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.99 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ height: '100%', overflowY: 'auto' }}
+                >
+                  {renderView()}
+                </motion.div>
+              </AnimatePresence>
+            </main>
+          </>
+        )}
       </div>
     </>
   );

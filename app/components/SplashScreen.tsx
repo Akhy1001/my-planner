@@ -1,27 +1,48 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+  const completedRef = useRef(false);
+
+  const finish = () => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    onCompleteRef.current();
+  };
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('hold'), 400);
-    const t2 = setTimeout(() => setPhase('out'), 1200);
-    const t3 = setTimeout(onComplete, 1800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onComplete]);
+    const t1 = setTimeout(() => setPhase('hold'), 350);
+    const t2 = setTimeout(() => setPhase('out'), 1100);
+    const t3 = setTimeout(finish, 1600);
+    // Sécurité absolue : forcer la fermeture quoi qu'il arrive
+    const tFallback = setTimeout(finish, 2200);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(tFallback);
+    };
+  }, []);
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      background: 'var(--ink)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 9999,
-      opacity: phase === 'out' ? 0 : 1,
-      transition: phase === 'out' ? 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-      pointerEvents: phase === 'out' ? 'none' : 'all',
-    }}>
+    <div
+      onClick={finish}
+      style={{
+        position: 'fixed', inset: 0,
+        background: 'var(--ink)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 9999,
+        opacity: phase === 'out' ? 0 : 1,
+        transition: phase === 'out' ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+        pointerEvents: phase === 'out' ? 'none' : 'all',
+        cursor: 'pointer',
+      }}
+    >
       {/* Background glow */}
       <div style={{
         position: 'absolute', inset: 0,
