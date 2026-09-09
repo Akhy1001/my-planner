@@ -118,9 +118,15 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              whileHover={{ scale: 1.02, x: 2 }}
+              whileHover={{
+                scale: 1.02,
+                x: 2,
+                backgroundColor: active
+                  ? 'transparent'
+                  : (isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.08)'),
+              }}
               whileTap={{ scale: 0.97 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -129,6 +135,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 padding: '10px 14px',
                 borderRadius: '14px',
                 border: 'none',
+                outline: 'none',
                 background: 'transparent',
                 color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
                 cursor: 'pointer',
@@ -139,19 +146,6 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 animationDelay: `${i * 0.05}s`,
                 fontFamily: 'inherit',
                 position: 'relative',
-                transition: 'color 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-              onMouseEnter={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.08)';
-                  e.currentTarget.style.color = 'var(--ink)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'var(--stone)';
-                }
               }}
             >
               {active && (
