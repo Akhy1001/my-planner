@@ -6,6 +6,7 @@ import { X, ChevronDown } from 'lucide-react';
 import { CirclePlus, Trash, CheckCircle } from './icons';
 import { ScribbleStrikethrough } from './icons/scribble-strikethrough';
 import { usePlayfulTodos, DayStat } from '@/hooks/usePlayfulTodos';
+import { TextReveal } from './TextReveal';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
@@ -569,30 +570,32 @@ export function PlayfulTodolist() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
           <div>
-            <div className="font-display" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--ink)' }}>
+            <TextReveal as="h2" delay={0.08} className="font-display" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--ink)' }}>
               Playful Todolist
-            </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--stone)', marginTop: '4px' }}>
+            </TextReveal>
+            <TextReveal delay={0.14} style={{ fontSize: '0.78rem', color: 'var(--stone)', marginTop: '4px' }}>
               Un mini carnet de tâches animé.
-            </div>
+            </TextReveal>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <motion.button
               type="button"
               onClick={() => setShowModal(true)}
-              whileTap={{ scale: 0.97 }}
-              transition={{ duration: 0.12, ease: EASE_OUT }}
+              whileHover={{ scale: 1.04, background: 'var(--muted)', borderColor: 'var(--stone)' }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15, ease: EASE_OUT }}
               title="Voir la tendance 7 jours"
               style={{
-                padding: '5px 10px',
-                borderRadius: '10px',
+                padding: '5px 12px',
+                borderRadius: '12px',
                 border: '1px solid var(--border)',
                 background: 'transparent',
                 color: 'var(--stone)',
                 cursor: 'pointer',
-                fontSize: '0.72rem',
+                fontSize: '0.74rem',
                 fontWeight: 500,
                 fontFamily: 'inherit',
+                transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
               }}
             >
               Tendance
@@ -658,8 +661,24 @@ export function PlayfulTodolist() {
             <div style={{ fontSize: '0.85rem', color: 'var(--stone)', textAlign: 'center', padding: '12px 0' }}>
               Chargement…
             </div>
+          ) : todos.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                padding: '24px 16px',
+                textAlign: 'center',
+                color: 'var(--stone)',
+                fontSize: '0.85rem',
+                border: '1px dashed var(--border)',
+                borderRadius: '14px',
+                background: 'transparent',
+              }}
+            >
+              Aucune tâche dans le carnet ✦
+            </motion.div>
           ) : (
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {todos.map((item, index) => {
                 const isDone = completing.has(item.id);
                 const isExpanded = expandedIds.has(item.id);
@@ -670,21 +689,23 @@ export function PlayfulTodolist() {
                 return (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.94, y: -4 }}
+                    layout
+                    initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
                     transition={{
-                      duration: 0.22,
-                      ease: EASE_OUT,
-                      delay: index < 6 ? index * 0.05 : 0,
+                      duration: 0.35,
+                      ease: [0.16, 1, 0.3, 1],
+                      delay: Math.min(index * 0.05, 0.25),
                     }}
+                    whileHover={{ y: -2, boxShadow: '0 6px 16px rgba(15, 23, 42, 0.08)' }}
                     style={{
                       padding: '12px 14px',
-                      borderRadius: '16px',
+                      borderRadius: '14px',
                       background: isDone ? 'rgba(107, 142, 120, 0.08)' : 'var(--warm-white)',
                       border: isDone ? '1px solid rgba(107, 142, 120, 0.22)' : '1px solid var(--border)',
                       color: isDone ? 'var(--stone)' : 'var(--ink)',
-                      transition: 'background 0.18s ease, border-color 0.18s ease',
+                      transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
                     }}
                   >
                     {/* Ligne principale */}
@@ -774,7 +795,7 @@ export function PlayfulTodolist() {
                                 setEditingTodoId(item.id);
                                 setEditingTodoValue(item.label);
                               }}
-                              whileHover={isDone ? {} : { opacity: 0.65 }}
+                              whileHover={isDone ? {} : { opacity: 0.7 }}
                               transition={{ duration: 0.12 }}
                               style={{
                                 fontSize: '0.9rem',
@@ -786,8 +807,10 @@ export function PlayfulTodolist() {
                                 cursor: isDone ? 'default' : 'text',
                               }}
                             >
-                              <span style={{ position: 'relative', display: 'inline' }}>
-                                {item.label}
+                              <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                                <TextReveal delay={0.06 + Math.min(index * 0.04, 0.2)} duration={0.4} as="span">
+                                  {item.label}
+                                </TextReveal>
                                 <ScribbleStrikethrough active={isDone} color="var(--stone)" />
                               </span>
                             </motion.span>
@@ -835,8 +858,9 @@ export function PlayfulTodolist() {
                           <motion.button
                             type="button"
                             onClick={() => toggleExpand(item.id)}
-                            whileTap={{ scale: 0.88 }}
-                            transition={{ duration: 0.12, ease: EASE_OUT }}
+                            whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                            whileTap={{ scale: 0.9 }}
+                            transition={{ duration: 0.15, ease: EASE_OUT }}
                             aria-label={isExpanded ? 'Masquer les sous-tâches' : 'Afficher les sous-tâches'}
                             style={{
                               width: '30px',
@@ -866,23 +890,25 @@ export function PlayfulTodolist() {
                         <motion.button
                           type="button"
                           onClick={() => removeTodo(item.id)}
-                          whileTap={{ scale: 0.88 }}
-                          transition={{ duration: 0.12, ease: EASE_OUT }}
+                          whileHover={{ scale: 1.1, background: 'var(--priority-high-bg, rgba(180, 90, 60, 0.1))' }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ duration: 0.15, ease: EASE_OUT }}
                           style={{
-                            width: '34px',
-                            height: '34px',
-                            borderRadius: '12px',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '10px',
                             border: 'none',
                             background: 'transparent',
-                            color: 'var(--terra)',
+                            color: 'var(--priority-high, var(--terra))',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            transition: 'background 0.15s ease',
                           }}
                           aria-label="Supprimer tâche"
                         >
-                          <Trash size={18} color="var(--terra)" />
+                          <Trash size={17} color="var(--priority-high, var(--terra))" />
                         </motion.button>
                       </div>
                     </div>
