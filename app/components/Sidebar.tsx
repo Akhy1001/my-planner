@@ -129,26 +129,22 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 padding: '10px 14px',
                 borderRadius: '14px',
                 border: 'none',
-                background: active 
-                  ? 'var(--primary-btn-bg)' 
-                  : 'transparent',
+                background: 'transparent',
                 color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
-                boxShadow: active ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
-                fontWeight: active ? '600' : '400',
+                fontWeight: active ? '700' : '500',
                 textAlign: 'left',
                 marginBottom: '3px',
                 animationDelay: `${i * 0.05}s`,
                 fontFamily: 'inherit',
                 position: 'relative',
-                overflow: 'hidden',
-                transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                transition: 'color 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
               onMouseEnter={(e) => {
                 if (!active) {
-                  e.currentTarget.style.background = isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.12)';
-                  e.currentTarget.style.color = 'var(--ink-light)';
+                  e.currentTarget.style.background = isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.08)';
+                  e.currentTarget.style.color = 'var(--ink)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -158,24 +154,42 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 }
               }}
             >
-              
+              {active && (
+                <motion.div
+                  layoutId="activeNavIndicator"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '14px',
+                    background: 'var(--primary-btn-bg)',
+                    boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))',
+                    zIndex: 0,
+                  }}
+                />
+              )}
+
               <div style={{
+                position: 'relative',
+                zIndex: 1,
                 fontSize: '1rem',
-                color: active ? 'var(--cream)' : 'var(--stone)',
-                opacity: active ? 1 : 0.5,
+                color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                opacity: active ? 1 : 0.6,
                 transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                transform: active ? 'scale(1.15)' : 'scale(1)',
+                transform: active ? 'scale(1.1)' : 'scale(1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
                 {item.icon}
               </div>
-              <span style={{ flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+              <span style={{ position: 'relative', zIndex: 1, flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                 {item.label}
               </span>
               {active && (
                 <div style={{
+                  position: 'relative',
+                  zIndex: 1,
                   width: '6px', height: '6px',
                   borderRadius: '50%',
                   background: 'var(--accent)',

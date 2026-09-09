@@ -14,13 +14,23 @@ import { useTheme } from '@/hooks/useTheme';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
+const TAB_ORDER: Tab[] = ['today', 'agenda', 'habits', 'notes', 'goals'];
+
 export default function Home() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('today');
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
   const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+
+  const handleTabChange = (newTab: Tab) => {
+    const prevIdx = TAB_ORDER.indexOf(activeTab);
+    const newIdx = TAB_ORDER.indexOf(newTab);
+    setSlideDirection(newIdx >= prevIdx ? 1 : -1);
+    setActiveTab(newTab);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -125,7 +135,7 @@ export default function Home() {
           <>
             <Sidebar
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               user={user}
               onSignOut={handleSignOut}
               isDark={isDark}
@@ -133,13 +143,38 @@ export default function Home() {
               isPinkUser={isPinkUser}
             />
             <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-              <AnimatePresence mode="wait" initial={false}>
+              <AnimatePresence mode="wait" custom={slideDirection} initial={false}>
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6, scale: 0.99 }}
-                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  custom={slideDirection}
+                  variants={{
+                    initial: (dir: number) => ({
+                      opacity: 0,
+                      x: dir > 0 ? 36 : -36,
+                      scale: 0.995,
+                    }),
+                    animate: {
+                      opacity: 1,
+                      x: 0,
+                      scale: 1,
+                      transition: {
+                        duration: 0.28,
+                        ease: [0.16, 1, 0.3, 1],
+                      },
+                    },
+                    exit: (dir: number) => ({
+                      opacity: 0,
+                      x: dir > 0 ? -28 : 28,
+                      scale: 0.995,
+                      transition: {
+                        duration: 0.2,
+                        ease: [0.23, 1, 0.32, 1],
+                      },
+                    }),
+                  }}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
                   style={{ height: '100%', overflowY: 'auto' }}
                 >
                   {renderView()}
