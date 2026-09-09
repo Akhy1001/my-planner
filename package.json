@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "allowScripts": {
+    "sharp": true,
+    "unrs-resolver": true
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
     "date-fns": "^4.1.0",
