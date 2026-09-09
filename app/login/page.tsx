@@ -34,7 +34,7 @@ export default function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+      fontFamily: "'Gantari', var(--font-geist-sans), system-ui, sans-serif",
       position: 'relative',
       overflow: 'hidden',
     }}>
