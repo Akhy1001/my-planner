@@ -33,7 +33,7 @@ export default function LoginPage() {
     if (!isSuccessLoading) return;
 
     let startTime: number | null = null;
-    const duration = 3000; // 3.0s synchronisé parfaitement avec le tour du logo
+    const duration = 4800; // 4.8s : temps prolongé pour une rotation douce et cinématographique
     let animationFrameId: number;
     let finishTimeoutId: NodeJS.Timeout;
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
           } else {
             router.push('/');
           }
-        }, 450);
+        }, 650);
       }
     };
 
