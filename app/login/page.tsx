@@ -33,7 +33,7 @@ export default function LoginPage() {
     if (!isSuccessLoading) return;
 
     let startTime: number | null = null;
-    const duration = 2200; // 2.2s de fluidité continue 60fps
+    const duration = 3000; // 3.0s synchronisé parfaitement avec le tour du logo
     let animationFrameId: number;
     let finishTimeoutId: NodeJS.Timeout;
 
@@ -565,16 +565,8 @@ export default function LoginPage() {
                 zIndex: 1,
               }}
             >
-              {/* ── Logo qui tourne avec pulsation ── */}
-              <motion.div
-                animate={{
-                  rotate: 360,
-                  scale: [1, 1.06, 1],
-                }}
-                transition={{
-                  rotate: { repeat: Infinity, duration: 3.2, ease: 'linear' },
-                  scale: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
-                }}
+              {/* ── Logo synchronisé à 100% avec la vitesse du chargement ── */}
+              <div
                 style={{
                   width: '76px',
                   height: '76px',
@@ -587,6 +579,8 @@ export default function LoginPage() {
                   justifyContent: 'center',
                   overflow: 'hidden',
                   marginBottom: '26px',
+                  transform: `rotate(${(progress / 100) * 360}deg) scale(${1 + Math.sin((progress / 100) * Math.PI) * 0.08})`,
+                  willChange: 'transform',
                 }}
               >
                 <Image
@@ -597,7 +591,7 @@ export default function LoginPage() {
                   style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
                   priority
                 />
-              </motion.div>
+              </div>
 
               {/* Titre & Sous-titre */}
               <motion.div
