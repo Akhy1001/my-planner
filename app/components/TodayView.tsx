@@ -278,36 +278,65 @@ export default function TodayView() {
               />
               <AddButton onClick={handleAddTask} />
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {(['high', 'medium', 'low'] as const).map(p => {
-                const isSelected = newPriority === p;
-                const cfg = priorityConfig[p];
-                return (
-                  <motion.button
-                    key={p}
-                    onClick={() => setNewPriority(p)}
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.02 }}
-                    animate={{
-                      background: isSelected ? cfg.bg : cfg.bgLight,
-                      color: isSelected ? 'white' : cfg.color,
-                    }}
-                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                      padding: '7px 16px',
-                      borderRadius: '14px',
-                      border: 'none',
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                      fontWeight: cfg.fontWeight,
-                      boxShadow: isSelected ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
-                    }}
-                  >
-                    {cfg.label}
-                  </motion.button>
-                );
-              })}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['high', 'medium', 'low'] as const).map(p => {
+                  const isSelected = newPriority === p;
+                  const cfg = priorityConfig[p];
+                  return (
+                    <motion.button
+                      key={p}
+                      onClick={() => setNewPriority(p)}
+                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.02 }}
+                      animate={{
+                        background: isSelected ? cfg.bg : cfg.bgLight,
+                        color: isSelected ? 'white' : cfg.color,
+                      }}
+                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontWeight: cfg.fontWeight,
+                        boxShadow: isSelected ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                      }}
+                    >
+                      {cfg.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Sélecteur de catégorie */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <select
+                  aria-label="Catégorie de la tâche"
+                  value={newCategory}
+                  onChange={e => setNewCategory(e.target.value)}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--warm-white)',
+                    color: 'var(--ink)',
+                    fontSize: '0.78rem',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="Personnel">Personnel</option>
+                  <option value="Travail">Travail</option>
+                  <option value="Projet">Projet</option>
+                  <option value="Santé">Santé</option>
+                  <option value="Loisirs">Loisirs</option>
+                  <option value="Études">Études</option>
+                </select>
+              </div>
             </div>
           </div>
 

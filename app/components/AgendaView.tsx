@@ -19,6 +19,16 @@ const CYCLE_ALLOWED_EMAIL = 'rstrpn05@gmail.com';
 
 const PRESET_COLORS = ['#6B8F71', '#C0634A', '#C9973C', '#8075A8', '#4A90D9', '#E07B8A'];
 
+const PRESET_CATEGORIES = [
+  'Personnel',
+  'Travail',
+  'Projet',
+  'Santé',
+  'Rendez-vous',
+  'Loisirs',
+  'Études',
+];
+
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   none: 'Aucune',
   daily: 'Quotidien',
@@ -169,13 +179,15 @@ export default function AgendaView() {
     }
     setFormError(null);
 
+    const finalCategory = formData.category.trim() || 'Personnel';
+
     if (editingBaseId) {
       await updateEvent(editingBaseId, {
         title: formData.title,
         time: formData.time || '09:00',
         duration: formData.duration,
         color: formData.color,
-        category: formData.category,
+        category: finalCategory,
         recurrence: formData.recurrence,
       });
     } else {
@@ -185,7 +197,7 @@ export default function AgendaView() {
         time: formData.time || '09:00',
         duration: formData.duration,
         color: formData.color,
-        category: formData.category,
+        category: finalCategory,
         recurrence: formData.recurrence,
       });
     }
@@ -423,6 +435,46 @@ export default function AgendaView() {
                 placeholder="Ex: Rendez-vous, Réunion…"
                 style={inputStyle}
                 autoFocus
+              />
+            </div>
+
+            {/* Catégorie */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Catégorie
+              </label>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                {PRESET_CATEGORIES.map(cat => {
+                  const isSelected = formData.category.trim().toLowerCase() === cat.toLowerCase();
+                  return (
+                    <motion.button
+                      key={cat}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, category: cat })}
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.03 }}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        border: isSelected ? '1px solid var(--ink)' : '1px solid var(--border)',
+                        background: isSelected ? 'var(--ink)' : 'var(--warm-white)',
+                        color: isSelected ? 'var(--cream)' : 'var(--stone)',
+                        fontSize: '0.74rem',
+                        fontWeight: isSelected ? 600 : 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {cat}
+                    </motion.button>
+                  );
+                })}
+              </div>
+              <input
+                value={formData.category}
+                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                placeholder="Ou saisis une catégorie personnalisée…"
+                style={{ ...inputStyle, fontSize: '0.8rem', padding: '8px 12px' }}
               />
             </div>
 
