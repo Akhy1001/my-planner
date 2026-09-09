@@ -697,23 +697,7 @@ export default function LoginPage() {
                       boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
                       willChange: 'width',
                     }}
-                  >
-                    {/* Tête lumineuse de progression */}
-                    {progress > 1 && progress < 99.5 && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: '6px',
-                          borderRadius: '999px',
-                          background: '#FFFFFF',
-                          boxShadow: '0 0 8px 1px rgba(255, 255, 255, 0.9), 0 0 12px 2px rgba(15, 23, 42, 0.4)',
-                        }}
-                      />
-                    )}
-                  </div>
+                  />
                 </div>
 
                 {/* Pourcentage et détails */}
