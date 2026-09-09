@@ -565,78 +565,39 @@ export default function LoginPage() {
                 zIndex: 1,
               }}
             >
-              {/* ── Logo qui tourne avec effet d'orbite et pulsation ── */}
-              <div
+              {/* ── Logo qui tourne avec pulsation ── */}
+              <motion.div
+                animate={{
+                  rotate: 360,
+                  scale: [1, 1.06, 1],
+                }}
+                transition={{
+                  rotate: { repeat: Infinity, duration: 3.2, ease: 'linear' },
+                  scale: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
+                }}
                 style={{
-                  position: 'relative',
-                  width: '116px',
-                  height: '116px',
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '20px',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border, #E2E8F0)',
+                  boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '28px',
+                  overflow: 'hidden',
+                  marginBottom: '26px',
                 }}
               >
-                {/* Anneau d'orbite en contre-rotation avec satellite */}
-                <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: '50%',
-                    border: '1.5px dashed rgba(15, 23, 42, 0.22)',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  {/* Point satellite orbital */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '-4px',
-                      left: 'calc(50% - 4px)',
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: '#0F172A',
-                      boxShadow: '0 0 8px rgba(15, 23, 42, 0.4)',
-                    }}
-                  />
-                </motion.div>
-
-                {/* Badge du logo avec rotation 360° et pulsation de taille */}
-                <motion.div
-                  animate={{
-                    rotate: 360,
-                    scale: [1, 1.07, 1],
-                  }}
-                  transition={{
-                    rotate: { repeat: Infinity, duration: 3.2, ease: 'linear' },
-                    scale: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
-                  }}
-                  style={{
-                    width: '74px',
-                    height: '74px',
-                    borderRadius: '20px',
-                    background: '#FFFFFF',
-                    border: '1px solid var(--border, #E2E8F0)',
-                    boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.06)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Image
-                    src="/logo.jpg"
-                    alt="My Planner logo"
-                    width={74}
-                    height={74}
-                    style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
-                    priority
-                  />
-                </motion.div>
-              </div>
+                <Image
+                  src="/logo.jpg"
+                  alt="My Planner logo"
+                  width={76}
+                  height={76}
+                  style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                  priority
+                />
+              </motion.div>
 
               {/* Titre & Sous-titre */}
               <motion.div
