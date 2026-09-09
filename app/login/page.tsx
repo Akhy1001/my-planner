@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,7 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at 50% 25%, rgba(59, 130, 246, 0.06) 0%, transparent 65%), var(--cream, #FAFAFA)',
+        background: 'radial-gradient(ellipse at 50% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 60%), var(--cream, #FAFAFA)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -42,33 +43,51 @@ export default function LoginPage() {
         padding: '24px',
       }}
     >
-      {/* Subtle background ambient halos */}
+      {/* ── Dynamic Ambient Color Orbs ── */}
       <div
         style={{
           position: 'absolute',
-          top: '-120px',
-          right: '-100px',
-          width: '500px',
-          height: '500px',
+          top: '5%',
+          left: '12%',
+          width: '480px',
+          height: '480px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--accent-soft, rgba(59, 130, 246, 0.08)) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, rgba(37, 99, 235, 0.08) 50%, transparent 70%)',
+          filter: 'blur(50px)',
           pointerEvents: 'none',
+          animation: 'floatOrb1 14s ease-in-out infinite alternate',
         }}
       />
       <div
         style={{
           position: 'absolute',
-          bottom: '-120px',
-          left: '-100px',
-          width: '450px',
-          height: '450px',
+          bottom: '8%',
+          right: '10%',
+          width: '520px',
+          height: '520px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--accent-soft, rgba(59, 130, 246, 0.08)) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.07) 50%, transparent 70%)',
+          filter: 'blur(55px)',
           pointerEvents: 'none',
+          animation: 'floatOrb2 16s ease-in-out infinite alternate',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '38%',
+          right: '22%',
+          width: '360px',
+          height: '360px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(249, 115, 22, 0.06) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          animation: 'floatOrb3 18s ease-in-out infinite alternate',
         }}
       />
 
-      {/* Main card */}
+      {/* ── Main Glassmorphism Card ── */}
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -76,51 +95,94 @@ export default function LoginPage() {
         style={{
           width: '100%',
           maxWidth: '430px',
-          background: 'var(--card, #FFFFFF)',
-          borderRadius: '20px',
-          padding: '40px 36px',
-          boxShadow: '0 12px 40px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04)',
-          border: '1px solid var(--border)',
+          background: 'rgba(255, 255, 255, 0.88)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: '22px',
+          padding: '42px 36px 36px',
+          boxShadow: '0 20px 50px -10px rgba(15, 23, 42, 0.09), 0 10px 20px -5px rgba(59, 130, 246, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.9) inset',
+          border: '1px solid rgba(226, 232, 240, 0.85)',
           position: 'relative',
           zIndex: 1,
+          overflow: 'hidden',
         }}
       >
+        {/* Glowing Gradient Accent Beam on top edge */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '3.5px',
+            background: 'linear-gradient(90deg, #3B82F6, #8B5CF6 50%, #EC4899 100%)',
+            boxShadow: '0 2px 14px rgba(139, 92, 246, 0.5)',
+          }}
+        />
+
         {/* Header Branding */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          {/* Logo Badge with colorful glow */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.08 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
             style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '16px',
-              background: 'var(--warm-white)',
-              border: '1px solid var(--border)',
-              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06)',
+              width: '64px',
+              height: '64px',
+              borderRadius: '18px',
+              background: '#FFFFFF',
+              padding: '3px',
+              border: '1px solid rgba(255, 255, 255, 0.9)',
+              boxShadow: '0 10px 28px -4px rgba(59, 130, 246, 0.35), 0 0 14px rgba(139, 92, 246, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
-              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            <Image
-              src="/logo.jpg"
-              alt="My Planner logo"
-              width={60}
-              height={60}
-              style={{ objectFit: 'cover' }}
-              priority
-            />
+            <div style={{ width: '100%', height: '100%', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
+              <Image
+                src="/logo.jpg"
+                alt="My Planner logo"
+                width={64}
+                height={64}
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            </div>
           </motion.div>
+
+          {/* Sparkle badge */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              color: '#2563EB',
+              marginBottom: '10px',
+              letterSpacing: '0.02em',
+            }}
+          >
+            <Sparkles size={12} style={{ color: '#8B5CF6' }} />
+            <span>Digital Journal & Todos</span>
+          </div>
 
           <h1
             className="font-display"
             style={{
-              fontSize: '1.85rem',
+              fontSize: '1.95rem',
               fontWeight: 800,
-              color: 'var(--ink)',
+              background: 'linear-gradient(135deg, #0F172A 35%, #2563EB 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
               letterSpacing: '-0.03em',
               marginBottom: '4px',
             }}
@@ -146,11 +208,12 @@ export default function LoginPage() {
               style={{
                 display: 'block',
                 fontSize: '0.76rem',
-                color: 'var(--stone)',
-                fontWeight: 600,
+                color: focusedField === 'email' ? '#2563EB' : 'var(--stone)',
+                fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 marginBottom: '6px',
+                transition: 'color 0.2s ease',
               }}
             >
               Adresse email
@@ -162,8 +225,9 @@ export default function LoginPage() {
                   left: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: 'var(--stone)',
+                  color: focusedField === 'email' ? '#2563EB' : 'var(--stone)',
                   pointerEvents: 'none',
+                  transition: 'color 0.2s ease',
                 }}
               >
                 <Mail size={16} />
@@ -172,31 +236,24 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField(null)}
                 placeholder="vous@exemple.com"
                 required
                 autoComplete="email"
                 style={{
                   width: '100%',
                   padding: '11px 14px 11px 40px',
-                  border: '1px solid var(--border)',
+                  border: focusedField === 'email' ? '1.5px solid #3B82F6' : '1px solid var(--border)',
                   borderRadius: '12px',
-                  background: 'var(--cream, #FAFAFA)',
+                  background: focusedField === 'email' ? '#FFFFFF' : 'rgba(248, 250, 252, 0.8)',
                   fontSize: '0.88rem',
                   color: 'var(--ink)',
                   outline: 'none',
                   fontFamily: 'inherit',
-                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease',
+                  transition: 'all 0.2s ease',
+                  boxShadow: focusedField === 'email' ? '0 0 0 4px rgba(59, 130, 246, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08)' : 'none',
                   boxSizing: 'border-box',
-                }}
-                onFocus={e => {
-                  e.target.style.borderColor = 'var(--ink)';
-                  e.target.style.background = 'var(--card, #FFFFFF)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(15, 23, 42, 0.06)';
-                }}
-                onBlur={e => {
-                  e.target.style.borderColor = 'var(--border)';
-                  e.target.style.background = 'var(--cream, #FAFAFA)';
-                  e.target.style.boxShadow = 'none';
                 }}
               />
             </div>
@@ -208,11 +265,12 @@ export default function LoginPage() {
               style={{
                 display: 'block',
                 fontSize: '0.76rem',
-                color: 'var(--stone)',
-                fontWeight: 600,
+                color: focusedField === 'password' ? '#2563EB' : 'var(--stone)',
+                fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 marginBottom: '6px',
+                transition: 'color 0.2s ease',
               }}
             >
               Mot de passe
@@ -224,8 +282,9 @@ export default function LoginPage() {
                   left: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: 'var(--stone)',
+                  color: focusedField === 'password' ? '#2563EB' : 'var(--stone)',
                   pointerEvents: 'none',
+                  transition: 'color 0.2s ease',
                 }}
               >
                 <Lock size={16} />
@@ -234,31 +293,24 @@ export default function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
                 style={{
                   width: '100%',
                   padding: '11px 42px 11px 40px',
-                  border: '1px solid var(--border)',
+                  border: focusedField === 'password' ? '1.5px solid #3B82F6' : '1px solid var(--border)',
                   borderRadius: '12px',
-                  background: 'var(--cream, #FAFAFA)',
+                  background: focusedField === 'password' ? '#FFFFFF' : 'rgba(248, 250, 252, 0.8)',
                   fontSize: '0.88rem',
                   color: 'var(--ink)',
                   outline: 'none',
                   fontFamily: 'inherit',
-                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease',
+                  transition: 'all 0.2s ease',
+                  boxShadow: focusedField === 'password' ? '0 0 0 4px rgba(59, 130, 246, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08)' : 'none',
                   boxSizing: 'border-box',
-                }}
-                onFocus={e => {
-                  e.target.style.borderColor = 'var(--ink)';
-                  e.target.style.background = 'var(--card, #FFFFFF)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(15, 23, 42, 0.06)';
-                }}
-                onBlur={e => {
-                  e.target.style.borderColor = 'var(--border)';
-                  e.target.style.background = 'var(--cream, #FAFAFA)';
-                  e.target.style.boxShadow = 'none';
                 }}
               />
               <button
@@ -271,7 +323,7 @@ export default function LoginPage() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--stone)',
+                  color: showPassword ? '#2563EB' : 'var(--stone)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -307,7 +359,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Submit button */}
+          {/* Submit button with vibrant gradient and glow effect */}
           <motion.button
             type="submit"
             disabled={loading}
@@ -317,27 +369,31 @@ export default function LoginPage() {
             style={{
               width: '100%',
               padding: '13px 18px',
-              marginTop: '4px',
-              background: loading ? 'var(--stone-light)' : 'var(--primary-btn-bg, var(--ink))',
-              color: 'var(--primary-btn-fg, var(--cream))',
+              marginTop: '6px',
+              background: loading
+                ? 'var(--stone-light)'
+                : 'linear-gradient(135deg, #2563EB 0%, #3B82F6 45%, #7C3AED 100%)',
+              color: '#FFFFFF',
               border: 'none',
               borderRadius: '14px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem',
+              fontSize: '0.92rem',
               fontFamily: 'inherit',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: loading ? 'none' : '0 4px 14px var(--primary-btn-shadow, rgba(15, 23, 42, 0.16))',
-              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: loading
+                ? 'none'
+                : '0 8px 24px -4px rgba(37, 99, 235, 0.45), 0 2px 6px rgba(124, 58, 237, 0.25)',
+              transition: 'box-shadow 0.25s ease, filter 0.25s ease',
             }}
             onMouseEnter={e => {
-              if (!loading) e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))';
+              if (!loading) e.currentTarget.style.filter = 'brightness(1.08)';
             }}
             onMouseLeave={e => {
-              if (!loading) e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))';
+              if (!loading) e.currentTarget.style.filter = 'none';
             }}
           >
             {loading ? (
@@ -357,7 +413,7 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                Se connecter
+                <span>Se connecter</span>
                 <ArrowRight size={16} />
               </>
             )}
@@ -368,23 +424,38 @@ export default function LoginPage() {
         <div
           style={{
             textAlign: 'center',
-            marginTop: '28px',
+            marginTop: '26px',
             fontSize: '0.74rem',
             color: 'var(--stone)',
-            fontWeight: 500,
+            fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
           }}
         >
-          <span>✦</span>
-          <span>Accès réservé aux membres · My Planner</span>
+          <span style={{ color: '#8B5CF6' }}>✦</span>
+          <span>Accès membre sécurisé · My Planner</span>
         </div>
       </motion.div>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes floatOrb1 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(35px, -30px) scale(1.08); }
+          100% { transform: translate(-25px, 20px) scale(0.94); }
+        }
+        @keyframes floatOrb2 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(-40px, 30px) scale(1.06); }
+          100% { transform: translate(30px, -35px) scale(0.92); }
+        }
+        @keyframes floatOrb3 {
+          0% { transform: translate(0px, 0px) scale(0.94); }
+          50% { transform: translate(25px, 40px) scale(1.1); }
+          100% { transform: translate(-35px, -20px) scale(1); }
+        }
       `}</style>
     </div>
   );
