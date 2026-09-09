@@ -34,7 +34,7 @@ export default function HabitsView() {
             as="h1"
             delay={0.06}
             className="font-display"
-            style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '4px' }}
+            style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--ink)', marginBottom: '4px' }}
           >
             Habitudes
           </TextReveal>

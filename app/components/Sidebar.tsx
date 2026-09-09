@@ -57,7 +57,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
         <div>
           <div className="font-display" style={{
             fontSize: '1.1rem', color: 'var(--ink)',
-            fontWeight: '700', letterSpacing: '-0.03em',
+            fontWeight: '800', letterSpacing: '-0.03em',
           }}>
             My Planner
           </div>

@@ -58,7 +58,7 @@ export default function GoalsView() {
             as="h1"
             delay={0.06}
             className="font-display"
-            style={{ fontSize: '1.6rem', color: 'var(--ink)' }}
+            style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--ink)' }}
           >
             Objectifs
           </TextReveal>

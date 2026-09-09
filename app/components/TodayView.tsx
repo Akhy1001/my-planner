@@ -44,7 +44,7 @@ export default function TodayView() {
           as="h1"
           delay={0.12}
           className="font-display"
-          style={{ fontSize: '2rem', fontWeight: '500', color: 'var(--ink)', lineHeight: 1.2 }}
+          style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--ink)', lineHeight: 1.2 }}
         >
           Bonjour ✦
         </TextReveal>
@@ -102,7 +102,7 @@ export default function TodayView() {
             as="h2"
             delay={0.15}
             className="font-display"
-            style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}
+            style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '16px', color: 'var(--ink)' }}
           >
             Tâches du jour
           </TextReveal>

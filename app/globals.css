@@ -379,9 +379,15 @@ button, input, textarea, select {
 /* Display font */
 .font-display {
   font-family: 'Nunito', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 700;
+  font-weight: 800;
   font-style: normal;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+}
+
+h1, h2, h3 {
+  font-family: 'Nunito', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 /* Paper background */

@@ -227,7 +227,7 @@ export default function AgendaView() {
             key={headerTitle}
             delay={0.06}
             className="font-display"
-            style={{ fontSize: '1.8rem', color: 'var(--ink)', flexShrink: 0 }}
+            style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--ink)', flexShrink: 0 }}
           >
             {headerTitle}
           </TextReveal>
@@ -350,7 +350,7 @@ export default function AgendaView() {
               as="h2"
               delay={0.1}
               className="font-display"
-              style={{ fontSize: '1.4rem', color: 'var(--ink)' }}
+              style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--ink)' }}
             >
               {format(selectedDate, 'd MMMM', { locale: fr })}
             </TextReveal>

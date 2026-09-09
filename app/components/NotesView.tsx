@@ -118,7 +118,7 @@ export default function NotesView() {
               as="h1"
               delay={0.06}
               className="font-display"
-              style={{ fontSize: '1.5rem', color: 'var(--ink)' }}
+              style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ink)' }}
             >
               Notes
             </TextReveal>

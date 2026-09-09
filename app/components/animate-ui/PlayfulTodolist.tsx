@@ -570,7 +570,7 @@ export function PlayfulTodolist() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
           <div>
-            <TextReveal as="h2" delay={0.08} className="font-display" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--ink)' }}>
+            <TextReveal as="h2" delay={0.08} className="font-display" style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--ink)' }}>
               Playful Todolist
             </TextReveal>
             <TextReveal delay={0.14} style={{ fontSize: '0.78rem', color: 'var(--stone)', marginTop: '4px' }}>
