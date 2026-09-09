@@ -115,9 +115,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 borderRadius: '14px',
                 border: 'none',
                 background: active 
-                  ? 'var(--ink)' 
+                  ? (isPinkUser ? 'var(--accent)' : 'var(--ink)') 
                   : 'transparent',
-                color: active ? 'var(--cream)' : 'var(--stone)',
+                color: active ? (isPinkUser ? 'white' : 'var(--cream)') : 'var(--stone)',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
                 fontWeight: active ? '600' : '400',
@@ -131,7 +131,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
               }}
               onMouseEnter={(e) => {
                 if (!active) {
-                  e.currentTarget.style.background = 'rgba(128, 128, 128, 0.12)';
+                  e.currentTarget.style.background = isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.12)';
                   e.currentTarget.style.color = 'var(--ink-light)';
                   e.currentTarget.style.transform = 'translateX(2px)';
                 }
@@ -175,7 +175,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 <div style={{
                   width: '6px', height: '6px',
                   borderRadius: '50%',
-                  background: 'var(--terra)',
+                  background: 'var(--accent)',
                   marginLeft: '8px',
                   animation: 'enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                 }} />
@@ -219,7 +219,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             {/* Avatar */}
             <div style={{
               width: '34px', height: '34px', borderRadius: '12px',
-              background: 'linear-gradient(135deg, var(--sage) 0%, var(--lavender) 100%)',
+              background: isPinkUser
+                ? 'linear-gradient(135deg, #F472B6 0%, #D4607E 100%)'
+                : 'linear-gradient(135deg, var(--accent) 0%, var(--lavender) 100%)',
               color: 'white',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '0.7rem', fontWeight: '700', flexShrink: 0,
@@ -252,8 +254,8 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 flexShrink: 0, lineHeight: 1,
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--terra)';
-                e.currentTarget.style.background = 'rgba(192,99,74,0.1)';
+                e.currentTarget.style.color = 'var(--priority-high)';
+                e.currentTarget.style.background = 'var(--priority-high-bg)';
                 e.currentTarget.style.transform = 'scale(1.12)';
               }}
               onMouseLeave={e => {

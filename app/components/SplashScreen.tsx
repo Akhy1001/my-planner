@@ -25,7 +25,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       {/* Background glow */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse at center, rgba(107,143,113,0.12) 0%, transparent 65%)',
+        background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 65%)',
         pointerEvents: 'none',
       }} />
 
@@ -40,21 +40,21 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         opacity: phase === 'out' ? 0 : 1,
         transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
       }}>
-        {/* Icon replaced by Logo */}
+        {/* Logo Card */}
         <div style={{
           width: '80px', height: '80px',
-          borderRadius: '22px',
+          borderRadius: 'var(--radius-3xl, 22px)',
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.15)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 24px',
-          background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
         }}>
           <Image 
             src="/logo.jpg" 
-            alt="Mon Planner Logo" 
+            alt="Logo" 
             width={80} 
             height={80}
             priority
@@ -63,20 +63,21 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         </div>
 
         <div style={{
-          fontSize: '2rem', fontWeight: '700',
-          color: 'white', letterSpacing: '-0.04em',
+          fontSize: '2.25rem', fontWeight: '800',
+          color: '#FFFFFF', letterSpacing: '-0.03em',
           marginBottom: '6px',
         }}>
           Mon Planner
         </div>
 
         <div style={{
-          fontSize: '0.72rem',
-          color: 'rgba(255,255,255,0.4)',
-          letterSpacing: '0.14em',
+          fontSize: '0.75rem',
+          color: 'rgba(255,255,255,0.5)',
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
+          fontWeight: '600',
         }}>
-          Digital Journal
+          Digital Journal & Todos
         </div>
 
         {/* Loading bar */}
@@ -84,14 +85,14 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           marginTop: '32px',
           width: '120px',
           height: '2px',
-          background: 'rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.12)',
           borderRadius: '2px',
           overflow: 'hidden',
           margin: '32px auto 0',
         }}>
           <div style={{
             height: '100%',
-            background: 'rgba(255,255,255,0.4)',
+            background: 'var(--accent, #3B82F6)',
             borderRadius: '2px',
             animation: 'loadBar 1s cubic-bezier(0.4, 0, 0.2, 1) forwards',
           }} />

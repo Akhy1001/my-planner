@@ -21,9 +21,9 @@ export default function TodayView() {
   };
 
   const priorityConfig = {
-    high: { label: 'Haute', bg: 'var(--terra)', bgLight: 'rgba(192,99,74,0.15)', color: 'var(--terra)', fontWeight: 'bold' },
-    medium: { label: 'Moyenne', bg: 'var(--gold)', bgLight: 'rgba(201,151,60,0.15)', color: 'var(--gold)', fontWeight: '600' },
-    low: { label: 'Basse', bg: 'var(--sage)', bgLight: 'rgba(107,143,113,0.15)', color: 'var(--sage)', fontWeight: '500' },
+    high: { label: 'Haute', bg: 'var(--priority-high)', bgLight: 'var(--priority-high-bg)', color: 'var(--priority-high)', fontWeight: '600' },
+    medium: { label: 'Moyenne', bg: 'var(--priority-medium)', bgLight: 'var(--priority-medium-bg)', color: 'var(--priority-medium)', fontWeight: '600' },
+    low: { label: 'Basse', bg: 'var(--priority-low)', bgLight: 'var(--priority-low-bg)', color: 'var(--priority-low)', fontWeight: '600' },
   } as const;
   const doneTasks = tasks.filter(t => t.done).length;
   const progress = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
@@ -180,7 +180,7 @@ export default function TodayView() {
                         border: '1px solid var(--border)'
                       }}>{task.category}</span>
                       <span style={{
-                        fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px',
+                        fontSize: '0.65rem', padding: '2px 8px', borderRadius: '9999px',
                         background: priorityConfig[task.priority].bgLight,
                         color: priorityConfig[task.priority].color,
                         fontWeight: priorityConfig[task.priority].fontWeight,
@@ -218,7 +218,7 @@ export default function TodayView() {
                 placeholder="Ajouter une tâche…"
                 style={{
                   flex: 1, padding: '8px 12px',
-                  border: '1px solid var(--border)', borderRadius: '8px',
+                  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
                   background: 'var(--warm-white)', fontSize: '0.82rem',
                   color: 'var(--ink)', outline: 'none',
                   fontFamily: 'inherit'
@@ -242,8 +242,8 @@ export default function TodayView() {
                     whileHover={!isSelected ? { background: cfg.bg, color: 'white' } : {}}
                     transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
                     style={{
-                      padding: '8px 16px',
-                      borderRadius: '10px',
+                      padding: '6px 14px',
+                      borderRadius: 'var(--radius-md, 8px)',
                       border: 'none',
                       fontSize: '0.8rem',
                       cursor: 'pointer',

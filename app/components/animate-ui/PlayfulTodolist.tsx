@@ -205,6 +205,50 @@ function TendanceModal({ data, onClose }: { data: DayStat[]; onClose: () => void
         }}>
           <TrendSparkline data={data} />
         </div>
+
+        {/* Heatmap activité 7 jours (Section 3.2) */}
+        <div style={{
+          marginTop: '12px',
+          background: 'var(--warm-white)',
+          border: '1px solid var(--border)',
+          borderRadius: '14px',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div style={{ fontSize: '0.78rem', color: 'var(--stone)', fontWeight: 500 }}>
+            Échelle d'activité
+          </div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            {data.map((d) => {
+              const bg = d.count === 0
+                ? 'var(--muted)'
+                : d.count <= 2
+                  ? 'var(--sage-light)'
+                  : d.count <= 4
+                    ? 'var(--accent)'
+                    : 'var(--accent-hover, var(--accent))';
+              return (
+                <div key={d.date} style={{ textAlign: 'center' }} title={`${d.label} : ${d.count} tâche${d.count > 1 ? 's' : ''}`}>
+                  <div
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '4px',
+                      background: bg,
+                      border: '1px solid var(--border)',
+                      opacity: d.count === 0 ? 0.6 : 1,
+                    }}
+                  />
+                  <div style={{ fontSize: '0.62rem', color: 'var(--stone)', marginTop: '3px', fontWeight: 600 }}>
+                    {d.label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </motion.div>
     </motion.div>
   );

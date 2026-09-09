@@ -671,11 +671,12 @@ export default function AgendaView() {
                     ease: [0.23, 1, 0.32, 1],
                   }}
                   style={{
-                    background: 'var(--warm-white)', borderRadius: '12px',
+                    background: 'var(--card, var(--warm-white))',
+                    borderRadius: 'var(--radius-lg, 10px)',
                     padding: '14px 16px',
                     border: '1px solid var(--border)',
                     borderLeft: `4px solid ${event.color}`,
-                    boxShadow: '0 1px 4px rgba(26,23,20,0.04)'
+                    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
@@ -757,10 +758,10 @@ function MonthGrid({
 }) {
   return (
     <div style={{
-      background: 'var(--warm-white)', borderRadius: '14px',
+      background: 'var(--warm-white)', borderRadius: 'var(--radius-xl, 14px)',
       border: '1px solid var(--border)',
       overflow: 'hidden',
-      boxShadow: '0 1px 8px rgba(26,23,20,0.04)'
+      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
     }}>
       {/* Weekday headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
@@ -774,7 +775,7 @@ function MonthGrid({
       </div>
 
       {/* Days */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '90px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '96px' }}>
         {Array.from({ length: firstDayOffset }).map((_, i) => (
           <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} />
         ))}
@@ -783,8 +784,8 @@ function MonthGrid({
           const selected = isSameDay(day, selectedDate);
           const today = isToday(day);
           const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
-          const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
-            : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
+          const cycleBg = cycleDay?.type === 'period' ? 'rgba(212, 96, 126, 0.08)'
+            : cycleDay?.type === 'predicted-period' ? 'rgba(212, 96, 126, 0.05)'
             : undefined;
           return (
             <div
@@ -796,43 +797,104 @@ function MonthGrid({
                 overflow: 'hidden',
                 padding: '8px',
                 cursor: 'pointer',
-                background: selected ? 'rgba(122, 140, 110, 0.12)' : cycleBg ?? 'transparent',
-                transition: 'background 0.1s',
+                background: selected ? 'var(--accent-soft)' : cycleBg ?? 'transparent',
+                transition: 'background 0.15s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '5px' }}>
                 <div style={{
                   width: '26px', height: '26px',
                   borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.82rem',
-                  background: today ? 'var(--terra)' : 'transparent',
-                  color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
-                  fontWeight: today || selected ? '500' : '300',
+                  fontSize: '0.8rem',
+                  background: today ? 'var(--accent)' : selected ? 'var(--accent-soft)' : 'transparent',
+                  color: today ? 'white' : selected ? 'var(--accent)' : 'var(--ink)',
+                  fontWeight: today ? '700' : selected ? '600' : '500',
+                  transition: 'all 0.15s ease',
                 }}>
                   {format(day, 'd')}
                 </div>
                 {(cycleDay?.type === 'period' || cycleDay?.type === 'predicted-period') && (
                   <div style={{
                     width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
-                    background: '#C2185B',
+                    background: '#D4607E',
                   }} />
                 )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {dayEvents.slice(0, 2).map(e => (
-                  <div key={e.id} style={{
-                    fontSize: '0.65rem', padding: '2px 5px',
-                    borderRadius: '3px', color: 'white',
-                    background: e.color,
-                    overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {dayEvents.slice(0, 2).map(e => {
+                  const isHex = e.color.startsWith('#') && e.color.length === 7;
+                  const bg = isHex ? `${e.color}15` : 'var(--accent-soft)';
+                  const border = isHex ? `${e.color}35` : 'var(--border)';
+                  return (
+                    <div
+                      key={e.id}
+                      title={`${e.time} ${e.title}`}
+                      style={{
+                        fontSize: '0.67rem',
+                        padding: '3px 6px',
+                        borderRadius: '6px',
+                        color: 'var(--ink)',
+                        background: bg,
+                        border: `1px solid ${border}`,
+                        borderLeft: `3px solid ${e.color}`,
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
+                        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.03)',
+                      }}
+                      onMouseEnter={ev => {
+                        ev.currentTarget.style.background = isHex ? `${e.color}25` : 'var(--accent-soft)';
+                        ev.currentTarget.style.transform = 'translateY(-1px)';
+                        ev.currentTarget.style.boxShadow = '0 2px 5px rgba(15, 23, 42, 0.08)';
+                      }}
+                      onMouseLeave={ev => {
+                        ev.currentTarget.style.background = bg;
+                        ev.currentTarget.style.transform = 'translateY(0)';
+                        ev.currentTarget.style.boxShadow = '0 1px 2px rgba(15, 23, 42, 0.03)';
+                      }}
+                    >
+                      <span style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 700,
+                        color: e.color,
+                        flexShrink: 0,
+                        letterSpacing: '-0.02em',
+                      }}>
+                        {e.time}
+                      </span>
+                      {e.recurrence !== 'none' && (
+                        <span style={{ fontSize: '0.6rem', opacity: 0.65, flexShrink: 0 }}>↻</span>
+                      )}
+                      <span style={{
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        fontWeight: 500,
+                      }}>
+                        {e.title}
+                      </span>
+                    </div>
+                  );
+                })}
+                {dayEvents.length > 2 && (
+                  <div style={{
+                    fontSize: '0.6rem',
+                    fontWeight: 600,
+                    color: 'var(--stone)',
+                    padding: '1px 6px',
+                    borderRadius: '9999px',
+                    background: 'var(--muted)',
+                    alignSelf: 'flex-start',
+                    marginTop: '1px',
                   }}>
-                    <span style={{ opacity: 0.85, marginRight: '3px' }}>{e.time}</span>
-                    {e.recurrence !== 'none' && <span style={{ opacity: 0.75, marginRight: '2px' }}>↻</span>}
-                    {e.title}
+                    +{dayEvents.length - 2} autre{dayEvents.length - 2 > 1 ? 's' : ''}
                   </div>
-                ))}
-                {dayEvents.length > 2 && <div style={{ fontSize: '0.6rem', color: 'var(--stone)' }}>+{dayEvents.length - 2}</div>}
+                )}
               </div>
             </div>
           );
@@ -1112,15 +1174,16 @@ function WeekGrid({
                             top: `${topOffset}px`,
                             left: '3px',
                             right: '3px',
-                            height: `${blockHeight}px`,
-                            background: e.color + (isDragging ? '10' : '18'),
+                            background: e.color + (isDragging ? '10' : '15'),
+                            border: `1px solid ${e.color}35`,
                             borderLeft: `3px solid ${e.color}`,
                             color: 'var(--ink)',
-                            borderRadius: '6px',
-                            padding: '3px 5px 10px',
-                            fontSize: '0.65rem',
-                            lineHeight: 1.3,
+                            borderRadius: 'var(--radius-md, 8px)',
+                            padding: '4px 7px 10px',
+                            fontSize: '0.67rem',
+                            lineHeight: 1.35,
                             overflow: 'hidden',
+                            boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
                             zIndex: isDragging ? 0 : 1,
                             opacity: isDragging ? 0.25 : 1,
                             cursor: (dragState || resizeState) ? 'grabbing' : 'grab',

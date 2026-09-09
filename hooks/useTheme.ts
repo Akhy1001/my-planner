@@ -11,12 +11,14 @@ function getInitialDark(): boolean {
 export function useTheme() {
   const [isDark, setIsDark] = useState<boolean>(getInitialDark);
 
-  // Sync data-theme attribute with state
+  // Sync data-theme attribute and dark class with state
   useEffect(() => {
     if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.classList.add('dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
+      document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
 

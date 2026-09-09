@@ -29,18 +29,33 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // Per-user theme overrides (take priority over dark mode)
+  // Per-user profile themes (Section 3.2: Anas Bleu Tech, Rose Pastel Rose)
   const isPinkUser = user?.email === 'rstrpn05@gmail.com';
   const isSandUser = user?.email === 'anas.fz1001@gmail.com';
 
   useEffect(() => {
-    if (isDark) return; // useTheme gère data-theme="dark"
-    if (isSandUser) {
-      document.documentElement.setAttribute('data-theme', 'sand');
-    } else if (isPinkUser) {
+    if (isPinkUser) {
+      document.documentElement.setAttribute('data-profile', 'rose');
       document.documentElement.setAttribute('data-theme', 'pink');
+      document.documentElement.classList.remove('dark');
+    } else if (isSandUser) {
+      document.documentElement.setAttribute('data-profile', 'anas');
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'sand');
+        document.documentElement.classList.remove('dark');
+      }
     } else {
-      document.documentElement.removeAttribute('data-theme');
+      document.documentElement.removeAttribute('data-profile');
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        document.documentElement.classList.remove('dark');
+      }
     }
   }, [user, isPinkUser, isSandUser, isDark]);
 

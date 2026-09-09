@@ -29,31 +29,25 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #F8F6F2 0%, #F0EDE6 50%, #EDE8E0 100%)',
+      background: 'var(--background)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "'Nunito', sans-serif",
+      fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Decorative blobs */}
+      {/* Decorative backdrop glows (Section 5) */}
       <div style={{
-        position: 'absolute', top: '-120px', right: '-120px',
-        width: '500px', height: '500px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(107,143,113,0.15) 0%, transparent 65%)',
+        position: 'absolute', top: '-100px', right: '-100px',
+        width: '450px', height: '450px', borderRadius: '50%',
+        background: 'radial-gradient(circle, var(--accent-soft) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute', bottom: '-80px', left: '-80px',
         width: '380px', height: '380px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(128,117,168,0.12) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', top: '40%', left: '12%',
-        width: '200px', height: '200px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(192,99,74,0.08) 0%, transparent 65%)',
+        background: 'radial-gradient(circle, var(--accent-soft) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
@@ -61,34 +55,39 @@ export default function LoginPage() {
       <div style={{
         width: '100%', maxWidth: '420px',
         margin: '20px',
-        background: 'rgba(255,255,255,0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '32px',
-        padding: '52px 48px',
-        boxShadow: '0 20px 80px rgba(24, 24, 27, 0.10), 0 4px 16px rgba(24,24,27,0.05)',
-        border: '1px solid rgba(255,255,255,0.8)',
+        background: 'var(--card)',
+        borderRadius: 'var(--radius-2xl, 18px)',
+        padding: '44px 36px',
+        boxShadow: '0 12px 40px rgba(15, 23, 42, 0.08)',
+        border: '1px solid var(--border)',
         position: 'relative',
       }}>
+        {/* Top accent line */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
+          background: 'linear-gradient(90deg, var(--accent) 0%, var(--accent-hover, #2563EB) 100%)',
+          borderRadius: '18px 18px 0 0',
+        }} />
+
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <Image
             src="/logo.jpg"
             alt="Mon Planner logo"
-            width={52}
-            height={52}
-            style={{ borderRadius: '18px', margin: '0 auto 16px', display: 'block' }}
+            width={48}
+            height={48}
+            style={{ borderRadius: 'var(--radius-md, 8px)', margin: '0 auto 16px', display: 'block' }}
             priority
           />
           <div className="font-display" style={{
-            fontSize: '1.8rem', color: 'var(--ink)',
-            fontWeight: '700', letterSpacing: '-0.04em',
+            fontSize: '1.75rem', color: 'var(--ink)',
+            fontWeight: '700', letterSpacing: '-0.03em',
           }}>
             Mon Planner
           </div>
           <div style={{
-            fontSize: '0.8rem', color: 'var(--stone)',
-            marginTop: '6px', fontWeight: '400',
+            fontSize: '0.85rem', color: 'var(--stone)',
+            marginTop: '4px', fontWeight: '400',
           }}>
             Connectez-vous à votre espace
           </div>
@@ -97,11 +96,11 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           {/* Email */}
-          <div style={{ marginBottom: '14px' }}>
+          <div style={{ marginBottom: '16px' }}>
             <label style={{
-              display: 'block', fontSize: '0.75rem',
+              display: 'block', fontSize: '0.8rem',
               color: 'var(--ink)', fontWeight: '600',
-              letterSpacing: '0.02em', marginBottom: '7px',
+              marginBottom: '6px',
             }}>
               Adresse email
             </label>
@@ -113,26 +112,32 @@ export default function LoginPage() {
               required
               autoComplete="email"
               style={{
-                width: '100%', padding: '13px 18px',
-                border: '2px solid var(--border)',
-                borderRadius: '16px',
+                width: '100%', padding: '10px 14px',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md, 8px)',
                 background: 'var(--cream)',
-                fontSize: '0.9rem', color: 'var(--ink)',
+                fontSize: '0.875rem', color: 'var(--ink)',
                 outline: 'none', fontFamily: 'inherit',
-                transition: 'all 0.2s',
+                transition: 'all 0.15s ease',
                 boxSizing: 'border-box',
               }}
-              onFocus={e => { e.target.style.borderColor = 'var(--ink)'; e.target.style.background = 'white'; }}
-              onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'var(--cream)'; }}
+              onFocus={e => {
+                e.target.style.borderColor = 'var(--accent)';
+                e.target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)';
+                e.target.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           {/* Password */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '22px' }}>
             <label style={{
-              display: 'block', fontSize: '0.75rem',
+              display: 'block', fontSize: '0.8rem',
               color: 'var(--ink)', fontWeight: '600',
-              letterSpacing: '0.02em', marginBottom: '7px',
+              marginBottom: '6px',
             }}>
               Mot de passe
             </label>
@@ -145,26 +150,32 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
                 style={{
-                  width: '100%', padding: '13px 48px 13px 18px',
-                  border: '2px solid var(--border)',
-                  borderRadius: '16px',
+                  width: '100%', padding: '10px 42px 10px 14px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-md, 8px)',
                   background: 'var(--cream)',
-                  fontSize: '0.9rem', color: 'var(--ink)',
+                  fontSize: '0.875rem', color: 'var(--ink)',
                   outline: 'none', fontFamily: 'inherit',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.15s ease',
                   boxSizing: 'border-box',
                 }}
-                onFocus={e => { e.target.style.borderColor = 'var(--ink)'; e.target.style.background = 'white'; }}
-                onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'var(--cream)'; }}
+                onFocus={e => {
+                  e.target.style.borderColor = 'var(--accent)';
+                  e.target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+                }}
+                onBlur={e => {
+                  e.target.style.borderColor = 'var(--border)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
-                  position: 'absolute', right: '16px', top: '50%',
+                  position: 'absolute', right: '12px', top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--stone)', fontSize: '1rem', padding: '0',
+                  color: 'var(--stone)', fontSize: '0.9rem', padding: '0',
                   lineHeight: 1,
                 }}
               >
@@ -176,12 +187,12 @@ export default function LoginPage() {
           {/* Error */}
           {error && (
             <div style={{
-              background: 'rgba(192,99,74,0.08)',
-              border: '1.5px solid rgba(192,99,74,0.25)',
-              borderRadius: '14px',
-              padding: '11px 16px',
-              marginBottom: '16px',
-              fontSize: '0.83rem', color: 'var(--terra)',
+              background: 'var(--priority-high-bg)',
+              border: '1px solid var(--priority-high)',
+              borderRadius: 'var(--radius-md, 8px)',
+              padding: '10px 14px',
+              marginBottom: '18px',
+              fontSize: '0.82rem', color: 'var(--priority-high)',
               display: 'flex', alignItems: 'center', gap: '8px',
               fontWeight: '500',
             }}>
@@ -194,19 +205,19 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              width: '100%', padding: '15px',
+              width: '100%', padding: '12px',
               background: loading ? 'var(--stone-light)' : 'var(--ink)',
-              color: 'white',
-              border: 'none', borderRadius: '18px',
+              color: 'var(--cream)',
+              border: 'none', borderRadius: 'var(--radius-md, 8px)',
               cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem', fontFamily: 'inherit',
-              fontWeight: '600', letterSpacing: '0.01em',
-              transition: 'all 0.2s',
+              fontSize: '0.875rem', fontFamily: 'inherit',
+              fontWeight: '600',
+              transition: 'all 0.18s ease',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              boxShadow: loading ? 'none' : '0 4px 20px rgba(24, 24, 27, 0.25)',
+              boxShadow: loading ? 'none' : '0 2px 8px rgba(15, 23, 42, 0.15)',
             }}
-            onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(24,24,27,0.3)'; } }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = loading ? 'none' : '0 4px 20px rgba(24, 24, 27, 0.25)'; }}
+            onMouseEnter={e => { if (!loading) { e.currentTarget.style.opacity = '0.92'; } }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >
             {loading ? (
               <>
