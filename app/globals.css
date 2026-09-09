@@ -55,11 +55,11 @@
   --radius-3xl: 22px;
   --radius-full: 9999px;
 
-  /* Boutons d'action principaux */
-  --primary-btn-bg: var(--ink);
+  /* Boutons d'action principaux avec dégradé subtil blanc */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%), var(--ink);
   --primary-btn-fg: var(--cream);
-  --primary-btn-hover: var(--ink-light);
-  --primary-btn-shadow: rgba(15, 23, 42, 0.12);
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), var(--ink-light);
+  --primary-btn-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
 }
 
 /* ── Mode Sombre (Section 3.1) ── */
@@ -101,11 +101,11 @@ html.dark {
   --priority-low: #60A5FA;
   --priority-low-bg: rgba(59, 130, 246, 0.2);
 
-  /* Boutons d'action principaux */
-  --primary-btn-bg: var(--ink);
-  --primary-btn-fg: var(--cream);
-  --primary-btn-hover: var(--ink-light);
-  --primary-btn-shadow: rgba(0, 0, 0, 0.3);
+  /* Boutons d'action principaux avec dégradé subtil blanc */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%), #0F172A;
+  --primary-btn-fg: #F8FAFC;
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #1E293B;
+  --primary-btn-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="dark"] .paper-bg,
@@ -184,11 +184,11 @@ html.dark[data-theme="pink"] {
   --priority-low: #D4607E;
   --priority-low-bg: #FEF0F5;
 
-  /* Boutons d'action principaux (harmonisé avec le rose pastel de la charte) */
-  --primary-btn-bg: var(--accent);
+  /* Boutons d'action principaux (harmonisé avec le rose pastel de la charte et dégradé subtil blanc) */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), var(--accent);
   --primary-btn-fg: #FFFFFF;
-  --primary-btn-hover: var(--accent-hover);
-  --primary-btn-shadow: rgba(212, 96, 126, 0.25);
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 70%), var(--accent-hover);
+  --primary-btn-shadow: 0 4px 12px rgba(212, 96, 126, 0.25);
 }
 
 [data-profile="rose"] .paper-bg,

@@ -261,7 +261,29 @@ export default function AgendaView() {
             {/* Navigation */}
             <div style={{ display: 'flex', gap: '6px' }}>
               <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goPrev} style={btnStyle}>‹</motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goToToday} style={{ ...btnStyle, fontSize: '0.78rem', padding: '6px 14px', fontWeight: 600 }}>Aujourd&apos;hui</motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.95 }} 
+                transition={{ duration: 0.15 }} 
+                onClick={goToToday} 
+                style={{ 
+                  padding: '6px 14px',
+                  background: 'var(--primary-btn-bg, var(--ink))',
+                  color: 'var(--primary-btn-fg, var(--cream))',
+                  border: 'none',
+                  borderRadius: '14px',
+                  cursor: 'pointer',
+                  fontSize: '0.78rem',
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                  boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
+              >
+                Aujourd&apos;hui
+              </motion.button>
               <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goNext} style={btnStyle}>›</motion.button>
             </div>
           </div>

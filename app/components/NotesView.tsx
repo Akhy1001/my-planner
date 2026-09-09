@@ -138,7 +138,9 @@ export default function NotesView() {
                 border: '1px solid var(--border)',
                 background: !filterTag ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
                 color: !filterTag ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
+                boxShadow: !filterTag ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
                 cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
+                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
               Tout

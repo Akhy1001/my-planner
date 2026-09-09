@@ -67,7 +67,9 @@ export default function HabitsView() {
                   border: '1px solid var(--border)',
                   background: newHabit.target === n ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
                   color: newHabit.target === n ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
+                  boxShadow: newHabit.target === n ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
                   cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit', fontWeight: 600,
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               >
                 {n}j/sem
@@ -85,7 +87,10 @@ export default function HabitsView() {
               border: 'none', borderRadius: '14px', cursor: 'pointer',
               fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
               boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
           >
             Créer l&apos;habitude
           </motion.button>

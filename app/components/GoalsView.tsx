@@ -85,7 +85,10 @@ export default function GoalsView() {
                 border: 'none', borderRadius: '14px', cursor: 'pointer',
                 fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
                 boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
             >
               Créer
             </motion.button>
@@ -242,7 +245,10 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
               padding: '9px 16px', background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
               border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
               boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
           >
             +
           </motion.button>

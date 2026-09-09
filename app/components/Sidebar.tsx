@@ -119,9 +119,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 borderRadius: '14px',
                 border: 'none',
                 background: active 
-                  ? (isPinkUser ? 'var(--accent)' : 'var(--ink)') 
+                  ? 'var(--primary-btn-bg)' 
                   : 'transparent',
-                color: active ? (isPinkUser ? 'white' : 'var(--cream)') : 'var(--stone)',
+                color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
                 boxShadow: active ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
@@ -147,17 +147,6 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 }
               }}
             >
-              {/* Glow effect background on active */}
-              {active && (
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, transparent 70%)',
-                  pointerEvents: 'none',
-                  opacity: 0,
-                  animation: 'enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                }} />
-              )}
               
               <div style={{
                 fontSize: '1rem',
