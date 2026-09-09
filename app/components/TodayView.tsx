@@ -113,112 +113,149 @@ export default function TodayView() {
                 <div key={i} className="skeleton" style={{ height: '52px', borderRadius: '14px', animationDelay: `${i * 0.12}s` }} />
               ))}
             </div>
+          ) : tasks.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                padding: '28px 0',
+                textAlign: 'center',
+                fontSize: '0.84rem',
+                color: 'var(--stone)',
+                fontStyle: 'italic',
+              }}
+            >
+              Aucune tâche pour aujourd&apos;hui ✦
+            </motion.div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-              {tasks.map((task, i) => (
-                <motion.div
-                  key={task.id}
-                  className={`animate-slide-in task-row ${task.done ? 'task-done' : ''}`}
-                  layout
-                  initial={false}
-                  animate={task.done ? { backgroundColor: 'rgba(192, 99, 74, 0.15)', scale: 1.02, x: [0, -6, 0] } : { backgroundColor: 'transparent', scale: 1, x: 0 }}
-                  transition={{ duration: 0.28, type: 'tween', ease: 'easeOut' }}
-                  whileHover={task.done ? {} : { y: -1 }}
-                  style={{ 
-                    animationDelay: `${i * 0.05}s`,
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                    padding: '12px 14px',
-                    borderRadius: '14px',
-                    border: task.done ? '1px solid rgba(192, 99, 74, 0.24)' : '1px solid transparent',
-                  }}>
+              <AnimatePresence mode="popLayout">
+                {tasks.map((task, i) => (
                   <motion.div
-                    className={`task-check ${task.done ? 'checked' : ''}`}
-                    onClick={() => toggleTask(task.id)}
-                    whileTap={{ scale: 0.92 }}
-                    animate={task.done ? { scale: [1, 1.18, 1], backgroundColor: 'var(--terra)' } : { scale: 1, backgroundColor: 'transparent' }}
-                    transition={{ duration: 0.24, type: 'tween', ease: [0.16, 1, 0.3, 1] }}
+                    key={task.id}
+                    layout
+                    initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      backgroundColor: task.done ? 'var(--accent-soft)' : 'transparent',
+                    }}
+                    exit={{
+                      opacity: 0,
+                      x: -20,
+                      scale: 0.95,
+                      transition: { duration: 0.2, ease: 'easeOut' },
+                    }}
+                    transition={{
+                      duration: 0.35,
+                      delay: Math.min(i * 0.05, 0.25),
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    whileHover={{
+                      y: -1,
+                      backgroundColor: task.done ? 'var(--accent-soft)' : 'rgba(128, 128, 128, 0.06)',
+                    }}
+                    className={`task-row ${task.done ? 'task-done' : ''}`}
                     style={{
-                      width: '26px', height: '26px', borderRadius: '10px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', border: '1px solid var(--border)',
-                      backgroundColor: task.done ? 'var(--terra)' : 'transparent',
-                      color: task.done ? 'white' : 'var(--ink)',
-                      position: 'relative',
-                      overflow: 'hidden',
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '12px 14px',
+                      borderRadius: '14px',
+                      border: task.done ? '1px solid var(--border)' : '1px solid transparent',
                     }}
                   >
-                    <AnimatePresence>
-                      {task.done && (
-                        <motion.span
-                          key="check-pulse"
-                          className="task-check-pulse"
-                          initial={{ opacity: 0.38, scale: 0.8 }}
-                          animate={{ opacity: [0.38, 0], scale: [1, 1.8] }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.35, ease: 'easeOut' }}
-                        />
-                      )}
-                    </AnimatePresence>
-                    {task.done && (
-                      <motion.svg
-                        width="12"
-                        height="10"
-                        viewBox="0 0 12 10"
-                        fill="none"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                      >
-                        <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </motion.svg>
-                    )}
-                  </motion.div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      position: 'relative',
-                      display: 'inline-block',
-                      maxWidth: '100%',
-                      fontSize: '0.85rem', color: task.done ? 'var(--stone)' : 'var(--ink)',
-                      transition: 'color 0.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
-                      opacity: task.done ? 0.78 : 1,
-                    }}>
-                      {task.text}
-                      <ScribbleStrikethrough active={task.done} color="var(--stone)" />
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '3px', alignItems: 'center' }}>
-                      {task.time && <span style={{ fontSize: '0.7rem', color: 'var(--stone)' }}>⏱ {task.time}</span>}
-                      <span style={{
-                        fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px',
-                        background: 'var(--warm-white)', color: 'var(--stone)',
-                        border: '1px solid var(--border)'
-                      }}>{task.category}</span>
-                      <span style={{
-                        fontSize: '0.65rem', padding: '2px 8px', borderRadius: '9999px',
-                        background: priorityConfig[task.priority].bgLight,
-                        color: priorityConfig[task.priority].color,
-                        fontWeight: priorityConfig[task.priority].fontWeight,
-                        border: `1px solid ${priorityConfig[task.priority].bg}`,
-                        opacity: task.done ? 0.5 : 1,
-                      }}>{priorityConfig[task.priority].label}</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <motion.button 
-                      onClick={() => removeTask(task.id)} 
-                      title="Supprimer"
-                      whileHover={{ scale: 1.15, background: 'var(--priority-high-bg)' }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ duration: 0.15 }}
+                    <motion.div
+                      className={`task-check ${task.done ? 'checked' : ''}`}
+                      onClick={() => toggleTask(task.id)}
+                      whileTap={{ scale: 0.92 }}
+                      animate={task.done ? { scale: [1, 1.18, 1], backgroundColor: 'var(--accent)' } : { scale: 1, backgroundColor: 'transparent' }}
+                      transition={{ duration: 0.24, type: 'tween', ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '26px', height: '26px', borderRadius: '10px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', border: '1px solid var(--border)',
+                        backgroundColor: task.done ? 'var(--accent)' : 'transparent',
+                        color: task.done ? 'white' : 'var(--ink)',
+                        position: 'relative',
+                        overflow: 'hidden',
                       }}
                     >
-                      <Trash size={16} color="var(--priority-high)" />
-                    </motion.button>
-                  </div>
-                </motion.div>
-              ))}
+                      <AnimatePresence>
+                        {task.done && (
+                          <motion.span
+                            key="check-pulse"
+                            className="task-check-pulse"
+                            initial={{ opacity: 0.38, scale: 0.8 }}
+                            animate={{ opacity: [0.38, 0], scale: [1, 1.8] }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.35, ease: 'easeOut' }}
+                          />
+                        )}
+                      </AnimatePresence>
+                      {task.done && (
+                        <motion.svg
+                          width="12"
+                          height="10"
+                          viewBox="0 0 12 10"
+                          fill="none"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.2, ease: 'easeOut' }}
+                        >
+                          <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </motion.svg>
+                      )}
+                    </motion.div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        position: 'relative',
+                        display: 'inline-block',
+                        maxWidth: '100%',
+                        fontSize: '0.85rem', color: task.done ? 'var(--stone)' : 'var(--ink)',
+                        transition: 'color 0.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
+                        opacity: task.done ? 0.78 : 1,
+                      }}>
+                        <TextReveal delay={0.06 + Math.min(i * 0.04, 0.2)} duration={0.4} as="span">
+                          {task.text}
+                        </TextReveal>
+                        <ScribbleStrikethrough active={task.done} color="var(--stone)" />
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '3px', alignItems: 'center' }}>
+                        {task.time && <span style={{ fontSize: '0.7rem', color: 'var(--stone)' }}>⏱ {task.time}</span>}
+                        <span style={{
+                          fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px',
+                          background: 'var(--warm-white)', color: 'var(--stone)',
+                          border: '1px solid var(--border)'
+                        }}>{task.category}</span>
+                        <span style={{
+                          fontSize: '0.65rem', padding: '2px 8px', borderRadius: '9999px',
+                          background: priorityConfig[task.priority].bgLight,
+                          color: priorityConfig[task.priority].color,
+                          fontWeight: priorityConfig[task.priority].fontWeight,
+                          border: `1px solid ${priorityConfig[task.priority].bg}`,
+                          opacity: task.done ? 0.5 : 1,
+                        }}>{priorityConfig[task.priority].label}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <motion.button 
+                        onClick={() => removeTask(task.id)} 
+                        title="Supprimer"
+                        whileHover={{ scale: 1.15, background: 'var(--priority-high-bg)' }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ duration: 0.15 }}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                      >
+                        <Trash size={16} color="var(--priority-high)" />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
 
