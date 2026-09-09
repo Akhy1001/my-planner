@@ -504,14 +504,14 @@ export default function AgendaView() {
               <motion.button
                 onClick={handleSubmit}
                 whileTap={{ scale: 0.97 }}
-                whileHover={{ opacity: 0.92, transform: 'translateY(-1px)' }}
+                whileHover={{ background: 'var(--ink-light)', transform: 'translateY(-1px)' }}
                 transition={{ duration: 0.15 }}
                 style={{
                   flex: 1, padding: '9px 12px',
-                  background: 'var(--accent)', color: 'white',
+                  background: 'var(--ink)', color: 'var(--cream)',
                   border: 'none', borderRadius: 'var(--radius-md, 8px)', cursor: 'pointer',
                   fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
-                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.1)',
+                  boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
