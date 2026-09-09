@@ -32,42 +32,51 @@ export default function LoginPage() {
   useEffect(() => {
     if (!isSuccessLoading) return;
 
-    // Simulation de progression fluide par étapes
-    const t1 = setTimeout(() => {
-      setProgress(28);
-      setStatusText('Vérification des accès…');
-    }, 250);
+    let startTime: number | null = null;
+    const duration = 2200; // 2.2s de fluidité continue 60fps
+    let animationFrameId: number;
+    let finishTimeoutId: NodeJS.Timeout;
 
-    const t2 = setTimeout(() => {
-      setProgress(64);
-      setStatusText('Synchronisation de votre profil…');
-    }, 850);
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const t = Math.min(elapsed / duration, 1);
 
-    const t3 = setTimeout(() => {
-      setProgress(88);
-      setStatusText('Chargement de vos notes & tâches…');
-    }, 1450);
+      // Courbe d'accélération/décélération ultra-fluide (Ease-in-out cubique)
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const current = Math.min(eased * 100, 100);
 
-    const t4 = setTimeout(() => {
-      setProgress(100);
-      setStatusText('Bienvenue sur My Planner !');
-    }, 1950);
+      setProgress(current);
 
-    const t5 = setTimeout(() => {
-      if (isDemoMode) {
-        setIsSuccessLoading(false);
-        setProgress(0);
+      if (current < 28) {
+        setStatusText('Authentification validée…');
+      } else if (current < 65) {
+        setStatusText('Synchronisation de votre profil…');
+      } else if (current < 92) {
+        setStatusText('Chargement de vos notes & tâches…');
       } else {
-        router.push('/');
+        setStatusText('Bienvenue sur My Planner !');
       }
-    }, 2550);
+
+      if (t < 1) {
+        animationFrameId = requestAnimationFrame(step);
+      } else {
+        finishTimeoutId = setTimeout(() => {
+          if (isDemoMode) {
+            setIsSuccessLoading(false);
+            setProgress(0);
+          } else {
+            router.push('/');
+          }
+        }, 450);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(step);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-      clearTimeout(t5);
+      cancelAnimationFrame(animationFrameId);
+      clearTimeout(finishTimeoutId);
     };
   }, [isSuccessLoading, isDemoMode, router]);
 
@@ -682,13 +691,29 @@ export default function LoginPage() {
                       width: `${progress}%`,
                       background: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
                       backgroundSize: '240% 100%',
-                      animation: 'barShimmer 1.5s infinite linear',
+                      animation: 'barShimmer 1.4s infinite linear',
                       borderRadius: '999px',
                       position: 'relative',
-                      transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
                       boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                      willChange: 'width',
                     }}
-                  />
+                  >
+                    {/* Tête lumineuse de progression */}
+                    {progress > 1 && progress < 99.5 && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: '6px',
+                          borderRadius: '999px',
+                          background: '#FFFFFF',
+                          boxShadow: '0 0 8px 1px rgba(255, 255, 255, 0.9), 0 0 12px 2px rgba(15, 23, 42, 0.4)',
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* Pourcentage et détails */}
@@ -704,7 +729,9 @@ export default function LoginPage() {
                   }}
                 >
                   <span>Initialisation</span>
-                  <span style={{ color: '#0F172A', fontWeight: 800 }}>{Math.round(progress)}%</span>
+                  <span style={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                    {Math.round(progress)}%
+                  </span>
                 </div>
               </div>
             </div>
