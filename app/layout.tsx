@@ -3,7 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mon Planner — Restez organisé et productif",
+  title: "My Planner — Restez organisé et productif",
   description: "A simple and elegant Todo List & Planner application — Restez organisé et productif.",
   icons: {
     icon: '/logo.jpg',

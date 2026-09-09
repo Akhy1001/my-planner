@@ -74,7 +74,7 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <Image
             src="/logo.jpg"
-            alt="Mon Planner logo"
+            alt="My Planner logo"
             width={48}
             height={48}
             style={{ borderRadius: 'var(--radius-md, 8px)', margin: '0 auto 16px', display: 'block' }}
@@ -84,7 +84,7 @@ export default function LoginPage() {
             fontSize: '1.75rem', color: 'var(--ink)',
             fontWeight: '700', letterSpacing: '-0.03em',
           }}>
-            Mon Planner
+            My Planner
           </div>
           <div style={{
             fontSize: '0.85rem', color: 'var(--stone)',

@@ -88,7 +88,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           color: '#FFFFFF', letterSpacing: '-0.03em',
           marginBottom: '6px',
         }}>
-          Mon Planner
+          My Planner
         </div>
 
         <div style={{

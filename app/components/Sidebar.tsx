@@ -48,7 +48,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
       <div style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }} className="animate-slide-in">
         <Image
           src="/logo.jpg"
-          alt="Mon Planner logo"
+          alt="My Planner logo"
           width={38}
           height={38}
           style={{ borderRadius: '10px', flexShrink: 0 }}
@@ -59,7 +59,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             fontSize: '1.1rem', color: 'var(--ink)',
             fontWeight: '700', letterSpacing: '-0.03em',
           }}>
-            Mon Planner
+            My Planner
           </div>
           <div style={{
             fontSize: '0.65rem', color: 'var(--stone)',
