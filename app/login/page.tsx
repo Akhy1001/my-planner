@@ -16,14 +16,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
 
-  // État de l'écran de chargement simulé
+  // État de l'écran de chargement post-connexion
   const [isSuccessLoading, setIsSuccessLoading] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Authentification validée…');
 
-  const startLoadingSimulation = (demo = false) => {
-    setIsDemoMode(demo);
+  const startLoadingSimulation = () => {
     setProgress(0);
     setStatusText('Authentification validée…');
     setIsSuccessLoading(true);
@@ -62,12 +60,7 @@ export default function LoginPage() {
         animationFrameId = requestAnimationFrame(step);
       } else {
         finishTimeoutId = setTimeout(() => {
-          if (isDemoMode) {
-            setIsSuccessLoading(false);
-            setProgress(0);
-          } else {
-            router.push('/');
-          }
+          router.push('/');
         }, 650);
       }
     };
@@ -78,7 +71,7 @@ export default function LoginPage() {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(finishTimeoutId);
     };
-  }, [isSuccessLoading, isDemoMode, router]);
+  }, [isSuccessLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +83,7 @@ export default function LoginPage() {
       setLoading(false);
     } else {
       setLoading(false);
-      startLoadingSimulation(false);
+      startLoadingSimulation();
     }
   };
 
@@ -463,60 +456,22 @@ export default function LoginPage() {
           </motion.button>
         </form>
 
-        {/* Footer info & Test trigger button */}
+        {/* Footer info */}
         <div
           style={{
             textAlign: 'center',
             marginTop: '26px',
+            fontSize: '0.74rem',
+            color: 'var(--stone, #64748B)',
+            fontWeight: 600,
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
+            justifyContent: 'center',
+            gap: '6px',
           }}
         >
-          <div
-            style={{
-              fontSize: '0.74rem',
-              color: 'var(--stone, #64748B)',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <span style={{ color: '#0F172A' }}>✦</span>
-            <span>Accès membre sécurisé · My Planner</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => startLoadingSimulation(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.72rem',
-              color: '#0F172A',
-              fontWeight: 700,
-              padding: '4px 10px',
-              borderRadius: '8px',
-              opacity: 0.65,
-              transition: 'opacity 0.2s ease, background 0.2s ease',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '5px',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.background = 'rgba(15, 23, 42, 0.05)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.opacity = '0.65';
-              e.currentTarget.style.background = 'none';
-            }}
-          >
-            <span>⚡ Tester l'écran de chargement</span>
-          </button>
+          <span style={{ color: '#0F172A' }}>✦</span>
+          <span>Accès membre sécurisé · My Planner</span>
         </div>
       </motion.div>
 
