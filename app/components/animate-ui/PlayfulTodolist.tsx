@@ -623,23 +623,32 @@ export function PlayfulTodolist() {
           <motion.button
             type="button"
             onClick={handleAdd}
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.12, ease: EASE_OUT }}
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             style={{
               width: '48px',
               height: '48px',
               borderRadius: '14px',
               border: 'none',
-              background: 'var(--terra)',
-              color: 'white',
+              background: 'var(--primary-btn-bg, var(--accent))',
+              color: 'var(--primary-btn-fg, white)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))',
+              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'var(--primary-btn-hover, var(--accent-hover))';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'var(--primary-btn-bg, var(--accent))';
             }}
             aria-label="Ajouter tâche"
           >
-            <CirclePlus size={20} color="white" />
+            <CirclePlus size={20} color="var(--primary-btn-fg, white)" />
           </motion.button>
         </div>
 

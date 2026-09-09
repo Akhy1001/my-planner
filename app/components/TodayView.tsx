@@ -210,18 +210,19 @@ export default function TodayView() {
 
           {/* Add task */}
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', alignItems: 'center' }}>
               <input
                 value={newTask}
                 onChange={e => setNewTask(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddTask()}
                 placeholder="Ajouter une tâche…"
                 style={{
-                  flex: 1, padding: '8px 12px',
-                  border: '1px solid var(--border)', borderRadius: 'var(--radius-md, 8px)',
-                  background: 'var(--warm-white)', fontSize: '0.82rem',
+                  flex: 1, padding: '10px 14px',
+                  border: '1px solid var(--border)', borderRadius: '14px',
+                  background: 'var(--warm-white)', fontSize: '0.85rem',
                   color: 'var(--ink)', outline: 'none',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               />
               <AddButton onClick={handleAddTask} />
@@ -235,20 +236,21 @@ export default function TodayView() {
                     key={p}
                     onClick={() => setNewPriority(p)}
                     whileTap={{ scale: 0.96 }}
+                    whileHover={{ scale: 1.02 }}
                     animate={{
                       background: isSelected ? cfg.bg : cfg.bgLight,
                       color: isSelected ? 'white' : cfg.color,
                     }}
-                    whileHover={!isSelected ? { background: cfg.bg, color: 'white' } : {}}
-                    transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     style={{
-                      padding: '6px 14px',
-                      borderRadius: 'var(--radius-md, 8px)',
+                      padding: '7px 16px',
+                      borderRadius: '14px',
                       border: 'none',
-                      fontSize: '0.8rem',
+                      fontSize: '0.82rem',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       fontWeight: cfg.fontWeight,
+                      boxShadow: isSelected ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
                     }}
                   >
                     {cfg.label}
