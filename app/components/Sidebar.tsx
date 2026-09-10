@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion } from 'motion/react';
 import { User } from '@supabase/supabase-js';
+import { LogOut } from 'lucide-react';
 import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
 import { ThemeToggle } from './animate-ui/icons/theme-toggle';
 import { TextReveal } from './animate-ui';
@@ -266,9 +267,10 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 color: 'var(--stone)', fontSize: '1.1rem', padding: '6px',
                 borderRadius: '10px',
                 flexShrink: 0, lineHeight: 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
-              ⎋
+              <LogOut size={16} />
             </motion.button>
           </div>
         </div>
