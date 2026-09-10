@@ -490,37 +490,6 @@ export default function Home() {
                     {Math.round(signOutProgress)}%
                   </span>
                 </div>
-
-                {/* Bouton de redirection immédiate garanti */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    try {
-                      sessionStorage.clear();
-                    } catch {}
-                    try {
-                      signOutRef.current().catch(() => {});
-                    } catch {}
-                    window.location.replace('/login');
-                  }}
-                  style={{
-                    marginTop: '20px',
-                    background: 'none',
-                    border: 'none',
-                    color: (signingOutIsPink || isPinkUser) ? '#8A4B6B' : 'var(--stone, #64748B)',
-                    fontSize: '0.74rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    opacity: 0.8,
-                    padding: '4px 8px',
-                    transition: 'opacity 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-                >
-                  Connexion directe →
-                </button>
               </div>
             </div>
           </motion.div>
