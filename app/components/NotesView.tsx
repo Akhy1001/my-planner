@@ -137,16 +137,12 @@ export default function NotesView() {
             />
             <AddButton onClick={handleAddNote} size={18} />
           </div>
-          {/* Tags filter avec pilule glissante */}
+          {/* Tags filter avec pilule glissante (sans encadrement) */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              background: 'var(--warm-white)',
-              border: '1px solid var(--border)',
-              borderRadius: '13px',
-              padding: '3px',
-              gap: '2px',
+              gap: '4px',
               overflowX: 'auto',
               position: 'relative',
               scrollbarWidth: 'none',
@@ -316,16 +312,12 @@ export default function NotesView() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               flexShrink: 0
             }}>
-              {/* Menu de sélection de catégorie avec indicateur glissant */}
+              {/* Menu de sélection de catégorie avec indicateur glissant (sans encadrement) */}
               <div
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  background: 'var(--warm-white)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '13px',
-                  padding: '3px',
-                  gap: '2px',
+                  gap: '4px',
                   position: 'relative',
                 }}
               >
