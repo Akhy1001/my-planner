@@ -70,7 +70,7 @@ export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
               initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
               animate={{ opacity: 1, rotate: 0, scale: 1 }}
               exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               style={{ position: 'absolute' }}
             >
               <circle cx="12" cy="12" r="4" />
@@ -97,7 +97,7 @@ export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
               initial={{ opacity: 0, rotate: 90, scale: 0.6 }}
               animate={{ opacity: 1, rotate: 0, scale: 1 }}
               exit={{ opacity: 0, rotate: -90, scale: 0.6 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               style={{ position: 'absolute' }}
             >
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />

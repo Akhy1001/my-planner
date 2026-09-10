@@ -831,7 +831,7 @@ button, input, select, textarea, .task-check, .habit-day, .mood-btn {
 
 /* ── View Transitions : Effet d'onde circulaire au basculement Clair / Sombre ── */
 ::view-transition-group(root) {
-  animation-duration: 0.55s;
+  animation-duration: 0.95s;
 }
 
 ::view-transition-old(root),
@@ -853,6 +853,6 @@ button, input, select, textarea, .task-check, .habit-day, .mood-btn {
 .theme-transition-fallback *,
 .theme-transition-fallback *::before,
 .theme-transition-fallback *::after {
-  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, fill 0.35s ease, stroke 0.35s ease !important;
+  transition: background-color 0.65s ease, border-color 0.65s ease, color 0.65s ease, fill 0.65s ease, stroke 0.65s ease !important;
 }
 

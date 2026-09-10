@@ -56,7 +56,7 @@ export function useTheme() {
       setIsDark(next);
       setTimeout(() => {
         document.documentElement.classList.remove('theme-transition-fallback');
-      }, 400);
+      }, 700);
       return;
     }
 
@@ -84,8 +84,8 @@ export function useTheme() {
           clipPath,
         },
         {
-          duration: 550,
-          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          duration: 900,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
           pseudoElement: '::view-transition-new(root)',
         }
       );
