@@ -567,7 +567,46 @@ export default function AgendaView() {
 
       {/* Right Column: Focus du Jour & Timeline */}
       <div className="agenda-sidebar-panel">
-        <div className="agenda-bento-card" style={{ padding: '20px' }}>
+        <motion.div
+          className="agenda-bento-card"
+          initial={{ opacity: 0, y: 22, scale: 0.97, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.65, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+          style={{ padding: '20px', position: 'relative', overflow: 'hidden' }}
+        >
+          {/* Ligne d'accent lumineuse supérieure */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%)',
+              transformOrigin: 'center',
+              zIndex: 10,
+            }}
+          />
+
+          {/* Balayage lumineux satiné (Light Sheen) */}
+          <motion.div
+            initial={{ x: '-100%', opacity: 0.5 }}
+            animate={{ x: '250%', opacity: 0 }}
+            transition={{ duration: 1.1, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              width: '45%',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%)',
+              pointerEvents: 'none',
+              zIndex: 11,
+            }}
+          />
+
           {/* Header Focus */}
           <div style={{
             display: 'flex',
@@ -1234,9 +1273,9 @@ export default function AgendaView() {
             ) : selectedEvents.length === 0 ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                initial={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 style={{
                   textAlign: 'center',
                   padding: '32px 16px',
@@ -1306,12 +1345,12 @@ export default function AgendaView() {
                       <motion.div
                         key={event.id}
                         layout
-                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: -16, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
+                        initial={{ opacity: 0, y: 18, scale: 0.96, filter: 'blur(8px)' }}
+                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, x: -16, scale: 0.95, filter: 'blur(4px)', transition: { duration: 0.2, ease: 'easeOut' } }}
                         transition={{
-                          duration: 0.3,
-                          delay: Math.min(i * 0.04, 0.2),
+                          duration: 0.45,
+                          delay: 0.05 + Math.min(i * 0.06, 0.28),
                           ease: [0.16, 1, 0.3, 1],
                         }}
                         style={{
@@ -1322,8 +1361,11 @@ export default function AgendaView() {
                           zIndex: 1,
                         }}
                       >
-                        {/* Puce lumineuse Timeline */}
-                        <div
+                        {/* Puce lumineuse Timeline avec rebond dynamique */}
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 0.08 + Math.min(i * 0.06, 0.28) }}
                           style={{
                             width: '12px',
                             height: '12px',
@@ -1355,6 +1397,21 @@ export default function AgendaView() {
                             overflow: 'hidden',
                           }}
                         >
+                          {/* Balayage lumineux satiné sur la carte d'événement */}
+                          <motion.div
+                            initial={{ x: '-100%', opacity: 0.35 }}
+                            animate={{ x: '250%', opacity: 0 }}
+                            transition={{ duration: 0.9, delay: 0.15 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              bottom: 0,
+                              width: '40%',
+                              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%)',
+                              pointerEvents: 'none',
+                              zIndex: 2,
+                            }}
+                          />
                           {/* Barre d'info supérieure */}
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
@@ -1477,7 +1534,7 @@ export default function AgendaView() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
