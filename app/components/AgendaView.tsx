@@ -330,8 +330,14 @@ export default function AgendaView() {
     <div className="agenda-view-container">
       {/* Calendar Bento Column */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
-        {/* Header Bento Card */}
-        <div className="agenda-bento-card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        {/* Header Bento Card avec animation d'apparition */}
+        <motion.div
+          className="agenda-bento-card"
+          initial={{ opacity: 0, y: 16, scale: 0.98, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '40px',
@@ -443,8 +449,8 @@ export default function AgendaView() {
                 <ChevronLeft size={16} />
               </motion.button>
               <motion.button 
-                whileHover={{ scale: 1.02 }} 
-                whileTap={{ scale: 0.95 }} 
+                whileHover={{ scale: 1.03 }} 
+                whileTap={{ scale: 0.96 }} 
                 transition={{ duration: 0.15 }} 
                 onClick={goToToday} 
                 style={{ 
@@ -483,31 +489,80 @@ export default function AgendaView() {
               </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Grille Bento Calendrier */}
-        <div className="agenda-bento-card" style={{ padding: '0', overflow: 'hidden' }}>
-          {view === 'month' ? (
-            <MonthGrid
-              days={days}
-              firstDayOffset={firstDayOffset}
-              weekDayLabels={weekDayLabels}
-              events={events}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-              cycleDays={cycleDays}
-            />
-          ) : (
-            <WeekGrid
-              weekDays={weekDays}
-              events={events}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-              cycleDays={cycleDays}
-              onUpdateEvent={updateEvent}
-            />
-          )}
-        </div>
+        {/* Grille Bento Calendrier avec apparition cinématique */}
+        <motion.div
+          className="agenda-bento-card"
+          initial={{ opacity: 0, y: 22, scale: 0.97, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.65, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          style={{ padding: '0', overflow: 'hidden', position: 'relative' }}
+        >
+          {/* Ligne d'accent lumineuse supérieure */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%)',
+              transformOrigin: 'center',
+              zIndex: 10,
+            }}
+          />
+
+          {/* Balayage lumineux satiné (Light Sheen) */}
+          <motion.div
+            initial={{ x: '-100%', opacity: 0.5 }}
+            animate={{ x: '250%', opacity: 0 }}
+            transition={{ duration: 1.1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              width: '45%',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%)',
+              pointerEvents: 'none',
+              zIndex: 11,
+            }}
+          />
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={view === 'month' ? `month-${format(currentMonth, 'yyyy-MM')}` : `week-${format(currentWeekStart, 'yyyy-MM-dd')}`}
+              initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {view === 'month' ? (
+                <MonthGrid
+                  days={days}
+                  firstDayOffset={firstDayOffset}
+                  weekDayLabels={weekDayLabels}
+                  events={events}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                  cycleDays={cycleDays}
+                />
+              ) : (
+                <WeekGrid
+                  weekDays={weekDays}
+                  events={events}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                  cycleDays={cycleDays}
+                  onUpdateEvent={updateEvent}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Right Column: Focus du Jour & Timeline */}
@@ -1446,13 +1501,18 @@ function MonthGrid({
       background: 'var(--warm-white)', borderRadius: '24px',
       overflow: 'hidden',
     }}>
-      {/* Weekday headers */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(7, 1fr)',
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--cream)',
-      }}>
+      {/* Weekday headers avec descente fluide */}
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          borderBottom: '1px solid var(--border)',
+          background: 'var(--cream)',
+        }}
+      >
         {weekDayLabels.map(d => (
           <div key={d} style={{
             padding: '12px 0', textAlign: 'center',
@@ -1461,14 +1521,14 @@ function MonthGrid({
             fontWeight: 700,
           }}>{d}</div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Days */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: 'minmax(100px, 1fr)' }}>
         {Array.from({ length: firstDayOffset }).map((_, i) => (
           <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'rgba(0,0,0,0.01)' }} />
         ))}
-        {days.map(day => {
+        {days.map((day, dayIdx) => {
           const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
           const selected = isSameDay(day, selectedDate);
           const today = isToday(day);
@@ -1477,8 +1537,11 @@ function MonthGrid({
             : cycleDay?.type === 'predicted-period' ? 'rgba(212, 96, 126, 0.05)'
             : undefined;
           return (
-            <div
+            <motion.div
               key={day.toString()}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.28, delay: Math.min(dayIdx * 0.007, 0.22), ease: [0.16, 1, 0.3, 1] }}
               onClick={() => onSelectDate(startOfDay(day))}
               style={{
                 borderRight: '1px solid var(--border)',
@@ -1491,20 +1554,25 @@ function MonthGrid({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <div style={{
-                  width: '26px', height: '26px',
-                  borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.78rem',
-                  background: today ? 'var(--primary-btn-bg, var(--ink))' : selected ? 'var(--accent-soft)' : 'transparent',
-                  color: today ? 'var(--primary-btn-fg, #ffffff)' : selected ? 'var(--accent)' : 'var(--ink)',
-                  fontWeight: today ? 700 : selected ? 700 : 500,
-                  boxShadow: today ? '0 2px 6px var(--primary-btn-shadow, rgba(15,23,42,0.15))' : undefined,
-                  border: selected && !today ? '1px solid var(--accent)' : 'none',
-                  transition: 'all 0.15s ease',
-                }}>
+                <motion.div
+                  initial={today ? { scale: 0.7, opacity: 0 } : undefined}
+                  animate={today ? { scale: 1, opacity: 1 } : undefined}
+                  transition={today ? { type: 'spring', stiffness: 380, damping: 18, delay: 0.22 } : undefined}
+                  style={{
+                    width: '26px', height: '26px',
+                    borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.78rem',
+                    background: today ? 'var(--primary-btn-bg, var(--ink))' : selected ? 'var(--accent-soft)' : 'transparent',
+                    color: today ? 'var(--primary-btn-fg, #ffffff)' : selected ? 'var(--accent)' : 'var(--ink)',
+                    fontWeight: today ? 700 : selected ? 700 : 500,
+                    boxShadow: today ? '0 2px 6px var(--primary-btn-shadow, rgba(15,23,42,0.15))' : undefined,
+                    border: selected && !today ? '1px solid var(--accent)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
                   {format(day, 'd')}
-                </div>
+                </motion.div>
                 {(cycleDay?.type === 'period' || cycleDay?.type === 'predicted-period') && (
                   <div
                     title={cycleDay.type === 'period' ? 'Règles' : 'Prévision règles'}
@@ -1586,7 +1654,7 @@ function MonthGrid({
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
