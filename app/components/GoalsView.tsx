@@ -71,7 +71,13 @@ export default function GoalsView() {
         display: 'flex', flexDirection: 'column',
         overflowY: 'auto', padding: '24px 16px'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 4px' }}>
+        {/* Header avec animation d'apparition */}
+        <motion.div
+          initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 4px' }}
+        >
           <TextReveal
             as="h1"
             delay={0.06}
@@ -81,44 +87,53 @@ export default function GoalsView() {
             Objectifs
           </TextReveal>
           <AddButton onClick={() => setShowAdd(!showAdd)} />
-        </div>
+        </motion.div>
 
-        {showAdd && (
-          <div style={{ 
-            background: 'var(--warm-white)', borderRadius: '12px', padding: '14px',
-            border: '1px solid var(--border)', marginBottom: '14px'
-          }}>
-            <input value={newGoal.title} onChange={e => setNewGoal({...newGoal, title: e.target.value})}
-              placeholder="Titre de l'objectif" style={{ ...iS, marginBottom: '8px' }} />
-            <textarea value={newGoal.description} onChange={e => setNewGoal({...newGoal, description: e.target.value})}
-              placeholder="Description…" rows={2}
-              style={{ ...iS, resize: 'none', marginBottom: '8px' }} />
-            <select value={newGoal.category} onChange={e => setNewGoal({...newGoal, category: e.target.value})}
-              style={{ ...iS, marginBottom: '8px' }}>
-              {Object.keys(categoryColors).map(c => <option key={c}>{c}</option>)}
-            </select>
-            <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({...newGoal, deadline: e.target.value})}
-              style={{ ...iS, marginBottom: '8px' }} />
-            <motion.button
-              onClick={handleAddGoal}
-              whileTap={{ scale: 0.96 }}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                width: '100%', padding: '10px',
-                background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
-                border: 'none', borderRadius: '14px', cursor: 'pointer',
-                fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
-                boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
-                transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+        <AnimatePresence>
+          {showAdd && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.97, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, scale: 0.97, filter: 'blur(6px)' }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{ 
+                background: 'var(--warm-white)', borderRadius: '14px', padding: '14px',
+                border: '1px solid var(--border)', marginBottom: '14px',
+                boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
             >
-              Créer
-            </motion.button>
-          </div>
-        )}
+              <input value={newGoal.title} onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                placeholder="Titre de l'objectif" style={{ ...iS, marginBottom: '8px' }} />
+              <textarea value={newGoal.description} onChange={e => setNewGoal({...newGoal, description: e.target.value})}
+                placeholder="Description…" rows={2}
+                style={{ ...iS, resize: 'none', marginBottom: '8px' }} />
+              <select value={newGoal.category} onChange={e => setNewGoal({...newGoal, category: e.target.value})}
+                style={{ ...iS, marginBottom: '8px' }}>
+                {Object.keys(categoryColors).map(c => <option key={c}>{c}</option>)}
+              </select>
+              <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({...newGoal, deadline: e.target.value})}
+                style={{ ...iS, marginBottom: '8px' }} />
+              <motion.button
+                onClick={handleAddGoal}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  width: '100%', padding: '10px',
+                  background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                  border: 'none', borderRadius: '14px', cursor: 'pointer',
+                  fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+                  boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                  transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
+              >
+                Créer
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
@@ -128,13 +143,13 @@ export default function GoalsView() {
               <motion.div
                 key={goal.id}
                 layout
-                initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.22, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
+                initial={{ opacity: 0, y: 16, scale: 0.96, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, scale: 0.95, filter: 'blur(4px)', transition: { duration: 0.15 } }}
+                transition={{ duration: 0.45, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 onClick={() => setSelected(goal)}
                 style={{
-                  padding: '14px', borderRadius: '12px', marginBottom: '8px',
+                  padding: '14px', borderRadius: '14px', marginBottom: '8px',
                   cursor: 'pointer',
                   transition: 'border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1), background 0.15s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
                   border: `1px solid ${selectedGoal?.id === goal.id ? goal.color : 'var(--border)'}`,
@@ -145,7 +160,7 @@ export default function GoalsView() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ minWidth: 0, flex: 1, marginRight: '8px' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {goal.title}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: categoryColors[goal.category] || 'var(--stone)', marginTop: '2px' }}>
@@ -211,23 +226,39 @@ export default function GoalsView() {
         )}
       </div>
 
-      {/* Goal detail */}
+      {/* Goal detail avec transition fluide */}
       <div className="goals-detail-panel" style={{ flex: 1, overflowY: 'auto' }}>
-        {selectedGoal ? (
-          <GoalDetail
-            goal={selectedGoal}
-            onToggle={handleToggleMilestone}
-            onAddMilestone={handleAddMilestone}
-            onEditMilestone={editMilestone}
-            onDeleteMilestone={deleteMilestone}
-            onUpdateGoal={updateGoal}
-            onDeleteGoal={handleDeleteGoal}
-          />
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--stone)' }}>
-            <div className="font-display" style={{ }}>Sélectionnez un objectif</div>
-          </div>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {selectedGoal ? (
+            <motion.div
+              key={selectedGoal.id}
+              initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <GoalDetail
+                goal={selectedGoal}
+                onToggle={handleToggleMilestone}
+                onAddMilestone={handleAddMilestone}
+                onEditMilestone={editMilestone}
+                onDeleteMilestone={deleteMilestone}
+                onUpdateGoal={updateGoal}
+                onDeleteGoal={handleDeleteGoal}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty-select"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--stone)' }}
+            >
+              <div className="font-display">Sélectionnez un objectif</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -273,7 +304,7 @@ function GoalDetail({
     setIsEditingGoal(false);
     setShowDeleteConfirm(false);
     setEditingMilestoneId(null);
-  }, [goal.id]);
+  }, [goal.id, goal.title, goal.description, goal.category, goal.deadline]);
 
   const handleSaveGoal = () => {
     if (!editGoalData.title.trim()) return;
@@ -288,10 +319,15 @@ function GoalDetail({
   };
 
   return (
-    <div className="animate-fade-in">
-      {/* Header */}
-      <div style={{ marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid var(--border)' }}>
-        {/* Top bar with category & action buttons */}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* ── Bloc En-tête : Titre & Actions avec animation d'apparition ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.98, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        style={{ marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid var(--border)' }}
+      >
+        {/* Barre supérieure avec badges & boutons d'actions */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '0.72rem', padding: '3px 10px', borderRadius: '10px',
@@ -520,31 +556,116 @@ function GoalDetail({
           {goal.title}
         </TextReveal>
         <p style={{ fontSize: '0.88rem', color: 'var(--stone)', lineHeight: 1.6 }}>{goal.description}</p>
-      </div>
+      </motion.div>
 
-      {/* Progress */}
-      <div style={{ 
-        background: 'var(--warm-white)', borderRadius: '14px', padding: '20px 24px',
-        border: '1px solid var(--border)', marginBottom: '24px'
-      }}>
+      {/* ── Bloc Progression : Jauge & Compteur avec ligne d'accent et sheen ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 22, scale: 0.97, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.65, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        style={{ 
+          background: 'var(--warm-white)', borderRadius: '16px', padding: '20px 24px',
+          border: '1px solid var(--border)', marginBottom: '24px',
+          position: 'relative', overflow: 'hidden'
+        }}
+      >
+        {/* Ligne d'accent lumineuse supérieure */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, transparent 0%, ${goal.color} 50%, transparent 100%)`,
+            transformOrigin: 'center',
+            zIndex: 10,
+          }}
+        />
+
+        {/* Balayage lumineux satiné */}
+        <motion.div
+          initial={{ x: '-100%', opacity: 0.45 }}
+          animate={{ x: '250%', opacity: 0 }}
+          transition={{ duration: 1.1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            width: '45%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%)',
+            pointerEvents: 'none',
+            zIndex: 11,
+          }}
+        />
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Progression</span>
-          <span className="font-display" style={{ fontSize: '1.6rem', color: goal.color, }}>{goal.progress}%</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Progression</span>
+          <span className="font-display" style={{ fontSize: '1.6rem', color: goal.color }}>{goal.progress}%</span>
         </div>
         <div style={{ height: '8px', background: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${goal.progress}%`, background: goal.color, borderRadius: '4px', transition: 'width 0.5s ease' }} />
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${goal.progress}%` }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ height: '100%', background: goal.color, borderRadius: '4px' }}
+          />
         </div>
         <div style={{ fontSize: '0.78rem', color: 'var(--stone)', marginTop: '8px' }}>
           {goal.milestones.filter(m => m.done).length} étape{goal.milestones.filter(m => m.done).length !== 1 ? 's' : ''} sur {goal.milestones.length} complétée{goal.milestones.filter(m => m.done).length !== 1 ? 's' : ''}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Milestones */}
-      <div style={{ background: 'var(--warm-white)', borderRadius: '14px', padding: '20px 24px', border: '1px solid var(--border)' }}>
+      {/* ── Bloc Étapes clés avec ligne d'accent, sheen et cascade ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 22, scale: 0.97, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.65, delay: 0.14, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          background: 'var(--warm-white)', borderRadius: '16px', padding: '20px 24px',
+          border: '1px solid var(--border)', position: 'relative', overflow: 'hidden'
+        }}
+      >
+        {/* Ligne d'accent lumineuse supérieure */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, transparent 0%, ${goal.color} 50%, transparent 100%)`,
+            transformOrigin: 'center',
+            zIndex: 10,
+          }}
+        />
+
+        {/* Balayage lumineux satiné */}
+        <motion.div
+          initial={{ x: '-100%', opacity: 0.45 }}
+          animate={{ x: '250%', opacity: 0 }}
+          transition={{ duration: 1.1, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            width: '45%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%)',
+            pointerEvents: 'none',
+            zIndex: 11,
+          }}
+        />
+
         <h3 className="font-display" style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--ink)' }}>Étapes clés</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
           <AnimatePresence mode="popLayout">
-            {goal.milestones.map((ms) => (
+            {goal.milestones.map((ms, i) => (
               editingMilestoneId === ms.id ? (
                 <motion.div
                   key={ms.id}
@@ -638,9 +759,10 @@ function GoalDetail({
                 <motion.div
                   key={ms.id}
                   layout
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                  initial={{ opacity: 0, y: 12, scale: 0.97, filter: 'blur(6px)' }}
+                  animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 0.95, filter: 'blur(4px)', transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.35, delay: 0.05 + Math.min(i * 0.05, 0.25), ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -655,17 +777,22 @@ function GoalDetail({
                   onClick={() => onToggle(goal.id, ms.id)}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      width: '20px', height: '20px', borderRadius: '50%',
-                      border: `2px solid ${ms.done ? goal.color : 'var(--stone-light)'}`,
-                      background: ms.done ? goal.color : 'transparent',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0, transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
-                    }}>
+                    <motion.div
+                      initial={ms.done ? { scale: 0.7 } : undefined}
+                      animate={ms.done ? { scale: 1 } : undefined}
+                      transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                      style={{
+                        width: '20px', height: '20px', borderRadius: '50%',
+                        border: `2px solid ${ms.done ? goal.color : 'var(--stone-light)'}`,
+                        background: ms.done ? goal.color : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                      }}
+                    >
                       {ms.done && <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                         <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>}
-                    </div>
+                    </motion.div>
                     <span style={{
                       fontSize: '0.85rem', color: ms.done ? 'var(--stone)' : 'var(--ink)',
                       position: 'relative', display: 'inline',
@@ -751,7 +878,7 @@ function GoalDetail({
             +
           </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
