@@ -2,7 +2,13 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
-export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
+export default function SplashScreen({
+  onComplete,
+  isPinkUser = false,
+}: {
+  onComplete: () => void;
+  isPinkUser?: boolean;
+}) {
   const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -34,7 +40,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       onClick={finish}
       style={{
         position: 'fixed', inset: 0,
-        background: 'var(--ink)',
+        background: isPinkUser ? '#FEF0F5' : 'var(--ink)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         zIndex: 9999,
         opacity: phase === 'out' ? 0 : 1,
@@ -46,7 +52,9 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       {/* Background glow */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 65%)',
+        background: isPinkUser
+          ? 'radial-gradient(ellipse at center, rgba(212, 96, 126, 0.22) 0%, transparent 65%)'
+          : 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 65%)',
         pointerEvents: 'none',
       }} />
 
@@ -66,12 +74,14 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           width: '80px', height: '80px',
           borderRadius: 'var(--radius-3xl, 22px)',
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.15)',
+          border: isPinkUser ? '1px solid #F0D4E4' : '1px solid rgba(255,255,255,0.15)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 24px',
-          background: 'rgba(255,255,255,0.05)',
+          background: isPinkUser ? '#FFFFFF' : 'rgba(255,255,255,0.05)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
+          boxShadow: isPinkUser
+            ? '0 12px 36px rgba(212, 96, 126, 0.25)'
+            : '0 12px 36px rgba(0,0,0,0.3)',
         }}>
           <Image 
             src="/logo.jpg" 
@@ -85,7 +95,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 
         <div style={{
           fontSize: '2.25rem', fontWeight: '800',
-          color: '#FFFFFF', letterSpacing: '-0.03em',
+          color: isPinkUser ? '#3B1529' : '#FFFFFF',
+          letterSpacing: '-0.03em',
           marginBottom: '6px',
         }}>
           My Planner
@@ -93,7 +104,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 
         <div style={{
           fontSize: '0.75rem',
-          color: 'rgba(255,255,255,0.5)',
+          color: isPinkUser ? '#8A4B6B' : 'rgba(255,255,255,0.5)',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           fontWeight: '600',
@@ -106,14 +117,14 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           marginTop: '32px',
           width: '120px',
           height: '2px',
-          background: 'rgba(255,255,255,0.12)',
+          background: isPinkUser ? 'rgba(212, 96, 126, 0.18)' : 'rgba(255,255,255,0.12)',
           borderRadius: '2px',
           overflow: 'hidden',
           margin: '32px auto 0',
         }}>
           <div style={{
             height: '100%',
-            background: 'var(--accent, #3B82F6)',
+            background: isPinkUser ? '#D4607E' : 'var(--accent, #3B82F6)',
             borderRadius: '2px',
             animation: 'loadBar 1s cubic-bezier(0.4, 0, 0.2, 1) forwards',
           }} />

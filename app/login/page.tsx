@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -20,8 +20,13 @@ export default function LoginPage() {
   const [isSuccessLoading, setIsSuccessLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Authentification validée…');
+  const [loadingIsRose, setLoadingIsRose] = useState(false);
 
-  const startLoadingSimulation = () => {
+  const isRose = email.trim().toLowerCase().startsWith('rstrpn05@') || email.trim().toLowerCase() === 'rstrpn05@gmail.com';
+  const activeIsRose = isSuccessLoading ? loadingIsRose : isRose;
+
+  const startLoadingSimulation = (roseUser: boolean) => {
+    setLoadingIsRose(roseUser);
     setProgress(0);
     setStatusText('Authentification validée…');
     setIsSuccessLoading(true);
@@ -53,7 +58,7 @@ export default function LoginPage() {
       } else if (current < 92) {
         setStatusText('Chargement de vos notes & tâches…');
       } else {
-        setStatusText('Bienvenue sur My Planner !');
+        setStatusText(loadingIsRose ? 'Bienvenue Rose ! 💖' : 'Bienvenue sur My Planner !');
       }
 
       if (t < 1) {
@@ -74,19 +79,21 @@ export default function LoginPage() {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(finishTimeoutId);
     };
-  }, [isSuccessLoading, router]);
+  }, [isSuccessLoading, loadingIsRose, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { error } = await signIn(email.trim(), password);
+    const trimmedEmail = email.trim();
+    const roseUser = trimmedEmail.toLowerCase().startsWith('rstrpn05@') || trimmedEmail.toLowerCase() === 'rstrpn05@gmail.com';
+    const { error } = await signIn(trimmedEmail, password);
     if (error) {
       setError('Email ou mot de passe incorrect.');
       setLoading(false);
     } else {
       setLoading(false);
-      startLoadingSimulation();
+      startLoadingSimulation(roseUser);
     }
   };
 
@@ -152,7 +159,7 @@ export default function LoginPage() {
           overflow: 'hidden',
         }}
       >
-        {/* Subtle Top Monochrome Accent Line */}
+        {/* Subtle Top Accent Line */}
         <div
           style={{
             position: 'absolute',
@@ -160,7 +167,10 @@ export default function LoginPage() {
             left: 0,
             right: 0,
             height: '3px',
-            background: 'linear-gradient(90deg, #0F172A 0%, #475569 50%, #0F172A 100%)',
+            background: activeIsRose
+              ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 50%, #D4607E 100%)'
+              : 'linear-gradient(90deg, #0F172A 0%, #475569 50%, #0F172A 100%)',
+            transition: 'background 0.3s ease',
           }}
         />
 
@@ -176,13 +186,16 @@ export default function LoginPage() {
               height: '64px',
               borderRadius: '18px',
               overflow: 'hidden',
-              border: '1px solid var(--border, #E2E8F0)',
-              boxShadow: '0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05)',
+              border: activeIsRose ? '1px solid #F0D4E4' : '1px solid var(--border, #E2E8F0)',
+              boxShadow: activeIsRose
+                ? '0 8px 24px -4px rgba(212, 96, 126, 0.2), 0 2px 6px rgba(212, 96, 126, 0.08)'
+                : '0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
               background: '#FFFFFF',
+              transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
             }}
           >
             <Image
@@ -195,7 +208,7 @@ export default function LoginPage() {
             />
           </motion.div>
 
-          {/* Sparkle badge in B&W */}
+          {/* Badge */}
           <div
             style={{
               display: 'inline-flex',
@@ -203,17 +216,22 @@ export default function LoginPage() {
               gap: '6px',
               padding: '4px 12px',
               borderRadius: '999px',
-              background: 'rgba(15, 23, 42, 0.05)',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
+              background: activeIsRose ? 'rgba(212, 96, 126, 0.08)' : 'rgba(15, 23, 42, 0.05)',
+              border: activeIsRose ? '1px solid rgba(212, 96, 126, 0.22)' : '1px solid rgba(15, 23, 42, 0.08)',
               fontSize: '0.74rem',
               fontWeight: 700,
-              color: '#0F172A',
+              color: activeIsRose ? '#D4607E' : '#0F172A',
               marginBottom: '10px',
               letterSpacing: '0.02em',
+              transition: 'all 0.3s ease',
             }}
           >
-            <Sparkles size={12} style={{ color: '#0F172A' }} />
-            <span>Digital Journal & Todos</span>
+            {activeIsRose ? (
+              <Heart size={12} style={{ color: '#D4607E', fill: '#D4607E' }} />
+            ) : (
+              <Sparkles size={12} style={{ color: '#0F172A' }} />
+            )}
+            <span>{activeIsRose ? 'Espace Rose' : 'Digital Journal & Todos'}</span>
           </div>
 
           <h1
@@ -398,7 +416,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Submit button - Noir & Blanc Signature Profil Anas */}
+          {/* Submit button - Adapté au profil Anas ou Rose */}
           <motion.button
             type="submit"
             disabled={loading}
@@ -411,6 +429,8 @@ export default function LoginPage() {
               marginTop: '6px',
               background: loading
                 ? 'var(--stone-light, #CBD5E1)'
+                : activeIsRose
+                ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #D4607E'
                 : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A',
               color: '#FFFFFF',
               border: 'none',
@@ -425,14 +445,24 @@ export default function LoginPage() {
               gap: '8px',
               boxShadow: loading
                 ? 'none'
+                : activeIsRose
+                ? '0 8px 24px -4px rgba(212, 96, 126, 0.38), 0 2px 6px rgba(212, 96, 126, 0.16)'
                 : '0 8px 24px -4px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.12)',
               transition: 'background 0.22s ease, box-shadow 0.22s ease',
             }}
             onMouseEnter={e => {
-              if (!loading) e.currentTarget.style.background = 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), #1E293B';
+              if (!loading) {
+                e.currentTarget.style.background = activeIsRose
+                  ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 70%), #C04472'
+                  : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), #1E293B';
+              }
             }}
             onMouseLeave={e => {
-              if (!loading) e.currentTarget.style.background = 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A';
+              if (!loading) {
+                e.currentTarget.style.background = activeIsRose
+                  ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #D4607E'
+                  : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A';
+              }
             }}
           >
             {loading ? (
@@ -465,20 +495,21 @@ export default function LoginPage() {
             textAlign: 'center',
             marginTop: '26px',
             fontSize: '0.74rem',
-            color: 'var(--stone, #64748B)',
+            color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
+            transition: 'color 0.2s ease',
           }}
         >
-          <span style={{ color: '#0F172A' }}>✦</span>
+          <span style={{ color: activeIsRose ? '#D4607E' : '#0F172A' }}>{activeIsRose ? '💖' : '✦'}</span>
           <span>Accès membre sécurisé · My Planner</span>
         </div>
       </motion.div>
 
-      {/* ── Écran de chargement immersif post-connexion (Monochrome & Effets) ── */}
+      {/* ── Écran de chargement immersif post-connexion (Monochrome ou Rose selon le compte) ── */}
       <AnimatePresence>
         {isSuccessLoading && (
           <motion.div
@@ -496,7 +527,7 @@ export default function LoginPage() {
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'var(--cream, #FAFAFA)',
+              background: activeIsRose ? '#FEF0F5' : 'var(--cream, #FAFAFA)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -512,7 +543,9 @@ export default function LoginPage() {
                 width: '600px',
                 height: '600px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                background: activeIsRose
+                  ? 'radial-gradient(circle, rgba(212, 96, 126, 0.16) 0%, rgba(184, 126, 192, 0.08) 50%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
                 pointerEvents: 'none',
               }}
             />
@@ -535,8 +568,10 @@ export default function LoginPage() {
                   height: '76px',
                   borderRadius: '20px',
                   background: '#FFFFFF',
-                  border: '1px solid var(--border, #E2E8F0)',
-                  boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                  border: activeIsRose ? '1px solid #F0D4E4' : '1px solid var(--border, #E2E8F0)',
+                  boxShadow: activeIsRose
+                    ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
+                    : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -568,7 +603,7 @@ export default function LoginPage() {
                   style={{
                     fontSize: '1.75rem',
                     fontWeight: 800,
-                    color: '#0F172A',
+                    color: activeIsRose ? '#3B1529' : '#0F172A',
                     letterSpacing: '-0.03em',
                     marginBottom: '4px',
                   }}
@@ -578,7 +613,7 @@ export default function LoginPage() {
                 <div
                   style={{
                     fontSize: '0.86rem',
-                    color: 'var(--stone, #64748B)',
+                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
                     fontWeight: 600,
                     minHeight: '20px',
                     transition: 'color 0.2s ease',
@@ -595,7 +630,7 @@ export default function LoginPage() {
                   style={{
                     width: '100%',
                     height: '7px',
-                    background: 'rgba(15, 23, 42, 0.08)',
+                    background: activeIsRose ? 'rgba(212, 96, 126, 0.16)' : 'rgba(15, 23, 42, 0.08)',
                     borderRadius: '999px',
                     overflow: 'hidden',
                     position: 'relative',
@@ -607,12 +642,16 @@ export default function LoginPage() {
                     style={{
                       height: '100%',
                       width: `${progress}%`,
-                      background: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                      background: activeIsRose
+                        ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 35%, #FFFFFF 50%, #F0A8BC 65%, #D4607E 100%)'
+                        : 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
                       backgroundSize: '240% 100%',
                       animation: 'barShimmer 1.4s infinite linear',
                       borderRadius: '999px',
                       position: 'relative',
-                      boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                      boxShadow: activeIsRose
+                        ? '0 0 12px rgba(212, 96, 126, 0.45)'
+                        : '0 0 10px rgba(15, 23, 42, 0.35)',
                       willChange: 'width',
                     }}
                   />
@@ -626,12 +665,18 @@ export default function LoginPage() {
                     justifyContent: 'space-between',
                     marginTop: '10px',
                     fontSize: '0.75rem',
-                    color: 'var(--stone, #64748B)',
+                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
                     fontWeight: 600,
                   }}
                 >
                   <span>Initialisation</span>
-                  <span style={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                  <span
+                    style={{
+                      color: activeIsRose ? '#D4607E' : '#0F172A',
+                      fontWeight: 800,
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
                     {Math.round(progress)}%
                   </span>
                 </div>

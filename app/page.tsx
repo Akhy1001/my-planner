@@ -28,6 +28,7 @@ export default function Home() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [signOutProgress, setSignOutProgress] = useState(0);
   const [signOutStatus, setSignOutStatus] = useState('Fermeture sécurisée de session…');
+  const [signingOutIsPink, setSigningOutIsPink] = useState(false);
 
   const email = user?.email?.toLowerCase().trim();
   const displayName = email?.startsWith('anas.fz1001@')
@@ -69,7 +70,7 @@ export default function Home() {
   }, [user, loading, mounted, isSigningOut, router]);
 
   // Per-user profile themes (Section 3.2: Anas Bleu Tech, Rose Pastel Rose)
-  const isPinkUser = user?.email === 'rstrpn05@gmail.com';
+  const isPinkUser = user?.email === 'rstrpn05@gmail.com' || Boolean(user?.email?.toLowerCase().includes('rstrpn05'));
   const isSandUser = user?.email === 'anas.fz1001@gmail.com';
 
   useEffect(() => {
@@ -99,12 +100,10 @@ export default function Home() {
   }, [user, isPinkUser, isSandUser, isDark]);
 
   const handleSignOut = () => {
+    setSigningOutIsPink(isPinkUser);
     setIsSigningOut(true);
     setSignOutProgress(0);
     setSignOutStatus('Fermeture sécurisée de session…');
-    try {
-      signOut().catch(() => {});
-    } catch {}
   };
 
   useEffect(() => {
@@ -113,6 +112,7 @@ export default function Home() {
     let startTime: number | null = null;
     const duration = 3200; // 3.2s pour 2 tours complets et déconnexion fluide
     let animationFrameId: number;
+    const isRose = signingOutIsPink || isPinkUser;
 
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
@@ -129,13 +129,16 @@ export default function Home() {
       } else if (current < 92) {
         setSignOutStatus('Sauvegarde de vos notes & tâches…');
       } else {
-        setSignOutStatus(`À bientôt, ${displayName} !`);
+        setSignOutStatus(isRose ? 'À bientôt, Rose ! 💖' : `À bientôt, ${displayName} !`);
       }
 
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        setTimeout(() => {
+        setTimeout(async () => {
+          try {
+            await signOut();
+          } catch {}
           window.location.replace('/login');
         }, 450);
       }
@@ -144,7 +147,10 @@ export default function Home() {
     animationFrameId = requestAnimationFrame(step);
 
     // Sécurité absolue : forcer la redirection quoi qu'il arrive au bout de 4.5s
-    const fallbackTimeout = setTimeout(() => {
+    const fallbackTimeout = setTimeout(async () => {
+      try {
+        await signOut();
+      } catch {}
       window.location.replace('/login');
     }, 4500);
 
@@ -152,7 +158,7 @@ export default function Home() {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(fallbackTimeout);
     };
-  }, [isSigningOut, displayName]);
+  }, [isSigningOut, displayName, signingOutIsPink, isPinkUser, signOut]);
 
   const renderView = () => {
     switch (activeTab) {
@@ -179,7 +185,7 @@ export default function Home() {
   return (
     <>
       {/* Splash screen overlay */}
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} isPinkUser={isPinkUser} />}
 
       {/* Main app with cinematic reveal */}
       <motion.div
@@ -303,7 +309,7 @@ export default function Home() {
         )}
       </motion.div>
 
-      {/* ── Écran de déconnexion plein écran immersif (identique à la connexion) ── */}
+      {/* ── Écran de déconnexion plein écran immersif (Monochrome ou Rose selon le compte) ── */}
       <AnimatePresence>
         {isSigningOut && (
           <motion.div
@@ -321,7 +327,7 @@ export default function Home() {
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'var(--cream, #FAFAFA)',
+              background: (signingOutIsPink || isPinkUser) ? '#FEF0F5' : 'var(--cream, #FAFAFA)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -337,7 +343,9 @@ export default function Home() {
                 width: '600px',
                 height: '600px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                background: (signingOutIsPink || isPinkUser)
+                  ? 'radial-gradient(circle, rgba(212, 96, 126, 0.16) 0%, rgba(184, 126, 192, 0.08) 50%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
                 pointerEvents: 'none',
               }}
             />
@@ -360,8 +368,12 @@ export default function Home() {
                   height: '76px',
                   borderRadius: '20px',
                   background: '#FFFFFF',
-                  border: '1px solid var(--border, #E2E8F0)',
-                  boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                  border: (signingOutIsPink || isPinkUser)
+                    ? '1px solid #F0D4E4'
+                    : '1px solid var(--border, #E2E8F0)',
+                  boxShadow: (signingOutIsPink || isPinkUser)
+                    ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
+                    : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -393,7 +405,7 @@ export default function Home() {
                   style={{
                     fontSize: '1.75rem',
                     fontWeight: 800,
-                    color: '#0F172A',
+                    color: (signingOutIsPink || isPinkUser) ? '#3B1529' : '#0F172A',
                     letterSpacing: '-0.03em',
                     marginBottom: '4px',
                   }}
@@ -403,7 +415,7 @@ export default function Home() {
                 <div
                   style={{
                     fontSize: '0.86rem',
-                    color: 'var(--stone, #64748B)',
+                    color: (signingOutIsPink || isPinkUser) ? '#8A4B6B' : 'var(--stone, #64748B)',
                     fontWeight: 600,
                     minHeight: '20px',
                     transition: 'color 0.2s ease',
@@ -420,7 +432,9 @@ export default function Home() {
                   style={{
                     width: '100%',
                     height: '7px',
-                    background: 'rgba(15, 23, 42, 0.08)',
+                    background: (signingOutIsPink || isPinkUser)
+                      ? 'rgba(212, 96, 126, 0.16)'
+                      : 'rgba(15, 23, 42, 0.08)',
                     borderRadius: '999px',
                     overflow: 'hidden',
                     position: 'relative',
@@ -432,12 +446,16 @@ export default function Home() {
                     style={{
                       height: '100%',
                       width: `${signOutProgress}%`,
-                      background: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                      background: (signingOutIsPink || isPinkUser)
+                        ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 35%, #FFFFFF 50%, #F0A8BC 65%, #D4607E 100%)'
+                        : 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
                       backgroundSize: '240% 100%',
                       animation: 'barShimmer 1.4s infinite linear',
                       borderRadius: '999px',
                       position: 'relative',
-                      boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                      boxShadow: (signingOutIsPink || isPinkUser)
+                        ? '0 0 12px rgba(212, 96, 126, 0.45)'
+                        : '0 0 10px rgba(15, 23, 42, 0.35)',
                       willChange: 'width',
                     }}
                   />
@@ -451,12 +469,18 @@ export default function Home() {
                     justifyContent: 'space-between',
                     marginTop: '10px',
                     fontSize: '0.75rem',
-                    color: 'var(--stone, #64748B)',
+                    color: (signingOutIsPink || isPinkUser) ? '#8A4B6B' : 'var(--stone, #64748B)',
                     fontWeight: 600,
                   }}
                 >
                   <span>Déconnexion</span>
-                  <span style={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                  <span
+                    style={{
+                      color: (signingOutIsPink || isPinkUser) ? '#D4607E' : '#0F172A',
+                      fontWeight: 800,
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
                     {Math.round(signOutProgress)}%
                   </span>
                 </div>
