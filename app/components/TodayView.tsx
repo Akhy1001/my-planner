@@ -20,17 +20,32 @@ import {
   Tag,
   ListFilter,
   Zap,
-  Heart
+  Heart,
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 
 type Priority = 'high' | 'medium' | 'low';
-type FilterTab = 'all' | 'todo' | 'urgent' | 'done';
+type FilterTab = 'all' | 'todo' | 'urgent' | 'overdue' | 'done';
+
+function getOverdueLabel(taskDate: string, todayStr: string): string {
+  try {
+    const d = new Date(taskDate + 'T00:00:00');
+    const today = new Date(todayStr + 'T00:00:00');
+    const diffDays = Math.round((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 1) return 'Hier';
+    if (diffDays < 7) return `Il y a ${diffDays}j`;
+    return format(d, 'd MMM', { locale: fr });
+  } catch {
+    return 'En retard';
+  }
+}
 
 const CATEGORIES = ['Personnel', 'Travail', 'Projet', 'Santé', 'Loisirs', 'Études'] as const;
 
 export default function TodayView() {
   const { user } = useAuth();
-  const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks();
+  const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask, rescheduleTask, rescheduleAllOverdue, today } = useTasks();
   const { journal, loading: journalLoading, updateJournal } = useJournal();
 
   const [newTask, setNewTask] = useState('');
@@ -67,6 +82,7 @@ export default function TodayView() {
   const doneTasks = tasks.filter(t => t.done).length;
   const todoTasks = tasks.filter(t => !t.done).length;
   const urgentTasks = tasks.filter(t => !t.done && t.priority === 'high').length;
+  const overdueTasks = tasks.filter(t => !t.done && t.date < today).length;
   const progress = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
 
   const filteredTasks = useMemo(() => {
@@ -75,13 +91,15 @@ export default function TodayView() {
         return tasks.filter(t => !t.done);
       case 'urgent':
         return tasks.filter(t => !t.done && t.priority === 'high');
+      case 'overdue':
+        return tasks.filter(t => !t.done && t.date < today);
       case 'done':
         return tasks.filter(t => t.done);
       case 'all':
       default:
         return tasks;
     }
-  }, [tasks, activeFilter]);
+  }, [tasks, activeFilter, today]);
 
   const loading = tasksLoading || journalLoading;
 
@@ -642,6 +660,29 @@ export default function TodayView() {
                   À faire ({todoTasks})
                 </button>
 
+                {overdueTasks > 0 && (
+                  <button
+                    onClick={() => setActiveFilter('overdue')}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: activeFilter === 'overdue' ? '#EF4444' : 'rgba(239, 68, 68, 0.12)',
+                      color: activeFilter === 'overdue' ? '#FFFFFF' : '#EF4444',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.18s ease',
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    En retard ({overdueTasks})
+                  </button>
+                )}
+
                 <button
                   onClick={() => setActiveFilter('urgent')}
                   style={{
@@ -680,6 +721,75 @@ export default function TodayView() {
 
             {/* Séparateur interne et liste des tâches */}
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '14px' }}>
+            {/* Bannière d'alerte pour les tâches en retard */}
+            {overdueTasks > 0 && activeFilter !== 'overdue' && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.22)',
+                  marginBottom: '14px',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#EF4444', fontWeight: 600 }}>
+                  <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                  <span>
+                    {overdueTasks} tâche{overdueTasks > 1 ? 's' : ''} en retard des jours précédents
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <motion.button
+                    onClick={() => rescheduleAllOverdue()}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.14)',
+                      color: '#EF4444',
+                      border: '1px solid rgba(239, 68, 68, 0.28)',
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    <RotateCcw size={11} />
+                    Tout reporter à aujourd&apos;hui
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setActiveFilter('overdue')}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      background: '#EF4444',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Voir
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[0, 1, 2].map(i => (
@@ -717,6 +827,8 @@ export default function TodayView() {
                     ? 'Aucune tâche terminée pour l\'instant'
                     : activeFilter === 'urgent'
                     ? 'Aucune tâche urgente, tout est sous contrôle !'
+                    : activeFilter === 'overdue'
+                    ? 'Aucune tâche en retard, vous êtes à jour ! 🎉'
                     : activeFilter === 'todo'
                     ? 'Toutes les tâches sont terminées ! Bravo 🎉'
                     : 'Aucune tâche enregistrée aujourd\'hui'}
@@ -805,6 +917,27 @@ export default function TodayView() {
 
                         {/* Badges */}
                         <div style={{ display: 'flex', gap: '6px', marginTop: '4px', alignItems: 'center', flexWrap: 'wrap' }}>
+                          {/* Badge En retard */}
+                          {task.date < today && !task.done && (
+                            <span
+                              style={{
+                                fontSize: '0.66rem',
+                                padding: '2px 8px',
+                                borderRadius: '999px',
+                                background: 'rgba(239, 68, 68, 0.14)',
+                                color: '#EF4444',
+                                border: '1px solid rgba(239, 68, 68, 0.35)',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                            >
+                              <AlertCircle size={11} />
+                              En retard ({getOverdueLabel(task.date, today)})
+                            </span>
+                          )}
+
                           {task.time && (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.68rem', color: 'var(--stone)' }}>
                               <Clock size={11} /> {task.time}
@@ -839,6 +972,34 @@ export default function TodayView() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Action Reporter si en retard */}
+                      {task.date < today && !task.done && (
+                        <motion.button
+                          onClick={() => rescheduleTask(task.id)}
+                          title="Reporter la tâche à aujourd'hui"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.08)',
+                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                            cursor: 'pointer',
+                            padding: '4px 9px',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            color: '#EF4444',
+                            fontFamily: 'inherit',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <RotateCcw size={11} />
+                          Reporter
+                        </motion.button>
+                      )}
 
                       {/* Delete Action */}
                       <motion.button
