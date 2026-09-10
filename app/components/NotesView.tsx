@@ -8,10 +8,10 @@ import FormatToolbar from './FormatToolbar';
 import { Pin } from 'lucide-react';
 
 const tagColors: Record<string, string> = {
-  'Idées': 'var(--gold)',
-  'Travail': 'var(--sage)',
-  'Personnel': 'var(--lavender)',
-  'Projets': 'var(--terra)',
+  'Idées': '#D97706',      // Ambre doré chaleureux & lumineux
+  'Travail': '#2563EB',    // Bleu roi intense & lisible
+  'Personnel': '#059669',  // Émeraude frais & net
+  'Projets': '#7C3AED',    // Violet profond & vibrant
 };
 
 export default function NotesView() {
@@ -153,18 +153,19 @@ export default function NotesView() {
               whileTap={{ scale: 0.96 }}
               style={{
                 position: 'relative',
-                padding: '4px 10px',
+                padding: '5px 11px',
                 border: 'none',
                 borderRadius: '10px',
                 background: 'transparent',
-                color: !filterTag ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
-                fontWeight: !filterTag ? 600 : 500,
+                color: !filterTag ? 'var(--primary-btn-fg, #FFFFFF)' : 'var(--ink)',
+                opacity: !filterTag ? 1 : 0.72,
+                fontWeight: !filterTag ? 700 : 600,
                 cursor: 'pointer',
-                fontSize: '0.73rem',
+                fontSize: '0.74rem',
                 fontFamily: 'inherit',
                 zIndex: 1,
                 flexShrink: 0,
-                transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
               }}
             >
               {!filterTag && (
@@ -176,7 +177,7 @@ export default function NotesView() {
                     inset: 0,
                     borderRadius: '10px',
                     background: 'var(--primary-btn-bg, var(--ink))',
-                    boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                    boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.16))',
                     zIndex: -1,
                   }}
                 />
@@ -193,21 +194,22 @@ export default function NotesView() {
                   whileTap={{ scale: 0.96 }}
                   style={{
                     position: 'relative',
-                    padding: '4px 9px',
+                    padding: '5px 11px',
                     border: 'none',
                     borderRadius: '10px',
                     background: 'transparent',
-                    color: isActive ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
-                    fontWeight: isActive ? 600 : 500,
+                    color: isActive ? '#FFFFFF' : 'var(--ink)',
+                    opacity: isActive ? 1 : 0.72,
+                    fontWeight: isActive ? 700 : 600,
                     cursor: 'pointer',
-                    fontSize: '0.73rem',
+                    fontSize: '0.74rem',
                     fontFamily: 'inherit',
                     zIndex: 1,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '5px',
+                    gap: '6px',
                     flexShrink: 0,
-                    transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                    transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
                   }}
                 >
                   {isActive && (
@@ -218,20 +220,21 @@ export default function NotesView() {
                         position: 'absolute',
                         inset: 0,
                         borderRadius: '10px',
-                        background: 'var(--primary-btn-bg, var(--ink))',
-                        boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                        background: color,
+                        boxShadow: `0 2px 10px ${color}55`,
                         zIndex: -1,
                       }}
                     />
                   )}
                   <span
                     style={{
-                      width: '5px',
-                      height: '5px',
+                      width: '6px',
+                      height: '6px',
                       borderRadius: '50%',
-                      background: color,
+                      background: isActive ? '#FFFFFF' : color,
                       flexShrink: 0,
-                      boxShadow: isActive ? `0 0 5px ${color}` : 'none',
+                      boxShadow: isActive ? '0 0 6px rgba(255, 255, 255, 0.7)' : `0 0 4px ${color}60`,
+                      transition: 'all 0.2s ease',
                     }}
                   />
                   <span>{tag}</span>
@@ -289,9 +292,11 @@ export default function NotesView() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{
-                      fontSize: '0.65rem', padding: '1px 6px', borderRadius: '8px',
-                      background: tagColors[note.tag] + '25', color: tagColors[note.tag],
-                      border: `1px solid ${tagColors[note.tag]}50`
+                      fontSize: '0.65rem', padding: '2px 8px', borderRadius: '8px',
+                      background: (tagColors[note.tag] || '#64748B') + '22',
+                      color: tagColors[note.tag] || '#64748B',
+                      border: `1px solid ${(tagColors[note.tag] || '#64748B')}45`,
+                      fontWeight: 600,
                     }}>{note.tag}</span>
                     <span style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>{timeAgo(note.updated_at)}</span>
                   </div>
@@ -330,20 +335,21 @@ export default function NotesView() {
                       whileTap={{ scale: 0.96 }}
                       style={{
                         position: 'relative',
-                        padding: '5px 12px',
+                        padding: '6px 13px',
                         border: 'none',
                         borderRadius: '10px',
                         cursor: 'pointer',
-                        fontSize: '0.74rem',
+                        fontSize: '0.75rem',
                         fontFamily: 'inherit',
                         background: 'transparent',
-                        color: isSelected ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
-                        fontWeight: isSelected ? 600 : 500,
+                        color: isSelected ? '#FFFFFF' : 'var(--ink)',
+                        opacity: isSelected ? 1 : 0.72,
+                        fontWeight: isSelected ? 700 : 600,
                         zIndex: 1,
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                        transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
                       }}
                     >
                       {isSelected && (
@@ -354,8 +360,8 @@ export default function NotesView() {
                             position: 'absolute',
                             inset: 0,
                             borderRadius: '10px',
-                            background: 'var(--primary-btn-bg, var(--ink))',
-                            boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                            background: color,
+                            boxShadow: `0 2px 10px ${color}55`,
                             zIndex: -1,
                           }}
                         />
@@ -365,10 +371,10 @@ export default function NotesView() {
                           width: '6px',
                           height: '6px',
                           borderRadius: '50%',
-                          background: color,
+                          background: isSelected ? '#FFFFFF' : color,
                           flexShrink: 0,
-                          boxShadow: isSelected ? `0 0 6px ${color}` : 'none',
-                          transition: 'box-shadow 0.2s ease',
+                          boxShadow: isSelected ? '0 0 6px rgba(255, 255, 255, 0.7)' : `0 0 4px ${color}60`,
+                          transition: 'all 0.2s ease',
                         }}
                       />
                       <span>{tag}</span>
