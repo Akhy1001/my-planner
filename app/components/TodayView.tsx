@@ -37,8 +37,15 @@ export default function TodayView() {
   const [newCategory, setNewCategory] = useState<string>('Personnel');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
 
-  const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
-  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const email = user?.email?.toLowerCase().trim();
+  const displayName = email?.startsWith('anas.fz1001@')
+    ? 'Anas'
+    : email?.startsWith('rstrpn05@')
+    ? 'Rose'
+    : (() => {
+        const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
+        return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      })();
 
   const currentHour = new Date().getHours();
   const greeting = currentHour >= 18 ? 'Bonsoir' : currentHour >= 12 ? 'Bel après-midi' : 'Bonjour';

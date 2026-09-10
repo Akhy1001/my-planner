@@ -29,8 +29,15 @@ export default function Home() {
   const [signOutProgress, setSignOutProgress] = useState(0);
   const [signOutStatus, setSignOutStatus] = useState('Fermeture sécurisée de session…');
 
-  const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
-  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const email = user?.email?.toLowerCase().trim();
+  const displayName = email?.startsWith('anas.fz1001@')
+    ? 'Anas'
+    : email?.startsWith('rstrpn05@')
+    ? 'Rose'
+    : (() => {
+        const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
+        return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      })();
 
   const handleTabChange = (newTab: Tab) => {
     const prevIdx = TAB_ORDER.indexOf(activeTab);

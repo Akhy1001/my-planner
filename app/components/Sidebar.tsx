@@ -31,7 +31,15 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDark, onToggleTheme, isPinkUser }: SidebarProps) {
   const today = new Date();
-  const displayName = user.email?.split('@')[0] ?? 'Utilisateur';
+  const email = user.email?.toLowerCase().trim();
+  const displayName = email?.startsWith('anas.fz1001@')
+    ? 'Anas'
+    : email?.startsWith('rstrpn05@')
+    ? 'Rose'
+    : (() => {
+        const raw = user.email?.split('@')[0] ?? 'Utilisateur';
+        return raw.charAt(0).toUpperCase() + raw.slice(1);
+      })();
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
