@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
@@ -99,6 +99,9 @@ export default function Home() {
     }
   }, [user, isPinkUser, isSandUser, isDark]);
 
+  const signOutRef = useRef(signOut);
+  signOutRef.current = signOut;
+
   const handleSignOut = () => {
     setSigningOutIsPink(isPinkUser);
     setIsSigningOut(true);
@@ -110,9 +113,22 @@ export default function Home() {
     if (!isSigningOut) return;
 
     let startTime: number | null = null;
-    const duration = 3200; // 3.2s pour 2 tours complets et déconnexion fluide
+    const duration = 2800; // 2.8s fluide pour 2 tours complets
     let animationFrameId: number;
     const isRose = signingOutIsPink || isPinkUser;
+    const currentName = displayName;
+
+    const finalizeSignOut = () => {
+      try {
+        if (typeof window !== 'undefined') {
+          sessionStorage.clear();
+        }
+      } catch {}
+      try {
+        signOutRef.current().catch(() => {});
+      } catch {}
+      window.location.replace('/login');
+    };
 
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
@@ -129,36 +145,26 @@ export default function Home() {
       } else if (current < 92) {
         setSignOutStatus('Sauvegarde de vos notes & tâches…');
       } else {
-        setSignOutStatus(isRose ? 'À bientôt, Rose ! 💖' : `À bientôt, ${displayName} !`);
+        setSignOutStatus(isRose ? 'À bientôt, Rose ! 💖' : `À bientôt, ${currentName} !`);
       }
 
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        setTimeout(async () => {
-          try {
-            await signOut();
-          } catch {}
-          window.location.replace('/login');
-        }, 450);
+        setTimeout(finalizeSignOut, 300);
       }
     };
 
     animationFrameId = requestAnimationFrame(step);
 
-    // Sécurité absolue : forcer la redirection quoi qu'il arrive au bout de 4.5s
-    const fallbackTimeout = setTimeout(async () => {
-      try {
-        await signOut();
-      } catch {}
-      window.location.replace('/login');
-    }, 4500);
+    // Sécurité absolue : forcer la redirection au bout de 3.2s
+    const fallbackTimeout = setTimeout(finalizeSignOut, 3200);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(fallbackTimeout);
     };
-  }, [isSigningOut, displayName, signingOutIsPink, isPinkUser, signOut]);
+  }, [isSigningOut]); // UNIQUEMENT isSigningOut pour ne jamais réinitialiser en boucle
 
   const renderView = () => {
     switch (activeTab) {
@@ -484,6 +490,37 @@ export default function Home() {
                     {Math.round(signOutProgress)}%
                   </span>
                 </div>
+
+                {/* Bouton de redirection immédiate garanti */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      sessionStorage.clear();
+                    } catch {}
+                    try {
+                      signOutRef.current().catch(() => {});
+                    } catch {}
+                    window.location.replace('/login');
+                  }}
+                  style={{
+                    marginTop: '20px',
+                    background: 'none',
+                    border: 'none',
+                    color: (signingOutIsPink || isPinkUser) ? '#8A4B6B' : 'var(--stone, #64748B)',
+                    fontSize: '0.74rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    opacity: 0.8,
+                    padding: '4px 8px',
+                    transition: 'opacity 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+                >
+                  Connexion directe →
+                </button>
               </div>
             </div>
           </motion.div>

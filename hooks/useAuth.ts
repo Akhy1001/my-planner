@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
@@ -49,12 +49,12 @@ export function useAuth() {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('splash-seen');
@@ -68,8 +68,15 @@ export function useAuth() {
         keysToRemove.forEach((key) => sessionStorage.removeItem(key));
       }
     } catch {}
-    await supabase.auth.signOut();
-  };
+
+    try {
+      // Timeout de sécurité : ne pas bloquer si Supabase signOut prend du temps
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((resolve) => setTimeout(resolve, 1200)),
+      ]);
+    } catch {}
+  }, []);
 
   return { user, loading, signIn, signOut };
 }
