@@ -60,6 +60,9 @@ export default function LoginPage() {
         animationFrameId = requestAnimationFrame(step);
       } else {
         finishTimeoutId = setTimeout(() => {
+          try {
+            sessionStorage.setItem('splash-seen', '1');
+          } catch {}
           router.push('/');
         }, 650);
       }
@@ -482,7 +485,12 @@ export default function LoginPage() {
             key="success-loading-screen"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+            exit={{
+              opacity: 0,
+              scale: 1.05,
+              filter: 'blur(12px)',
+              transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+            }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: 'fixed',

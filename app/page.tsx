@@ -121,28 +121,86 @@ export default function Home() {
       {/* Splash screen overlay */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
-      {/* Main app */}
-      <div
+      {/* Main app with cinematic reveal */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showSplash ? 0 : 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{
           display: 'flex',
           height: '100vh',
+          width: '100vw',
           overflow: 'hidden',
-          opacity: showSplash ? 0 : 1,
-          transition: 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          position: 'relative',
         }}
       >
+        {/* Voile d'apparition théâtral / Cinematic Unveil Curtain */}
+        <motion.div
+          initial={{ scaleY: 1 }}
+          animate={{ scaleY: showSplash ? 1 : 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'var(--cream, #FAFAFA)',
+            transformOrigin: 'top',
+            zIndex: 9000,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Balayage de lumière douce d'ouverture / Light Sheen */}
+        <motion.div
+          initial={{ x: '-100%', opacity: 0.6 }}
+          animate={{ x: showSplash ? '-100%' : '250%', opacity: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            bottom: 0,
+            width: '45%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%)',
+            zIndex: 9001,
+            pointerEvents: 'none',
+          }}
+        />
+
         {user && (
           <>
-            <Sidebar
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              user={user}
-              onSignOut={handleSignOut}
-              isDark={isDark}
-              onToggleTheme={toggleTheme}
-              isPinkUser={isPinkUser}
-            />
-            <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+            {/* Sidebar avec glissement depuis la gauche et déflouage */}
+            <motion.div
+              initial={{ x: -40, opacity: 0, filter: 'blur(8px)' }}
+              animate={{
+                x: showSplash ? -40 : 0,
+                opacity: showSplash ? 0 : 1,
+                filter: showSplash ? 'blur(8px)' : 'blur(0px)',
+              }}
+              transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+              style={{ display: 'flex', height: '100%', flexShrink: 0 }}
+            >
+              <Sidebar
+                activeTab={activeTab}
+                setActiveTab={handleTabChange}
+                user={user}
+                onSignOut={handleSignOut}
+                isDark={isDark}
+                onToggleTheme={toggleTheme}
+                isPinkUser={isPinkUser}
+              />
+            </motion.div>
+
+            {/* Contenu principal avec ascension, léger zoom et déflouage */}
+            <motion.main
+              initial={{ y: 32, opacity: 0, scale: 0.98, filter: 'blur(12px)' }}
+              animate={{
+                y: showSplash ? 32 : 0,
+                opacity: showSplash ? 0 : 1,
+                scale: showSplash ? 0.98 : 1,
+                filter: showSplash ? 'blur(12px)' : 'blur(0px)',
+              }}
+              transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
+            >
               <AnimatePresence mode="wait" custom={slideDirection} initial={false}>
                 <motion.div
                   key={activeTab}
@@ -180,10 +238,10 @@ export default function Home() {
                   {renderView()}
                 </motion.div>
               </AnimatePresence>
-            </main>
+            </motion.main>
           </>
         )}
-      </div>
+      </motion.div>
     </>
   );
 }
