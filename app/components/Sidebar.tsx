@@ -35,18 +35,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
-    <aside style={{
-      width: '230px',
-      background: 'var(--warm-white)',
-      borderRight: '1px solid var(--border)',
-      transition: 'background 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '28px 0',
-      flexShrink: 0,
-    }}>
+    <aside className="app-sidebar">
       {/* Logo */}
-      <div style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }} className="animate-slide-in">
+      <div className="sidebar-logo-block animate-slide-in" style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Image
           src="/logo.jpg"
           alt="My Planner logo"
@@ -55,7 +46,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
           style={{ borderRadius: '10px', flexShrink: 0 }}
           priority
         />
-        <div>
+        <div className="sidebar-logo-text">
           <div className="font-display" style={{
             fontSize: '1.1rem', color: 'var(--ink)',
             fontWeight: '800', letterSpacing: '-0.03em',
@@ -72,7 +63,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
       </div>
 
       {/* Date widget */}
-      <div style={{
+      <div className="sidebar-date-card animate-slide-in" style={{
         margin: '0 14px 24px',
         padding: '16px',
         background: 'var(--cream)',
@@ -80,45 +71,58 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
         border: '1px solid var(--border)',
         textAlign: 'center',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-      }} className="animate-slide-in">
-        <TextReveal
-          delay={0.06}
-          className="font-display"
-          style={{
-            fontSize: '2.6rem', fontWeight: '700',
-            color: 'var(--ink)', lineHeight: 1,
-          }}
-        >
-          {format(today, 'd')}
-        </TextReveal>
-        <TextReveal
-          delay={0.12}
-          style={{
-            fontSize: '0.82rem', color: 'var(--stone)',
-            fontWeight: '500', marginTop: '4px',
-          }}
-        >
-          {format(today, 'MMMM yyyy', { locale: fr })}
-        </TextReveal>
-        <TextReveal
-          delay={0.18}
-          style={{
-            fontSize: '0.7rem', color: 'var(--stone-light)',
-            letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
-          }}
-        >
-          {format(today, 'eeee', { locale: fr })}
-        </TextReveal>
+      }}>
+        <div className="sidebar-date-full">
+          <TextReveal
+            delay={0.06}
+            className="font-display"
+            style={{
+              fontSize: '2.6rem', fontWeight: '700',
+              color: 'var(--ink)', lineHeight: 1,
+            }}
+          >
+            {format(today, 'd')}
+          </TextReveal>
+          <TextReveal
+            delay={0.12}
+            style={{
+              fontSize: '0.82rem', color: 'var(--stone)',
+              fontWeight: '500', marginTop: '4px',
+            }}
+          >
+            {format(today, 'MMMM yyyy', { locale: fr })}
+          </TextReveal>
+          <TextReveal
+            delay={0.18}
+            style={{
+              fontSize: '0.7rem', color: 'var(--stone-light)',
+              letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
+            }}
+          >
+            {format(today, 'eeee', { locale: fr })}
+          </TextReveal>
+        </div>
+
+        <div className="sidebar-date-compact" style={{ display: 'none' }}>
+          <div className="font-display" style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1 }}>
+            {format(today, 'd')}
+          </div>
+          <div style={{ fontSize: '0.64rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: '2px', fontWeight: 700 }}>
+            {format(today, 'MMM', { locale: fr })}
+          </div>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '0 10px' }} className="stagger-children">
+      <nav className="sidebar-nav-container stagger-children" style={{ flex: 1, padding: '0 10px' }}>
         {navItems.map((item, i) => {
           const active = activeTab === item.id;
           return (
             <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              title={item.label}
+              className="sidebar-nav-btn"
               whileHover={{
                 scale: 1.02,
                 x: 2,
@@ -178,11 +182,11 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
               }}>
                 {item.icon}
               </div>
-              <span style={{ position: 'relative', zIndex: 1, flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+              <span className="sidebar-nav-label" style={{ position: 'relative', zIndex: 1, flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                 {item.label}
               </span>
               {active && (
-                <div style={{
+                <div className="sidebar-nav-dot" style={{
                   position: 'relative',
                   zIndex: 1,
                   width: '6px', height: '6px',
@@ -199,18 +203,19 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
 
       {/* Theme toggle — masqué pour l'utilisateur pink */}
       {!isPinkUser && (
-        <div style={{ padding: '0 10px', marginBottom: '4px' }}>
+        <div className="sidebar-theme-toggle" style={{ padding: '0 10px', marginBottom: '4px' }}>
           <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
         </div>
       )}
 
       {/* User profile + logout */}
-      <div style={{ padding: '0 14px', marginTop: 'auto' }} className="animate-slide-in">
+      <div className="sidebar-profile-container animate-slide-in" style={{ padding: '0 14px', marginTop: 'auto' }}>
         <div style={{
           borderTop: '1px solid var(--border)',
           paddingTop: '16px',
         }}>
           <div
+            className="sidebar-profile-card"
             style={{
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '10px 12px',
@@ -241,7 +246,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             }}>
               {initials}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 fontSize: '0.76rem', fontWeight: '600', color: 'var(--ink)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -259,6 +264,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             <motion.button
               onClick={onSignOut}
               title="Se déconnecter"
+              className="sidebar-logout-btn"
               whileHover={{ scale: 1.1, background: 'var(--priority-high-bg)', color: 'var(--priority-high)' }}
               whileTap={{ scale: 0.92 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}

@@ -561,12 +561,12 @@ export function PlayfulTodolist() {
   return (
     <>
       <div style={{
-        background: 'var(--warm-white)',
-        borderRadius: '18px',
-        padding: '18px',
+        background: 'var(--card, #FFFFFF)',
+        borderRadius: '20px',
+        padding: '20px',
         border: '1px solid var(--border)',
-        boxShadow: '0 1px 10px rgba(26, 23, 20, 0.04)',
-        marginTop: '24px',
+        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+        marginTop: '0px',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
           <div>

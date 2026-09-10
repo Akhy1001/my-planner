@@ -103,10 +103,9 @@ export default function NotesView() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="notes-view-container">
       {/* Left panel */}
-      <div style={{ 
-        width: '260px', flexShrink: 0,
+      <div className="notes-sidebar-panel" style={{ 
         borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column',
         background: 'var(--warm-white)'

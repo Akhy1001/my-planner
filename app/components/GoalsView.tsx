@@ -45,10 +45,9 @@ export default function GoalsView() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="goals-view-container">
       {/* Goals list */}
-      <div style={{ 
-        width: '300px', flexShrink: 0,
+      <div className="goals-sidebar-panel" style={{ 
         borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column',
         overflowY: 'auto', padding: '24px 16px'
@@ -152,7 +151,7 @@ export default function GoalsView() {
       </div>
 
       {/* Goal detail */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+      <div className="goals-detail-panel" style={{ flex: 1, overflowY: 'auto' }}>
         {selectedGoal ? (
           <GoalDetail goal={selectedGoal} onToggle={handleToggleMilestone} onAddMilestone={handleAddMilestone} />
         ) : (

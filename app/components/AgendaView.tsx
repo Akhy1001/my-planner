@@ -217,7 +217,7 @@ export default function AgendaView() {
     : `${format(currentWeekStart, 'd MMM', { locale: fr })} – ${format(endOfWeek(currentWeekStart, WEEK_OPTS), 'd MMM yyyy', { locale: fr })}`;
 
   return (
-    <div style={{ display: 'flex', gap: '24px', padding: '32px', height: '100%', overflowY: 'auto' }}>
+    <div className="agenda-view-container">
       {/* Calendar */}
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Header */}
@@ -332,7 +332,7 @@ export default function AgendaView() {
       </div>
 
       {/* Event panel */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
+      <div className="agenda-sidebar-panel">
         <div style={{
           display: 'flex', justifyContent: 'space-between',
           alignItems: 'center', marginBottom: '16px'

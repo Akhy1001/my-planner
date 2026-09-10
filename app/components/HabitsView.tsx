@@ -26,7 +26,7 @@ export default function HabitsView() {
   const overallProgress = habits.filter(h => h.completedDays.includes(today)).length;
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', height: '100%' }}>
+    <div className="habits-view-container">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
         <div>
