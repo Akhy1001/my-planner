@@ -55,6 +55,19 @@ export function useAuth() {
   };
 
   const signOut = async () => {
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('splash-seen');
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+      }
+    } catch {}
     await supabase.auth.signOut();
   };
 

@@ -64,7 +64,7 @@ export default function Home() {
 
   useEffect(() => {
     if (mounted && !loading && !user && !isSigningOut) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, loading, mounted, isSigningOut, router]);
 
@@ -164,20 +164,15 @@ export default function Home() {
     }
   };
 
-  // Si l'utilisateur n'est pas connecté et que l'auth a fini de vérifier
-  if (mounted && !loading && !user && !isSigningOut) {
+  // Si l'utilisateur n'est pas connecté ou en attente de vérification d'authentification
+  if (!user && !isSigningOut) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--ink)',
-        color: '#FFFFFF',
-        fontFamily: 'inherit',
-      }}>
-        Redirection…
-      </div>
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'var(--cream, #FAFAFA)',
+        }}
+      />
     );
   }
 
