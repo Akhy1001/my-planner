@@ -477,6 +477,26 @@ input:focus, textarea:focus {
   transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
 }
 
+/* ── Clean Task Input (Supprime totalement l'encadré blanc ou halo interne) ── */
+.clean-task-input,
+.clean-task-input:focus,
+.clean-task-input:focus-visible,
+.clean-task-input:active,
+.clean-task-input:hover {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.task-input-bar:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   from { background-position: -600px 0; }

@@ -477,6 +477,7 @@ export default function TodayView() {
             {/* Input Row */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '14px' }}>
               <div
+                className="task-input-bar"
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -493,14 +494,19 @@ export default function TodayView() {
                   onChange={e => setNewTask(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddTask()}
                   placeholder="Ajouter une tâche… (Appuyez sur Entrée)"
+                  className="clean-task-input"
                   style={{
                     width: '100%',
                     padding: '8px 4px',
                     border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
                     background: 'transparent',
+                    backgroundColor: 'transparent',
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
                     fontSize: '0.88rem',
                     color: 'var(--ink)',
-                    outline: 'none',
                     fontFamily: 'inherit',
                   }}
                 />
