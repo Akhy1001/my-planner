@@ -906,9 +906,9 @@ export default function AgendaView() {
           {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
           {isCycleUser && <motion.div
             layout
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            initial={{ opacity: 0, y: 24, scale: 0.96, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
             style={{
               background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(254, 240, 245, 0.9) 100%)',
               borderRadius: '20px',
@@ -920,19 +920,40 @@ export default function AgendaView() {
               overflow: 'hidden',
             }}
           >
-            {/* Ligne d'accent lumineuse supérieure */}
-            <div
+            {/* Voile lumineux d'apparition (Light Sheen) */}
+            <motion.div
+              initial={{ x: '-100%', opacity: 0.7 }}
+              animate={{ x: '250%', opacity: 0 }}
+              transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                width: '45%',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%)',
+                pointerEvents: 'none',
+                zIndex: 4,
+              }}
+            />
+
+            {/* Ligne d'accent lumineuse supérieure avec déploiement fluide */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.65, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
                 height: '3px',
+                transformOrigin: 'left',
                 background: 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 50%, #B87EC0 100%)',
+                zIndex: 2,
               }}
             />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', position: 'relative', zIndex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{
                   display: 'flex',
@@ -2078,43 +2099,53 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      {/* ── Bloc Héros : Chiffre & Jauge circulaire ── */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px',
-        padding: '12px 14px',
-        borderRadius: '16px',
-        background: 'rgba(255, 255, 255, 0.7)',
-        border: '1px solid rgba(240, 212, 228, 0.7)',
-        boxShadow: '0 2px 8px rgba(212, 96, 126, 0.04)',
-      }}>
+      {/* ── Bloc Héros : Chiffre & Jauge circulaire avec animation d'apparition ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 14, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.55, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          padding: '12px 14px',
+          borderRadius: '16px',
+          background: 'rgba(255, 255, 255, 0.7)',
+          border: '1px solid rgba(240, 212, 228, 0.7)',
+          boxShadow: '0 2px 8px rgba(212, 96, 126, 0.04)',
+        }}
+      >
         <div style={{ flex: 1 }}>
           {/* Badge Phase Actuelle */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '3px 8px',
-            borderRadius: '999px',
-            background: phase.bg,
-            color: phase.color,
-            fontSize: '0.68rem',
-            fontWeight: 700,
-            marginBottom: '6px',
-          }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 8px',
+              borderRadius: '999px',
+              background: phase.bg,
+              color: phase.color,
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              marginBottom: '6px',
+            }}
+          >
             <span style={{ fontSize: '0.72rem' }}>{phase.icon}</span>
             <span>{phase.label}</span>
-          </div>
+          </motion.div>
 
           {/* Nombre principal avec typographie moderne */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
             <motion.span
               key={daysRemaining}
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.88, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 20, delay: 0.24 }}
               className="font-display"
               style={{
                 fontSize: '2.1rem',
@@ -2159,7 +2190,7 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
               stroke="rgba(212, 96, 126, 0.14)"
               strokeWidth="4.5"
             />
-            <circle
+            <motion.circle
               cx="30"
               cy="30"
               r={radius}
@@ -2167,9 +2198,10 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
               stroke={phase.color}
               strokeWidth="4.5"
               strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset }}
+              transition={{ duration: 1.2, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
               strokeLinecap="round"
-              style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
             />
           </svg>
           <div style={{
@@ -2189,10 +2221,15 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ── Frise Chronologique Segmentée des 4 Phases ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10, scaleX: 0.95 }}
+        animate={{ opacity: 1, y: 0, scaleX: 1 }}
+        transition={{ duration: 0.55, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        style={{ display: 'flex', flexDirection: 'column', gap: '6px', transformOrigin: 'left' }}
+      >
         {/* Barre de progression segmentée */}
         <div style={{
           width: '100%',
@@ -2244,8 +2281,11 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
             }}
           />
 
-          {/* Curseur dynamique indiquant aujourd'hui */}
-          <div
+          {/* Curseur dynamique indiquant aujourd'hui avec rebond printanier */}
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 18, delay: 0.48 }}
             style={{
               position: 'absolute',
               top: '50%',
@@ -2286,57 +2326,37 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
             • Lutéale
           </span>
         </div>
-      </div>
+      </motion.div>
 
-      {/* ── Badges Récapitulatifs Satinés ── */}
+      {/* ── Badges Récapitulatifs Satinés en cascade ── */}
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-        <div style={{
-          fontSize: '0.72rem',
-          fontWeight: 700,
-          padding: '4px 10px',
-          borderRadius: '10px',
-          background: 'rgba(212, 96, 126, 0.1)',
-          border: '1px solid rgba(212, 96, 126, 0.18)',
-          color: '#D4607E',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '5px',
-        }}>
-          <span>🩸</span>
-          <span>Règles : {cycle.periodDuration}j</span>
-        </div>
-
-        <div style={{
-          fontSize: '0.72rem',
-          fontWeight: 700,
-          padding: '4px 10px',
-          borderRadius: '10px',
-          background: 'rgba(184, 126, 192, 0.12)',
-          border: '1px solid rgba(184, 126, 192, 0.2)',
-          color: '#8A4B6B',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '5px',
-        }}>
-          <span>🌸</span>
-          <span>Cycle : {cycle.cycleLength}j</span>
-        </div>
-
-        <div style={{
-          fontSize: '0.72rem',
-          fontWeight: 700,
-          padding: '4px 10px',
-          borderRadius: '10px',
-          background: 'rgba(212, 131, 160, 0.1)',
-          border: '1px solid rgba(212, 131, 160, 0.18)',
-          color: '#D483A0',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '5px',
-        }}>
-          <span>✨</span>
-          <span>Ovulation : J.{ovulationDay}</span>
-        </div>
+        {[
+          { icon: '🩸', label: `Règles : ${cycle.periodDuration}j`, bg: 'rgba(212, 96, 126, 0.1)', border: 'rgba(212, 96, 126, 0.18)', color: '#D4607E' },
+          { icon: '🌸', label: `Cycle : ${cycle.cycleLength}j`, bg: 'rgba(184, 126, 192, 0.12)', border: 'rgba(184, 126, 192, 0.2)', color: '#8A4B6B' },
+          { icon: '✨', label: `Ovulation : J.${ovulationDay}`, bg: 'rgba(212, 131, 160, 0.1)', border: 'rgba(212, 131, 160, 0.18)', color: '#D483A0' },
+        ].map((item, idx) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, y: 8, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.38 + idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '10px',
+              background: item.bg,
+              border: `1px solid ${item.border}`,
+              color: item.color,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+          >
+            <span>{item.icon}</span>
+            <span>{item.label}</span>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
