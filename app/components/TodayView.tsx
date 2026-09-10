@@ -317,7 +317,7 @@ export default function TodayView() {
                       }}
                     >
                       <Zap size={12} style={{ color: '#3B82F6', fill: '#3B82F6' }} />
-                      <span>Rythme optimal ⚡</span>
+                      <span>Rythme optimal</span>
                     </span>
                   </motion.div>
                 ) : (
