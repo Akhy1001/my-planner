@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotes, Note } from '@/hooks/useNotes';
 import FormatToolbar from './FormatToolbar';
+import { Pin } from 'lucide-react';
 
 const tagColors: Record<string, string> = {
   'Idées': 'var(--gold)',
@@ -201,11 +202,19 @@ export default function NotesView() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1
+                    <div style={{
+                      fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+                      display: 'flex', alignItems: 'center', gap: '6px'
                     }}>
-                      {note.pinned && <span style={{ color: 'var(--gold)', marginRight: '4px' }}>📌</span>}
-                      {note.title || 'Sans titre'}
+                      {note.pinned && (
+                        <span style={{ color: 'var(--gold)', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+                          <Pin size={13} style={{ fill: 'currentColor', transform: 'rotate(45deg)' }} />
+                        </span>
+                      )}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {note.title || 'Sans titre'}
+                      </span>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--stone)',
@@ -266,13 +275,29 @@ export default function NotesView() {
                   whileTap={{ scale: 0.95 }}
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  title={selectedNote.pinned ? "Désépingler la note" : "Épingler la note"}
+                  aria-label={selectedNote.pinned ? "Désépingler la note" : "Épingler la note"}
                   style={{
-                    padding: '6px 12px', border: '1px solid var(--border)', borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '6px 12px',
+                    border: `1px solid ${selectedNote.pinned ? 'var(--gold)' : 'var(--border)'}`,
+                    borderRadius: '12px',
                     background: selectedNote.pinned ? 'var(--gold-light)' : 'transparent',
-                    cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit', color: 'var(--stone)'
+                    cursor: 'pointer',
+                    color: selectedNote.pinned ? 'var(--gold)' : 'var(--stone)',
+                    transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
                   }}
                 >
-                  📌
+                  <Pin
+                    size={15}
+                    style={{
+                      fill: selectedNote.pinned ? 'currentColor' : 'none',
+                      transform: selectedNote.pinned ? 'rotate(45deg)' : 'none',
+                      transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                    }}
+                  />
                 </motion.button>
                 <motion.button
                   onClick={() => { deleteNote(selectedNote.id); setSelected(null); }}
