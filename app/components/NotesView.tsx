@@ -137,43 +137,111 @@ export default function NotesView() {
             />
             <AddButton onClick={handleAddNote} size={18} />
           </div>
-          {/* Tags filter */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {/* Tags filter avec pilule glissante */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'var(--warm-white)',
+              border: '1px solid var(--border)',
+              borderRadius: '13px',
+              padding: '3px',
+              gap: '2px',
+              overflowX: 'auto',
+              position: 'relative',
+              scrollbarWidth: 'none',
+            }}
+          >
             <motion.button
               onClick={() => setFilterTag(null)}
               whileTap={{ scale: 0.96 }}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                padding: '4px 10px', borderRadius: '12px',
-                border: '1px solid var(--border)',
-                background: !filterTag ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
-                color: !filterTag ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
-                boxShadow: !filterTag ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
-                cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
-                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                position: 'relative',
+                padding: '4px 10px',
+                border: 'none',
+                borderRadius: '10px',
+                background: 'transparent',
+                color: !filterTag ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                fontWeight: !filterTag ? 600 : 500,
+                cursor: 'pointer',
+                fontSize: '0.73rem',
+                fontFamily: 'inherit',
+                zIndex: 1,
+                flexShrink: 0,
+                transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
               }}
             >
+              {!filterTag && (
+                <motion.div
+                  layoutId="notes-filter-tag-pill"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '10px',
+                    background: 'var(--primary-btn-bg, var(--ink))',
+                    boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                    zIndex: -1,
+                  }}
+                />
+              )}
               Tout
             </motion.button>
-            {Object.keys(tagColors).map(tag => (
-              <motion.button
-                key={tag}
-                onClick={() => setFilterTag(filterTag === tag ? null : tag)}
-                whileTap={{ scale: 0.96 }}
-                whileHover={{ scale: 1.03 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  padding: '4px 10px', borderRadius: '12px',
-                  border: `1px solid ${tagColors[tag]}`,
-                  background: filterTag === tag ? tagColors[tag] : 'transparent',
-                  color: filterTag === tag ? 'white' : 'var(--stone)',
-                  cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
-                }}
-              >
-                {tag}
-              </motion.button>
-            ))}
+            {Object.keys(tagColors).map(tag => {
+              const isActive = filterTag === tag;
+              const color = tagColors[tag];
+              return (
+                <motion.button
+                  key={tag}
+                  onClick={() => setFilterTag(filterTag === tag ? null : tag)}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    position: 'relative',
+                    padding: '4px 9px',
+                    border: 'none',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    color: isActive ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                    fontWeight: isActive ? 600 : 500,
+                    cursor: 'pointer',
+                    fontSize: '0.73rem',
+                    fontFamily: 'inherit',
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    flexShrink: 0,
+                    transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="notes-filter-tag-pill"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        borderRadius: '10px',
+                        background: 'var(--primary-btn-bg, var(--ink))',
+                        boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                        zIndex: -1,
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      width: '5px',
+                      height: '5px',
+                      borderRadius: '50%',
+                      background: color,
+                      flexShrink: 0,
+                      boxShadow: isActive ? `0 0 5px ${color}` : 'none',
+                    }}
+                  />
+                  <span>{tag}</span>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
@@ -248,26 +316,73 @@ export default function NotesView() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               flexShrink: 0
             }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {Object.entries(tagColors).map(([tag, color]) => (
-                  <motion.button
-                    key={tag}
-                    onClick={() => handleUpdateNote('tag', tag)}
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.03 }}
-                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                      padding: '4px 10px', borderRadius: '12px',
-                      border: `1px solid ${color}50`,
-                      background: selectedNote.tag === tag ? color + '20' : 'transparent',
-                      color: selectedNote.tag === tag ? color : 'var(--stone)',
-                      cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit',
-                      fontWeight: selectedNote.tag === tag ? '600' : '400'
-                    }}
-                  >
-                    {tag}
-                  </motion.button>
-                ))}
+              {/* Menu de sélection de catégorie avec indicateur glissant */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'var(--warm-white)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '13px',
+                  padding: '3px',
+                  gap: '2px',
+                  position: 'relative',
+                }}
+              >
+                {Object.entries(tagColors).map(([tag, color]) => {
+                  const isSelected = selectedNote.tag === tag;
+                  return (
+                    <motion.button
+                      key={tag}
+                      onClick={() => handleUpdateNote('tag', tag)}
+                      whileTap={{ scale: 0.96 }}
+                      style={{
+                        position: 'relative',
+                        padding: '5px 12px',
+                        border: 'none',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '0.74rem',
+                        fontFamily: 'inherit',
+                        background: 'transparent',
+                        color: isSelected ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                        fontWeight: isSelected ? 600 : 500,
+                        zIndex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'color 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                      }}
+                    >
+                      {isSelected && (
+                        <motion.div
+                          layoutId="note-editor-tag-pill"
+                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            borderRadius: '10px',
+                            background: 'var(--primary-btn-bg, var(--ink))',
+                            boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                            zIndex: -1,
+                          }}
+                        />
+                      )}
+                      <span
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: color,
+                          flexShrink: 0,
+                          boxShadow: isSelected ? `0 0 6px ${color}` : 'none',
+                          transition: 'box-shadow 0.2s ease',
+                        }}
+                      />
+                      <span>{tag}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <motion.button
