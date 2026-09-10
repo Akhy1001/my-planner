@@ -68,6 +68,19 @@ export function useGoals() {
     return null;
   };
 
+  const updateGoal = async (goalId: string, updates: Partial<Omit<Goal, 'id' | 'milestones'>>) => {
+    if (!userId) return;
+    setGoals(prev => prev.map(g => g.id === goalId ? { ...g, ...updates } : g));
+    await supabase.from('goals').update(updates).eq('id', goalId).eq('user_id', userId);
+  };
+
+  const deleteGoal = async (goalId: string) => {
+    if (!userId) return;
+    setGoals(prev => prev.filter(g => g.id !== goalId));
+    await supabase.from('milestones').delete().eq('goal_id', goalId).eq('user_id', userId);
+    await supabase.from('goals').delete().eq('id', goalId).eq('user_id', userId);
+  };
+
   const toggleMilestone = async (goalId: string, milestoneId: string) => {
     const goal = goals.find(g => g.id === goalId);
     if (!goal) return;
@@ -95,21 +108,58 @@ export function useGoals() {
   };
 
   const addMilestone = async (goalId: string, text: string) => {
-    if (!userId) return;
+    if (!userId || !text.trim()) return;
     const { data, error } = await supabase
       .from('milestones')
-      .insert({ goal_id: goalId, text, done: false, user_id: userId })
+      .insert({ goal_id: goalId, text: text.trim(), done: false, user_id: userId })
       .select()
       .single();
     if (!error && data) {
+      let nextProgress = 0;
       setGoals(prev => prev.map(g => {
         if (g.id !== goalId) return g;
         const milestones = [...g.milestones, data as Milestone];
-        const progress = Math.round((milestones.filter(m => m.done).length / milestones.length) * 100);
-        return { ...g, milestones, progress };
+        nextProgress = Math.round((milestones.filter(m => m.done).length / milestones.length) * 100);
+        return { ...g, milestones, progress: nextProgress };
       }));
+      await supabase.from('goals').update({ progress: nextProgress }).eq('id', goalId).eq('user_id', userId);
     }
   };
 
-  return { goals, loading, addGoal, toggleMilestone, addMilestone };
+  const editMilestone = async (goalId: string, milestoneId: string, text: string) => {
+    if (!userId || !text.trim()) return;
+    setGoals(prev => prev.map(g => {
+      if (g.id !== goalId) return g;
+      const milestones = g.milestones.map(m => m.id === milestoneId ? { ...m, text: text.trim() } : m);
+      return { ...g, milestones };
+    }));
+    await supabase.from('milestones').update({ text: text.trim() }).eq('id', milestoneId).eq('user_id', userId);
+  };
+
+  const deleteMilestone = async (goalId: string, milestoneId: string) => {
+    if (!userId) return;
+    let nextProgress = 0;
+    setGoals(prev => prev.map(g => {
+      if (g.id !== goalId) return g;
+      const milestones = g.milestones.filter(m => m.id !== milestoneId);
+      nextProgress = milestones.length > 0
+        ? Math.round((milestones.filter(m => m.done).length / milestones.length) * 100)
+        : 0;
+      return { ...g, milestones, progress: nextProgress };
+    }));
+    await supabase.from('milestones').delete().eq('id', milestoneId).eq('user_id', userId);
+    await supabase.from('goals').update({ progress: nextProgress }).eq('id', goalId).eq('user_id', userId);
+  };
+
+  return {
+    goals,
+    loading,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    toggleMilestone,
+    addMilestone,
+    editMilestone,
+    deleteMilestone,
+  };
 }
