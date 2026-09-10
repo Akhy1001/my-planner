@@ -17,7 +17,7 @@ interface SidebarProps {
   user: User;
   onSignOut: () => void;
   isDark: boolean;
-  onToggleTheme: () => void;
+  onToggleTheme: (event?: React.MouseEvent) => void;
   isPinkUser: boolean;
 }
 

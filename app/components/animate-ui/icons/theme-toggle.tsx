@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface ThemeToggleProps {
   isDark: boolean;
-  onToggle: () => void;
+  onToggle: (event?: React.MouseEvent) => void;
 }
 
 export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
   return (
-    <button
-      onClick={onToggle}
+    <motion.button
+      whileTap={{ scale: 0.96 }}
+      onClick={(e) => onToggle(e)}
       title={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
       aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
       style={{
@@ -109,6 +110,6 @@ export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
       <span style={{ flex: 1 }}>
         {isDark ? 'Mode clair' : 'Mode sombre'}
       </span>
-    </button>
+    </motion.button>
   );
 }
