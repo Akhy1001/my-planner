@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
   isSameDay, isToday, addMonths, subMonths, getDay, startOfDay,
-  startOfWeek, endOfWeek, addWeeks, subWeeks,
+  startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, differenceInDays,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check } from 'lucide-react';
@@ -910,28 +910,76 @@ export default function AgendaView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
             style={{
-              background: 'var(--warm-white)', borderRadius: '14px',
-              padding: '14px 16px', marginBottom: '16px',
-              border: '1px solid var(--border)',
+              background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(254, 240, 245, 0.9) 100%)',
+              borderRadius: '20px',
+              padding: '16px 18px 16px',
+              marginBottom: '18px',
+              border: '1px solid rgba(240, 212, 228, 0.85)',
+              boxShadow: '0 10px 28px -6px rgba(212, 96, 126, 0.12), 0 2px 6px rgba(212, 96, 126, 0.04)',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
-                Cycle
-              </span>
+            {/* Ligne d'accent lumineuse supérieure */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                background: 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 50%, #B87EC0 100%)',
+              }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '8px',
+                  background: 'rgba(212, 96, 126, 0.12)',
+                  color: '#D4607E',
+                }}>
+                  <Sparkles size={13} />
+                </span>
+                <span style={{
+                  fontSize: '0.74rem',
+                  color: '#3B1529',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontWeight: 800,
+                }}>
+                  Cycle & Bien-être
+                </span>
+              </div>
               {!showCycleForm && (
                 <motion.button
                   onClick={openCycleForm}
-                  whileHover={{ background: 'var(--border)' }}
-                  whileTap={{ scale: 0.96 }}
-                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  whileHover={{ scale: 1.03, background: 'rgba(212, 96, 126, 0.14)' }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
                   style={{
-                    background: 'transparent', border: 'none', cursor: 'pointer',
-                    fontSize: '0.72rem', color: 'var(--stone)', padding: '3px 8px',
-                    borderRadius: '6px', fontFamily: 'inherit',
+                    background: 'rgba(212, 96, 126, 0.08)',
+                    border: '1px solid rgba(212, 96, 126, 0.2)',
+                    cursor: 'pointer',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: '#D4607E',
+                    padding: '4px 10px',
+                    borderRadius: '999px',
+                    fontFamily: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 1px 3px rgba(212, 96, 126, 0.08)',
                   }}
                 >
-                  {cycle ? 'Modifier' : 'Configurer'}
+                  <Pencil size={11} />
+                  <span>{cycle ? 'Modifier' : 'Configurer'}</span>
                 </motion.button>
               )}
             </div>
@@ -944,22 +992,30 @@ export default function AgendaView() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-                  style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
                 >
                   <div>
-                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                    <label style={{ fontSize: '0.72rem', color: '#8A4B6B', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
                       Début du dernier cycle
                     </label>
                     <input
                       type="date"
                       value={cycleForm.startDate}
                       onChange={e => setCycleForm(f => ({ ...f, startDate: e.target.value }))}
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        background: '#FFFFFF',
+                        border: '1.5px solid rgba(240, 212, 228, 0.9)',
+                        borderRadius: '12px',
+                        fontSize: '0.84rem',
+                        color: '#3B1529',
+                        padding: '8px 12px',
+                      }}
                     />
                   </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
                     <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                      <label style={{ fontSize: '0.72rem', color: '#8A4B6B', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
                         Durée cycle (j)
                       </label>
                       <input
@@ -968,11 +1024,19 @@ export default function AgendaView() {
                         max={45}
                         value={cycleForm.cycleLength}
                         onChange={e => setCycleForm(f => ({ ...f, cycleLength: e.target.value }))}
-                        style={inputStyle}
+                        style={{
+                          ...inputStyle,
+                          background: '#FFFFFF',
+                          border: '1.5px solid rgba(240, 212, 228, 0.9)',
+                          borderRadius: '12px',
+                          fontSize: '0.84rem',
+                          color: '#3B1529',
+                          padding: '8px 12px',
+                        }}
                       />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                      <label style={{ fontSize: '0.72rem', color: '#8A4B6B', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
                         Règles (j)
                       </label>
                       <input
@@ -981,22 +1045,31 @@ export default function AgendaView() {
                         max={10}
                         value={cycleForm.periodDuration}
                         onChange={e => setCycleForm(f => ({ ...f, periodDuration: e.target.value }))}
-                        style={inputStyle}
+                        style={{
+                          ...inputStyle,
+                          background: '#FFFFFF',
+                          border: '1.5px solid rgba(240, 212, 228, 0.9)',
+                          borderRadius: '12px',
+                          fontSize: '0.84rem',
+                          color: '#3B1529',
+                          padding: '8px 12px',
+                        }}
                       />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                     <motion.button
                       onClick={handleSaveCycle}
                       whileTap={{ scale: 0.96 }}
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        flex: 1, padding: '8px 12px',
-                        background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
-                        border: 'none', borderRadius: '14px', cursor: 'pointer',
-                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
-                        boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                        flex: 1, padding: '9px 14px',
+                        background: 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #D4607E',
+                        color: '#FFFFFF',
+                        border: 'none', borderRadius: '12px', cursor: 'pointer',
+                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 700,
+                        boxShadow: '0 4px 14px rgba(212, 96, 126, 0.35)',
                       }}
                     >
                       Enregistrer
@@ -1004,13 +1077,13 @@ export default function AgendaView() {
                     <motion.button
                       onClick={() => setShowCycleForm(false)}
                       whileTap={{ scale: 0.96 }}
-                      whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                      whileHover={{ scale: 1.02, background: 'rgba(212, 96, 126, 0.08)' }}
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        padding: '8px 12px',
-                        background: 'transparent', color: 'var(--stone)',
-                        border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
-                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
+                        padding: '9px 14px',
+                        background: 'transparent', color: '#8A4B6B',
+                        border: '1px solid rgba(240, 212, 228, 0.9)', borderRadius: '12px', cursor: 'pointer',
+                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
                       }}
                     >
                       Annuler
@@ -1019,13 +1092,13 @@ export default function AgendaView() {
                       <motion.button
                         onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
                         whileTap={{ scale: 0.96 }}
-                        whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                        whileHover={{ scale: 1.02, background: 'rgba(239, 68, 68, 0.08)' }}
                         transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                         style={{
-                          padding: '8px 12px',
-                          background: 'transparent', color: 'var(--priority-high)',
-                          border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
-                          fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
+                          padding: '9px 12px',
+                          background: 'transparent', color: '#EF4444',
+                          border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '12px', cursor: 'pointer',
+                          fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
                         }}
                       >
                         Supprimer
@@ -1927,48 +2000,345 @@ function WeekGrid({
 // ─── Cycle summary ────────────────────────────────────────────────────────────
 
 function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
-  const days = daysUntilNextPeriod(cycle);
+  const today = startOfDay(new Date());
+  const start = startOfDay(cycle.startDate);
+  const diff = differenceInDays(today, start);
+  const cycleLen = Math.max(cycle.cycleLength, 20);
+  const periodLen = Math.max(cycle.periodDuration, 1);
 
-  const badges = [
-    { label: `🩸 Règles · ${cycle.periodDuration}j`, bg: 'rgba(192,99,74,0.12)', color: 'var(--terra)' },
-    { label: `🌿 Cycle · ${cycle.cycleLength}j`, bg: 'rgba(107,143,113,0.12)', color: 'var(--sage)' },
-  ];
+  // Position dans le cycle actuel (0-indexé)
+  const dayInCycle = ((diff % cycleLen) + cycleLen) % cycleLen;
+  const currentDay = dayInCycle + 1; // 1 à cycleLen
+  const daysRemaining = daysUntilNextPeriod(cycle);
+
+  // Date estimée des prochaines règles
+  const nextPeriodDate = addDays(today, daysRemaining === 0 ? cycleLen : daysRemaining);
+  const formattedNextDate = format(nextPeriodDate, 'd MMMM', { locale: fr });
+
+  // Ovulation & fertilité
+  const ovulationDay = Math.max(cycleLen - 14, 1);
+  const fertileStart = Math.max(ovulationDay - 3, periodLen);
+  const fertileEnd = Math.min(ovulationDay + 2, cycleLen - 1);
+
+  // Détermination de la phase actuelle
+  let phase: {
+    name: string;
+    label: string;
+    sub: string;
+    icon: string;
+    color: string;
+    bg: string;
+  };
+
+  if (dayInCycle < periodLen) {
+    phase = {
+      name: 'Menstruation',
+      label: 'Phase des règles',
+      sub: `Jour ${currentDay} sur ${periodLen} de flux`,
+      icon: '🩸',
+      color: '#D4607E',
+      bg: 'rgba(212, 96, 126, 0.12)',
+    };
+  } else if (dayInCycle < fertileStart) {
+    phase = {
+      name: 'Folliculaire',
+      label: 'Phase folliculaire',
+      sub: 'Regain d’énergie & créativité',
+      icon: '🌱',
+      color: '#D483A0',
+      bg: 'rgba(212, 131, 160, 0.12)',
+    };
+  } else if (dayInCycle <= fertileEnd) {
+    phase = {
+      name: 'Fertilité / Ovulation',
+      label: dayInCycle === ovulationDay ? 'Jour d’ovulation ✨' : 'Fenêtre fertile',
+      sub: dayInCycle === ovulationDay ? 'Pic d’ovulation aujourd’hui' : 'Probabilité de fertilité haute',
+      icon: '✨',
+      color: '#B87EC0',
+      bg: 'rgba(184, 126, 192, 0.15)',
+    };
+  } else {
+    phase = {
+      name: 'Lutéale',
+      label: 'Phase lutéale',
+      sub: 'Ralentissement doux & écoute',
+      icon: '🌙',
+      color: '#8A4B6B',
+      bg: 'rgba(138, 75, 107, 0.12)',
+    };
+  }
+
+  // Pourcentage global du cycle
+  const overallCyclePercent = Math.min(Math.max(Math.round((currentDay / cycleLen) * 100), 1), 100);
+
+  // SVG Circular Gauge calculations
+  const radius = 25;
+  const circumference = 2 * Math.PI * radius; // ~157.08
+  const strokeDashoffset = circumference - (overallCyclePercent / 100) * circumference;
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-        {badges.map((badge, i) => (
-          <motion.span
-            key={badge.label}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: i * 0.06, ease: [0.23, 1, 0.32, 1] }}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      {/* ── Bloc Héros : Chiffre & Jauge circulaire ── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        padding: '12px 14px',
+        borderRadius: '16px',
+        background: 'rgba(255, 255, 255, 0.7)',
+        border: '1px solid rgba(240, 212, 228, 0.7)',
+        boxShadow: '0 2px 8px rgba(212, 96, 126, 0.04)',
+      }}>
+        <div style={{ flex: 1 }}>
+          {/* Badge Phase Actuelle */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '3px 8px',
+            borderRadius: '999px',
+            background: phase.bg,
+            color: phase.color,
+            fontSize: '0.68rem',
+            fontWeight: 700,
+            marginBottom: '6px',
+          }}>
+            <span style={{ fontSize: '0.72rem' }}>{phase.icon}</span>
+            <span>{phase.label}</span>
+          </div>
+
+          {/* Nombre principal avec typographie moderne */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <motion.span
+              key={daysRemaining}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+              className="font-display"
+              style={{
+                fontSize: '2.1rem',
+                fontWeight: 800,
+                color: '#3B1529',
+                lineHeight: 1,
+                letterSpacing: '-0.03em',
+              }}
+            >
+              {daysRemaining === 0 ? 'Jour J' : daysRemaining}
+            </motion.span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#3B1529', lineHeight: 1.2 }}>
+              {daysRemaining === 0
+                ? 'Nouveau cycle aujourd’hui'
+                : `jour${daysRemaining > 1 ? 's' : ''} avant le prochain cycle`}
+            </span>
+          </div>
+
+          <div style={{ fontSize: '0.7rem', color: '#8A4B6B', marginTop: '4px', fontWeight: 500 }}>
+            {daysRemaining === 0
+              ? 'Premier jour des règles estimé'
+              : `Prévu vers le ${formattedNextDate} · Jour ${currentDay}/${cycleLen}`}
+          </div>
+        </div>
+
+        {/* Jauge circulaire élégante */}
+        <div style={{
+          position: 'relative',
+          width: '60px',
+          height: '60px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
+            <circle
+              cx="30"
+              cy="30"
+              r={radius}
+              fill="transparent"
+              stroke="rgba(212, 96, 126, 0.14)"
+              strokeWidth="4.5"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r={radius}
+              fill="transparent"
+              stroke={phase.color}
+              strokeWidth="4.5"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
+            />
+          </svg>
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#3B1529', lineHeight: 1 }}>
+              J.{currentDay}
+            </span>
+            <span style={{ fontSize: '0.55rem', fontWeight: 600, color: '#8A4B6B', marginTop: '1px' }}>
+              /{cycleLen}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Frise Chronologique Segmentée des 4 Phases ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {/* Barre de progression segmentée */}
+        <div style={{
+          width: '100%',
+          height: '8px',
+          borderRadius: '999px',
+          background: 'rgba(212, 96, 126, 0.1)',
+          display: 'flex',
+          overflow: 'hidden',
+          position: 'relative',
+        }}>
+          {/* Phase 1 : Règles */}
+          <div
+            title={`Règles (j 1 à ${periodLen})`}
             style={{
-              fontSize: '0.68rem', padding: '3px 8px', borderRadius: '10px',
-              background: badge.bg, color: badge.color,
-              display: 'inline-block',
+              width: `${(periodLen / cycleLen) * 100}%`,
+              background: '#D4607E',
+              opacity: dayInCycle < periodLen ? 1 : 0.4,
+              transition: 'opacity 0.2s ease',
             }}
-          >
-            {badge.label}
-          </motion.span>
-        ))}
+          />
+          {/* Phase 2 : Folliculaire */}
+          <div
+            title={`Folliculaire (j ${periodLen + 1} à ${fertileStart - 1})`}
+            style={{
+              width: `${(Math.max(0, fertileStart - periodLen) / cycleLen) * 100}%`,
+              background: '#EAA8B8',
+              opacity: dayInCycle >= periodLen && dayInCycle < fertileStart ? 1 : 0.4,
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+          {/* Phase 3 : Fertile / Ovulation */}
+          <div
+            title={`Fertile & Ovulation (j ${fertileStart} à ${fertileEnd})`}
+            style={{
+              width: `${((fertileEnd - fertileStart + 1) / cycleLen) * 100}%`,
+              background: '#B87EC0',
+              opacity: dayInCycle >= fertileStart && dayInCycle <= fertileEnd ? 1 : 0.4,
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+          {/* Phase 4 : Lutéale */}
+          <div
+            title={`Lutéale (j ${fertileEnd + 1} à ${cycleLen})`}
+            style={{
+              flex: 1,
+              background: '#8A4B6B',
+              opacity: dayInCycle > fertileEnd ? 1 : 0.4,
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+
+          {/* Curseur dynamique indiquant aujourd'hui */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: `${Math.min(Math.max((dayInCycle / (cycleLen - 1)) * 100, 2), 98)}%`,
+              transform: 'translate(-50%, -50%)',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              border: `2px solid ${phase.color}`,
+              boxShadow: `0 0 6px ${phase.color}`,
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          />
+        </div>
+
+        {/* Labels des 4 phases */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.64rem',
+          color: '#8A4B6B',
+          fontWeight: 600,
+          padding: '0 2px',
+        }}>
+          <span style={{ color: dayInCycle < periodLen ? '#D4607E' : '#8A4B6B', fontWeight: dayInCycle < periodLen ? 800 : 600 }}>
+            • Règles
+          </span>
+          <span style={{ color: dayInCycle >= periodLen && dayInCycle < fertileStart ? '#D483A0' : '#8A4B6B', fontWeight: dayInCycle >= periodLen && dayInCycle < fertileStart ? 800 : 600 }}>
+            • Folliculaire
+          </span>
+          <span style={{ color: dayInCycle >= fertileStart && dayInCycle <= fertileEnd ? '#B87EC0' : '#8A4B6B', fontWeight: dayInCycle >= fertileStart && dayInCycle <= fertileEnd ? 800 : 600 }}>
+            • Ovulation
+          </span>
+          <span style={{ color: dayInCycle > fertileEnd ? '#8A4B6B' : '#B898A8', fontWeight: dayInCycle > fertileEnd ? 800 : 600 }}>
+            • Lutéale
+          </span>
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
-        <motion.span
-          key={days}
-          initial={{ scale: 1.15, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-          className="font-display"
-          style={{ fontSize: '1.3rem', color: 'var(--ink)', lineHeight: 1 }}
-        >
-          {days === 0 ? '·' : days}
-        </motion.span>
-        <span style={{ fontSize: '0.74rem', color: 'var(--stone)' }}>
-          {days === 0 ? 'Cycle en cours' : `jour${days > 1 ? 's' : ''} avant le prochain cycle`}
-        </span>
+
+      {/* ── Badges Récapitulatifs Satinés ── */}
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          padding: '4px 10px',
+          borderRadius: '10px',
+          background: 'rgba(212, 96, 126, 0.1)',
+          border: '1px solid rgba(212, 96, 126, 0.18)',
+          color: '#D4607E',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+        }}>
+          <span>🩸</span>
+          <span>Règles : {cycle.periodDuration}j</span>
+        </div>
+
+        <div style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          padding: '4px 10px',
+          borderRadius: '10px',
+          background: 'rgba(184, 126, 192, 0.12)',
+          border: '1px solid rgba(184, 126, 192, 0.2)',
+          color: '#8A4B6B',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+        }}>
+          <span>🌸</span>
+          <span>Cycle : {cycle.cycleLength}j</span>
+        </div>
+
+        <div style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          padding: '4px 10px',
+          borderRadius: '10px',
+          background: 'rgba(212, 131, 160, 0.1)',
+          border: '1px solid rgba(212, 131, 160, 0.18)',
+          color: '#D483A0',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+        }}>
+          <span>✨</span>
+          <span>Ovulation : J.{ovulationDay}</span>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
