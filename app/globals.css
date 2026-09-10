@@ -723,25 +723,47 @@ button, input, select, textarea, .task-check, .habit-day, .mood-btn {
   }
 }
 
-/* 4. Agenda View on iPad */
+/* 4. Agenda View Bento Horizon */
 .agenda-view-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr);
   gap: 24px;
   padding: 32px;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  align-items: start;
 }
 
 .agenda-sidebar-panel {
-  width: 280px;
-  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenda-bento-card {
+  background: var(--card, var(--warm-white));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.agenda-timeline-connector {
+  position: absolute;
+  top: 18px;
+  bottom: -14px;
+  left: 17px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--border) 0%, var(--border) 85%, transparent 100%);
+  z-index: 0;
 }
 
 @media (max-width: 1024px) {
   .agenda-view-container {
-    flex-direction: column !important;
-    padding: 22px 18px !important;
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px !important;
     gap: 20px !important;
   }
 

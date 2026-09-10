@@ -1,7 +1,7 @@
 'use client';
 import AddButton from './AddButton';
 import { Trash, TextReveal } from './animate-ui';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -10,7 +10,7 @@ import {
   startOfWeek, endOfWeek, addWeeks, subWeeks,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Pencil, Clock, Repeat } from 'lucide-react';
+import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
 import { useMenstrualCycle, computeCycleDays, daysUntilNextPeriod, CycleDay, MenstrualCycle } from '@/hooks/useMenstrualCycle';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +29,8 @@ const PRESET_CATEGORIES = [
   'Études',
 ];
 
+const PRESET_DURATIONS = ['15min', '30min', '45min', '1h', '1h30', '2h'];
+
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   none: 'Aucune',
   daily: 'Quotidien',
@@ -45,6 +47,92 @@ const RECURRENCE_BADGE: Record<RecurrenceType, string> = {
 
 const WEEK_OPTS = { weekStartsOn: 1 as const };
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8);
+
+function parseHour(time: string): number {
+  if (!time) return 0;
+  const [h] = time.split(':');
+  const n = parseInt(h, 10);
+  return isNaN(n) ? 0 : n;
+}
+
+function parseStartMinutes(time: string): number {
+  if (!time) return 0;
+  const parts = time.split(':');
+  return parts.length >= 2 ? (parseInt(parts[1], 10) || 0) : 0;
+}
+
+function parseDurationHours(duration: string): number {
+  if (!duration) return 1;
+  const s = duration.trim().toLowerCase();
+  const hMin = s.match(/^(\d+(?:\.\d+)?)h\s*(\d+)?(?:min)?$/);
+  if (hMin) return parseFloat(hMin[1]) + (hMin[2] ? parseInt(hMin[2], 10) / 60 : 0);
+  const min = s.match(/^(\d+)\s*min$/);
+  if (min) return parseInt(min[1], 10) / 60;
+  const n = parseFloat(s);
+  return isNaN(n) ? 1 : n;
+}
+
+function formatEndTime(startTime: string, duration: string): string {
+  if (!startTime) return '';
+  const [h, m] = startTime.split(':').map(n => parseInt(n, 10) || 0);
+  const durH = parseDurationHours(duration);
+  const totalMin = h * 60 + m + Math.round(durH * 60);
+  const endH = Math.floor(totalMin / 60) % 24;
+  const endM = totalMin % 60;
+  return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+}
+
+function getDayStatus(dayEvents: Event[], selectedDate: Date): { label: string; type: 'now' | 'upcoming' | 'done' | 'empty'; sub?: string } {
+  if (dayEvents.length === 0) {
+    return { label: 'Journée libre', type: 'empty', sub: 'Aucun événement prévu' };
+  }
+  if (!isToday(selectedDate)) {
+    return {
+      label: `${dayEvents.length} prévu${dayEvents.length > 1 ? 's' : ''}`,
+      type: 'upcoming',
+      sub: `${dayEvents.length} événement${dayEvents.length > 1 ? 's' : ''} au planning`,
+    };
+  }
+
+  const now = new Date();
+  const currentMin = now.getHours() * 60 + now.getMinutes();
+
+  // En cours ?
+  for (const e of dayEvents) {
+    const [h, m] = e.time.split(':').map(n => parseInt(n, 10) || 0);
+    const startM = h * 60 + m;
+    const durM = Math.round(parseDurationHours(e.duration) * 60);
+    const endM = startM + durM;
+    if (currentMin >= startM && currentMin < endM) {
+      return { label: 'En cours', type: 'now', sub: e.title };
+    }
+  }
+
+  // Prochain événement ?
+  const upcoming = dayEvents
+    .map(e => {
+      const [h, m] = e.time.split(':').map(n => parseInt(n, 10) || 0);
+      return { event: e, startM: h * 60 + m };
+    })
+    .filter(item => item.startM > currentMin)
+    .sort((a, b) => a.startM - b.startM);
+
+  if (upcoming.length > 0) {
+    const diff = upcoming[0].startM - currentMin;
+    if (diff < 60) {
+      return { label: `Dans ${diff} min`, type: 'upcoming', sub: upcoming[0].event.title };
+    }
+    const diffH = Math.floor(diff / 60);
+    const remM = diff % 60;
+    return {
+      label: `Dans ${diffH}h${remM > 0 ? (remM < 10 ? '0' + remM : remM) : ''}`,
+      type: 'upcoming',
+      sub: upcoming[0].event.title,
+    };
+  }
+
+  return { label: 'Journée terminée', type: 'done', sub: 'Tous les événements sont passés' };
+}
 
 interface EventFormState {
   title: string;
@@ -211,33 +299,89 @@ export default function AgendaView() {
 
   const weekDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-  // Title for the header
-  const headerTitle = view === 'month'
+  // Calcul du nombre d'événements dans la vue active
+  const currentViewEventsCount = useMemo(() => {
+    if (view === 'month') {
+      const mStart = startOfMonth(currentMonth);
+      const mEnd = endOfMonth(currentMonth);
+      return events.filter(e => {
+        const d = startOfDay(e.date);
+        return d >= mStart && d <= mEnd;
+      }).length;
+    } else {
+      const wStart = currentWeekStart;
+      const wEnd = endOfWeek(currentWeekStart, WEEK_OPTS);
+      return events.filter(e => {
+        const d = startOfDay(e.date);
+        return d >= wStart && d <= wEnd;
+      }).length;
+    }
+  }, [events, view, currentMonth, currentWeekStart]);
+
+  // Title for the header avec première lettre en majuscule
+  const rawTitle = view === 'month'
     ? format(currentMonth, 'MMMM yyyy', { locale: fr })
     : `${format(currentWeekStart, 'd MMM', { locale: fr })} – ${format(endOfWeek(currentWeekStart, WEEK_OPTS), 'd MMM yyyy', { locale: fr })}`;
+  const headerTitle = rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
+
+  const dayStatus = getDayStatus(selectedEvents, selectedDate);
 
   return (
     <div className="agenda-view-container">
-      {/* Calendar */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '12px' }}>
-          <TextReveal
-            as="h1"
-            key={headerTitle}
-            delay={0.06}
-            className="font-display"
-            style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--ink)', flexShrink: 0 }}
-          >
-            {headerTitle}
-          </TextReveal>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {/* View toggle */}
+      {/* Calendar Bento Column */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
+        {/* Header Bento Card */}
+        <div className="agenda-bento-card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'var(--accent-soft)',
+              color: 'var(--accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Calendar size={20} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <TextReveal
+                  as="h1"
+                  key={headerTitle}
+                  delay={0.06}
+                  className="font-display"
+                  style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.2 }}
+                >
+                  {headerTitle}
+                </TextReveal>
+                <span style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent)',
+                  border: '1px solid var(--border)',
+                }}>
+                  {currentViewEventsCount} prévu{currentViewEventsCount > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--stone)', fontWeight: 500, marginTop: '2px' }}>
+                {view === 'month' ? 'Vue mensuelle globale' : 'Planification hebdomadaire'}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {/* View toggle capsule */}
             <div style={{
               display: 'flex',
-              background: 'var(--warm-white)',
+              background: 'var(--cream)',
               border: '1px solid var(--border)',
-              borderRadius: '10px',
+              borderRadius: '12px',
               padding: '3px',
               gap: '2px',
             }}>
@@ -254,9 +398,9 @@ export default function AgendaView() {
                     fontSize: '0.76rem',
                     fontFamily: 'inherit',
                     background: 'transparent',
-                    color: view === v ? 'var(--cream)' : 'var(--stone)',
-                    fontWeight: view === v ? 500 : 400,
-                    borderRadius: '7px',
+                    color: view === v ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                    fontWeight: view === v ? 600 : 500,
+                    borderRadius: '9px',
                     zIndex: 1,
                     transition: 'color 150ms cubic-bezier(0.23, 1, 0.32, 1)',
                   }}
@@ -267,20 +411,37 @@ export default function AgendaView() {
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'var(--ink)',
-                        borderRadius: '7px',
+                        background: 'var(--primary-btn-bg, var(--ink))',
+                        borderRadius: '9px',
                         zIndex: -1,
+                        boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                       }}
-                      transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
+                      transition={{ type: 'spring', duration: 0.32, bounce: 0.15 }}
                     />
                   )}
                   {v === 'month' ? 'Mois' : 'Semaine'}
                 </motion.button>
               ))}
             </div>
-            {/* Navigation */}
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goPrev} style={btnStyle}>‹</motion.button>
+
+            {/* Navigation pills */}
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <motion.button
+                whileHover={{ scale: 1.06, background: 'var(--muted)' }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ duration: 0.15 }}
+                onClick={goPrev}
+                title="Précédent"
+                style={{
+                  ...btnStyle,
+                  padding: '6px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ChevronLeft size={16} />
+              </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.02 }} 
                 whileTap={{ scale: 0.95 }} 
@@ -291,7 +452,7 @@ export default function AgendaView() {
                   background: 'var(--primary-btn-bg, var(--ink))',
                   color: 'var(--primary-btn-fg, var(--cream))',
                   border: 'none',
-                  borderRadius: '14px',
+                  borderRadius: '12px',
                   cursor: 'pointer',
                   fontSize: '0.78rem',
                   fontFamily: 'inherit',
@@ -304,688 +465,870 @@ export default function AgendaView() {
               >
                 Aujourd&apos;hui
               </motion.button>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.15 }} onClick={goNext} style={btnStyle}>›</motion.button>
+              <motion.button
+                whileHover={{ scale: 1.06, background: 'var(--muted)' }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ duration: 0.15 }}
+                onClick={goNext}
+                title="Suivant"
+                style={{
+                  ...btnStyle,
+                  padding: '6px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ChevronRight size={16} />
+              </motion.button>
             </div>
           </div>
         </div>
 
-        {view === 'month' ? (
-          <MonthGrid
-            days={days}
-            firstDayOffset={firstDayOffset}
-            weekDayLabels={weekDayLabels}
-            events={events}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            cycleDays={cycleDays}
-          />
-        ) : (
-          <WeekGrid
-            weekDays={weekDays}
-            events={events}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            cycleDays={cycleDays}
-            onUpdateEvent={updateEvent}
-          />
-        )}
+        {/* Grille Bento Calendrier */}
+        <div className="agenda-bento-card" style={{ padding: '0', overflow: 'hidden' }}>
+          {view === 'month' ? (
+            <MonthGrid
+              days={days}
+              firstDayOffset={firstDayOffset}
+              weekDayLabels={weekDayLabels}
+              events={events}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              cycleDays={cycleDays}
+            />
+          ) : (
+            <WeekGrid
+              weekDays={weekDays}
+              events={events}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              cycleDays={cycleDays}
+              onUpdateEvent={updateEvent}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Event panel */}
+      {/* Right Column: Focus du Jour & Timeline */}
       <div className="agenda-sidebar-panel">
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginBottom: '16px'
-        }}>
-          <div>
-            <TextReveal
-              key={format(selectedDate, 'yyyy-MM-dd') + '-day'}
-              delay={0.04}
-              style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}
-            >
-              {format(selectedDate, 'eeee', { locale: fr })}
-            </TextReveal>
-            <TextReveal
-              key={format(selectedDate, 'yyyy-MM-dd') + '-date'}
-              as="h2"
-              delay={0.1}
-              className="font-display"
-              style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--ink)' }}
-            >
-              {format(selectedDate, 'd MMMM', { locale: fr })}
-            </TextReveal>
-          </div>
-          <AddButton onClick={openAddForm} />
-        </div>
-
-        {/* Add / Edit form */}
-        <AnimatePresence>
-        {showForm && (
-          <motion.div
-            key="event-form"
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              background: 'var(--card, var(--warm-white))',
-              borderRadius: 'var(--radius-xl, 14px)',
-              padding: '16px',
-              marginBottom: '16px',
-              border: '1px solid var(--border)',
-              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
-              transformOrigin: 'top center',
-            }}
-          >
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div className="font-display" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink)' }}>
-                {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
-              </div>
-              <span style={{
-                fontSize: '0.62rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                padding: '2px 8px',
-                borderRadius: '9999px',
-                background: 'var(--accent-soft)',
-                color: 'var(--accent)',
-              }}>
-                {editingBaseId ? 'Édition' : 'Agenda'}
-              </span>
-            </div>
-
-            {/* Error */}
-            <AnimatePresence>
-              {formError && (
-                <motion.div
-                  key="form-error"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.15 }}
-                  style={{
-                    fontSize: '0.75rem',
-                    color: 'var(--priority-high)',
-                    background: 'var(--priority-high-bg)',
-                    border: '1px solid var(--priority-high)',
-                    borderRadius: 'var(--radius-md, 8px)',
-                    padding: '6px 10px',
-                    marginBottom: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontWeight: 500,
-                  }}
+        <div className="agenda-bento-card" style={{ padding: '20px' }}>
+          {/* Header Focus */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '16px',
+            gap: '12px',
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                <TextReveal
+                  key={format(selectedDate, 'yyyy-MM-dd') + '-day'}
+                  delay={0.04}
+                  style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}
                 >
-                  <span>⚠</span> {formError}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {format(selectedDate, 'eeee', { locale: fr })}
+                </TextReveal>
+                {isToday(selectedDate) && (
+                  <span style={{
+                    fontSize: '0.62rem',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    background: 'var(--accent)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em'
+                  }}>
+                    Aujourd&apos;hui
+                  </span>
+                )}
+              </div>
+              <TextReveal
+                key={format(selectedDate, 'yyyy-MM-dd') + '-date'}
+                as="h2"
+                delay={0.08}
+                className="font-display"
+                style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.2 }}
+              >
+                {format(selectedDate, 'd MMMM', { locale: fr })}
+              </TextReveal>
 
-            {/* Titre */}
-            <div style={{ marginBottom: '10px' }}>
-              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Titre
-              </label>
-              <input
-                value={formData.title}
-                onChange={e => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Ex: Rendez-vous, Réunion…"
-                style={inputStyle}
-                autoFocus
-              />
+              {/* Status Countdown Chip */}
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginTop: '8px',
+                  padding: '3px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  background: dayStatus.type === 'now'
+                    ? 'rgba(239, 68, 68, 0.12)'
+                    : dayStatus.type === 'upcoming'
+                    ? 'var(--accent-soft)'
+                    : 'var(--muted)',
+                  color: dayStatus.type === 'now'
+                    ? '#EF4444'
+                    : dayStatus.type === 'upcoming'
+                    ? 'var(--accent)'
+                    : 'var(--stone)',
+                  border: dayStatus.type === 'now'
+                    ? '1px solid rgba(239, 68, 68, 0.3)'
+                    : '1px solid var(--border)',
+                }}
+              >
+                {dayStatus.type === 'now' && (
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#EF4444',
+                    boxShadow: '0 0 8px #EF4444',
+                    animation: 'pulse 1.5s infinite',
+                  }} />
+                )}
+                {dayStatus.type === 'upcoming' && <Sparkles size={11} />}
+                {dayStatus.type === 'done' && <Check size={11} />}
+                {dayStatus.type === 'empty' && <Calendar size={11} />}
+                <span>{dayStatus.label}</span>
+              </motion.div>
             </div>
 
-            {/* Catégorie */}
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Catégorie
-              </label>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                {PRESET_CATEGORIES.map(cat => {
-                  const isSelected = formData.category.trim().toLowerCase() === cat.toLowerCase();
-                  return (
+            <AddButton onClick={openAddForm} />
+          </div>
+
+          {/* Add / Edit form */}
+          <AnimatePresence>
+          {showForm && (
+            <motion.div
+              key="event-form"
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.97 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                background: 'var(--card, var(--warm-white))',
+                borderRadius: '16px',
+                padding: '16px',
+                marginBottom: '16px',
+                border: '1px solid var(--border)',
+                boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
+                transformOrigin: 'top center',
+              }}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div className="font-display" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink)' }}>
+                  {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
+                </div>
+                <span style={{
+                  fontSize: '0.62rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent)',
+                }}>
+                  {editingBaseId ? 'Édition' : 'Agenda'}
+                </span>
+              </div>
+
+              {/* Error */}
+              <AnimatePresence>
+                {formError && (
+                  <motion.div
+                    key="form-error"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    style={{
+                      fontSize: '0.75rem',
+                      color: 'var(--priority-high)',
+                      background: 'var(--priority-high-bg)',
+                      border: '1px solid var(--priority-high)',
+                      borderRadius: 'var(--radius-md, 8px)',
+                      padding: '6px 10px',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    <span>⚠</span> {formError}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Titre */}
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Titre
+                </label>
+                <input
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Ex: Réunion d'équipe, Séance sport…"
+                  style={inputStyle}
+                  autoFocus
+                />
+              </div>
+
+              {/* Catégorie */}
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Catégorie
+                </label>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  {PRESET_CATEGORIES.map(cat => {
+                    const isSelected = formData.category.trim().toLowerCase() === cat.toLowerCase();
+                    return (
+                      <motion.button
+                        key={cat}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, category: cat })}
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.03 }}
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          border: isSelected ? '1px solid var(--ink)' : '1px solid var(--border)',
+                          background: isSelected ? 'var(--ink)' : 'var(--warm-white)',
+                          color: isSelected ? 'var(--cream)' : 'var(--stone)',
+                          fontSize: '0.74rem',
+                          fontWeight: isSelected ? 600 : 500,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {cat}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                <input
+                  value={formData.category}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="Ou catégorie personnalisée…"
+                  style={{ ...inputStyle, fontSize: '0.8rem', padding: '8px 12px' }}
+                />
+              </div>
+
+              {/* Time & Duration */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Horaire
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.time}
+                    onChange={e => setFormData({ ...formData, time: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ width: '90px' }}>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Durée
+                  </label>
+                  <input
+                    value={formData.duration}
+                    onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                    placeholder="1h"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              {/* Quick duration presets */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                  {PRESET_DURATIONS.map(d => (
                     <motion.button
-                      key={cat}
+                      key={d}
                       type="button"
-                      onClick={() => setFormData({ ...formData, category: cat })}
-                      whileTap={{ scale: 0.95 }}
-                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={() => setFormData({ ...formData, duration: d })}
                       style={{
-                        padding: '4px 10px',
-                        borderRadius: '8px',
-                        border: isSelected ? '1px solid var(--ink)' : '1px solid var(--border)',
-                        background: isSelected ? 'var(--ink)' : 'var(--warm-white)',
-                        color: isSelected ? 'var(--cream)' : 'var(--stone)',
-                        fontSize: '0.74rem',
-                        fontWeight: isSelected ? 600 : 500,
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: formData.duration === d ? '1px solid var(--accent)' : '1px solid var(--border)',
+                        background: formData.duration === d ? 'var(--accent-soft)' : 'transparent',
+                        color: formData.duration === d ? 'var(--accent)' : 'var(--stone)',
+                        fontSize: '0.68rem',
+                        fontWeight: formData.duration === d ? 700 : 500,
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      {cat}
+                      {d}
                     </motion.button>
-                  );
-                })}
-              </div>
-              <input
-                value={formData.category}
-                onChange={e => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Ou saisis une catégorie personnalisée…"
-                style={{ ...inputStyle, fontSize: '0.8rem', padding: '8px 12px' }}
-              />
-            </div>
-
-            {/* Time & Duration */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Horaire
-                </label>
-                <input
-                  type="time"
-                  value={formData.time}
-                  onChange={e => setFormData({ ...formData, time: e.target.value })}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={{ width: '80px' }}>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Durée
-                </label>
-                <input
-                  value={formData.duration}
-                  onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                  placeholder="1h"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            {/* Recurrence */}
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Récurrence
-              </label>
-              <select
-                value={formData.recurrence}
-                onChange={e => setFormData({ ...formData, recurrence: e.target.value as RecurrenceType })}
-                style={{ ...inputStyle, cursor: 'pointer' }}
-              >
-                {(Object.keys(RECURRENCE_LABELS) as RecurrenceType[]).map(r => (
-                  <option key={r} value={r}>{RECURRENCE_LABELS[r]}</option>
-                ))}
-              </select>
-              {editingBaseId && formData.recurrence !== 'none' && (
-                <div style={{ fontSize: '0.7rem', color: 'var(--stone)', marginTop: '4px', fontStyle: 'italic' }}>
-                  La modification s&apos;applique à toutes les occurrences.
+                  ))}
                 </div>
+              </div>
+
+              {/* Recurrence */}
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Récurrence
+                </label>
+                <select
+                  value={formData.recurrence}
+                  onChange={e => setFormData({ ...formData, recurrence: e.target.value as RecurrenceType })}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                >
+                  {(Object.keys(RECURRENCE_LABELS) as RecurrenceType[]).map(r => (
+                    <option key={r} value={r}>{RECURRENCE_LABELS[r]}</option>
+                  ))}
+                </select>
+                {editingBaseId && formData.recurrence !== 'none' && (
+                  <div style={{ fontSize: '0.7rem', color: 'var(--stone)', marginTop: '4px', fontStyle: 'italic' }}>
+                    La modification s&apos;applique à toutes les occurrences.
+                  </div>
+                )}
+              </div>
+
+              {/* Color picker */}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Couleur de l&apos;étiquette
+                </label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {PRESET_COLORS.map(c => {
+                    const isSelected = formData.color === c;
+                    return (
+                      <motion.button
+                        key={c}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, color: c })}
+                        whileHover={{ scale: 1.15 }}
+                        whileTap={{ scale: 0.9 }}
+                        style={{
+                          width: '24px', height: '24px', borderRadius: '50%',
+                          background: c, cursor: 'pointer', flexShrink: 0,
+                          border: isSelected ? '2px solid var(--ink)' : '2px solid transparent',
+                          boxShadow: isSelected ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {isSelected && (
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                  {/* Sélecteur libre — pastille arc-en-ciel */}
+                  <motion.label
+                    title="Couleur personnalisée"
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.9 }}
+                    style={{
+                      width: '24px', height: '24px', borderRadius: '50%',
+                      background: !PRESET_COLORS.includes(formData.color)
+                        ? formData.color
+                        : 'conic-gradient(#6B8F71, #C9973C, #C0634A, #8075A8, #4A90D9, #E07B8A, #6B8F71)',
+                      cursor: 'pointer', flexShrink: 0, overflow: 'hidden',
+                      border: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--ink)' : '2px solid transparent',
+                      boxShadow: !PRESET_COLORS.includes(formData.color) ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      position: 'relative',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <input
+                      type="color"
+                      aria-label="Choisir une couleur personnalisée"
+                      value={/^#[0-9A-Fa-f]{6}$/.test(formData.color) ? formData.color : PRESET_COLORS[0]}
+                      onChange={e => setFormData({ ...formData, color: e.target.value })}
+                      style={{
+                        position: 'absolute', inset: 0,
+                        opacity: 0, width: '100%', height: '100%',
+                        cursor: 'pointer', border: 'none', padding: 0,
+                      }}
+                    />
+                    {!PRESET_COLORS.includes(formData.color) && (
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
+                    )}
+                  </motion.label>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <motion.button
+                  onClick={handleSubmit}
+                  whileTap={{ scale: 0.96 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    flex: 1, padding: '10px 14px',
+                    background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                    border: 'none', borderRadius: '14px', cursor: 'pointer',
+                    fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+                    boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
+                >
+                  {editingBaseId ? 'Enregistrer' : 'Ajouter'}
+                </motion.button>
+                <motion.button
+                  onClick={closeForm}
+                  whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'transparent', color: 'var(--stone)',
+                    border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
+                    fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 500,
+                  }}
+                >
+                  Annuler
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+          </AnimatePresence>
+
+          {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
+          {isCycleUser && <motion.div
+            layout
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            style={{
+              background: 'var(--warm-white)', borderRadius: '14px',
+              padding: '14px 16px', marginBottom: '16px',
+              border: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+                Cycle
+              </span>
+              {!showCycleForm && (
+                <motion.button
+                  onClick={openCycleForm}
+                  whileHover={{ background: 'var(--border)' }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    fontSize: '0.72rem', color: 'var(--stone)', padding: '3px 8px',
+                    borderRadius: '6px', fontFamily: 'inherit',
+                  }}
+                >
+                  {cycle ? 'Modifier' : 'Configurer'}
+                </motion.button>
               )}
             </div>
 
-            {/* Color picker */}
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Couleur de l&apos;étiquette
-              </label>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {PRESET_COLORS.map((c, i) => {
-                  const isSelected = formData.color === c;
-                  return (
+            <AnimatePresence mode="wait" initial={false}>
+              {showCycleForm ? (
+                <motion.div
+                  key="cycle-form"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                >
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                      Début du dernier cycle
+                    </label>
+                    <input
+                      type="date"
+                      value={cycleForm.startDate}
+                      onChange={e => setCycleForm(f => ({ ...f, startDate: e.target.value }))}
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                        Durée cycle (j)
+                      </label>
+                      <input
+                        type="number"
+                        min={20}
+                        max={45}
+                        value={cycleForm.cycleLength}
+                        onChange={e => setCycleForm(f => ({ ...f, cycleLength: e.target.value }))}
+                        style={inputStyle}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
+                        Règles (j)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={cycleForm.periodDuration}
+                        onChange={e => setCycleForm(f => ({ ...f, periodDuration: e.target.value }))}
+                        style={inputStyle}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                     <motion.button
-                      key={c}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, color: c })}
-                      whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.9 }}
+                      onClick={handleSaveCycle}
+                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        width: '24px', height: '24px', borderRadius: '50%',
-                        background: c, cursor: 'pointer', flexShrink: 0,
-                        border: isSelected ? '2px solid var(--ink)' : '2px solid transparent',
-                        boxShadow: isSelected ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.15s ease',
+                        flex: 1, padding: '8px 12px',
+                        background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
+                        border: 'none', borderRadius: '14px', cursor: 'pointer',
+                        fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
+                        boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                       }}
                     >
-                      {isSelected && (
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
-                      )}
+                      Enregistrer
                     </motion.button>
-                  );
-                })}
-                {/* Sélecteur libre — pastille arc-en-ciel */}
-                <motion.label
-                  title="Couleur personnalisée"
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.9 }}
-                  style={{
-                    width: '24px', height: '24px', borderRadius: '50%',
-                    background: !PRESET_COLORS.includes(formData.color)
-                      ? formData.color
-                      : 'conic-gradient(#6B8F71, #C9973C, #C0634A, #8075A8, #4A90D9, #E07B8A, #6B8F71)',
-                    cursor: 'pointer', flexShrink: 0, overflow: 'hidden',
-                    border: !PRESET_COLORS.includes(formData.color) ? '2px solid var(--ink)' : '2px solid transparent',
-                    boxShadow: !PRESET_COLORS.includes(formData.color) ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    position: 'relative',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <input
-                    type="color"
-                    aria-label="Choisir une couleur personnalisée"
-                    value={/^#[0-9A-Fa-f]{6}$/.test(formData.color) ? formData.color : PRESET_COLORS[0]}
-                    onChange={e => setFormData({ ...formData, color: e.target.value })}
-                    style={{
-                      position: 'absolute', inset: 0,
-                      opacity: 0, width: '100%', height: '100%',
-                      cursor: 'pointer', border: 'none', padding: 0,
-                    }}
-                  />
-                  {!PRESET_COLORS.includes(formData.color) && (
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
-                  )}
-                </motion.label>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <motion.button
-                onClick={handleSubmit}
-                whileTap={{ scale: 0.96 }}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  flex: 1, padding: '10px 14px',
-                  background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
-                  border: 'none', borderRadius: '14px', cursor: 'pointer',
-                  fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
-                  boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
-              >
-                {editingBaseId ? 'Enregistrer' : 'Ajouter'}
-              </motion.button>
-              <motion.button
-                onClick={closeForm}
-                whileHover={{ scale: 1.02, background: 'var(--muted)' }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  padding: '10px 16px',
-                  background: 'transparent', color: 'var(--stone)',
-                  border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
-                  fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 500,
-                }}
-              >
-                Annuler
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-        </AnimatePresence>
-
-        {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
-        {isCycleUser && <motion.div
-          layout
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          style={{
-            background: 'var(--warm-white)', borderRadius: '12px',
-            padding: '14px 16px', marginBottom: '16px',
-            border: '1px solid var(--border)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Cycle
-            </span>
-            {!showCycleForm && (
-              <motion.button
-                onClick={openCycleForm}
-                whileHover={{ background: 'var(--border)' }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                style={{
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                  fontSize: '0.72rem', color: 'var(--stone)', padding: '3px 8px',
-                  borderRadius: '6px', fontFamily: 'inherit',
-                }}
-              >
-                {cycle ? 'Modifier' : 'Configurer'}
-              </motion.button>
-            )}
-          </div>
-
-          <AnimatePresence mode="wait" initial={false}>
-            {showCycleForm ? (
-              <motion.div
-                key="cycle-form"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
-              >
-                <div>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
-                    Début du dernier cycle
-                  </label>
-                  <input
-                    type="date"
-                    value={cycleForm.startDate}
-                    onChange={e => setCycleForm(f => ({ ...f, startDate: e.target.value }))}
-                    style={inputStyle}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
-                      Durée cycle (j)
-                    </label>
-                    <input
-                      type="number"
-                      min={20}
-                      max={45}
-                      value={cycleForm.cycleLength}
-                      onChange={e => setCycleForm(f => ({ ...f, cycleLength: e.target.value }))}
-                      style={inputStyle}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '0.7rem', color: 'var(--stone)', display: 'block', marginBottom: '2px' }}>
-                      Règles (j)
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={10}
-                      value={cycleForm.periodDuration}
-                      onChange={e => setCycleForm(f => ({ ...f, periodDuration: e.target.value }))}
-                      style={inputStyle}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
-                  <motion.button
-                    onClick={handleSaveCycle}
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                      flex: 1, padding: '8px 12px',
-                      background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
-                      border: 'none', borderRadius: '14px', cursor: 'pointer',
-                      fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
-                      boxShadow: '0 2px 6px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
-                    }}
-                  >
-                    Enregistrer
-                  </motion.button>
-                  <motion.button
-                    onClick={() => setShowCycleForm(false)}
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.02, background: 'var(--muted)' }}
-                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                      padding: '8px 12px',
-                      background: 'transparent', color: 'var(--stone)',
-                      border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
-                      fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
-                    }}
-                  >
-                    Annuler
-                  </motion.button>
-                  {cycle && (
                     <motion.button
-                      onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
+                      onClick={() => setShowCycleForm(false)}
                       whileTap={{ scale: 0.96 }}
-                      whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                      whileHover={{ scale: 1.02, background: 'var(--muted)' }}
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
                         padding: '8px 12px',
-                        background: 'transparent', color: 'var(--priority-high)',
+                        background: 'transparent', color: 'var(--stone)',
                         border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
                         fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
                       }}
                     >
-                      Supprimer
+                      Annuler
                     </motion.button>
-                  )}
-                </div>
-              </motion.div>
-            ) : cycle ? (
-              <motion.div
-                key="cycle-summary"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
-              >
-                <CycleSummary cycle={cycle} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="cycle-empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '10px 0 4px' }}
-              >
-                <div style={{ fontSize: '1.4rem', lineHeight: 1 }}>🩸</div>
-                <div style={{ fontSize: '0.76rem', color: 'var(--stone)', textAlign: 'center', lineHeight: 1.4 }}>
-                  Suis ton cycle directement<br />dans l&apos;agenda
-                </div>
-                <motion.button
-                  onClick={openCycleForm}
-                  whileHover={{ background: 'var(--ink)', color: 'var(--cream)' }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  style={{
-                    padding: '6px 14px', marginTop: '2px',
-                    background: 'transparent', color: 'var(--ink)',
-                    border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
-                    fontSize: '0.76rem', fontFamily: 'inherit',
-                  }}
-                >
-                  Configurer mon cycle
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>}
-
-        {/* Events list / Tickets Minimalistes */}
-        <motion.div layout style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '20px', color: 'var(--stone)', fontSize: '0.85rem' }}>Chargement…</div>
-          ) : selectedEvents.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              style={{
-                textAlign: 'center', padding: '40px 20px',
-                color: 'var(--stone)', fontSize: '0.85rem'
-              }}
-            >
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>○</div>
-              Aucun événement
-            </motion.div>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              {selectedEvents.map((event, i) => (
-                <motion.div
-                  key={event.id}
-                  layout
-                  initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
-                  transition={{
-                    duration: 0.35,
-                    delay: Math.min(i * 0.05, 0.25),
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  whileHover={{
-                    y: -3,
-                    boxShadow: `0 10px 26px rgba(15, 23, 42, 0.08), 0 0 0 1px ${event.color}44`,
-                  }}
-                  style={{
-                    position: 'relative',
-                    background: `radial-gradient(ellipse at 0% 0%, ${event.color}14 0%, transparent 70%), var(--card, var(--warm-white))`,
-                    borderRadius: '16px',
-                    padding: '14px 16px',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
-                    transition: 'border-color 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* En-tête : Puce lumineuse Glow LED + Catégorie + Actions */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                      <span
-                        style={{
-                          width: '7px',
-                          height: '7px',
-                          borderRadius: '50%',
-                          background: event.color,
-                          boxShadow: `0 0 8px ${event.color}, 0 0 2px ${event.color}`,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: '0.68rem',
-                          fontWeight: 700,
-                          letterSpacing: '0.07em',
-                          textTransform: 'uppercase',
-                          color: 'var(--stone)',
-                        }}
-                      >
-                        {event.category}
-                      </span>
-                      {event.recurrence !== 'none' && (
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '3px',
-                            fontSize: '0.65rem',
-                            color: 'var(--stone)',
-                            background: 'var(--warm-white)',
-                            padding: '1px 6px',
-                            borderRadius: '6px',
-                            border: '1px solid var(--border)',
-                          }}
-                        >
-                          <Repeat size={9} />
-                          {RECURRENCE_LABELS[event.recurrence]}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Actions boutons (Modifier & Supprimer) */}
-                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                    {cycle && (
                       <motion.button
-                        onClick={() => openEditForm(event)}
-                        title="Modifier l'événement"
-                        whileTap={{ scale: 0.92 }}
-                        whileHover={{ scale: 1.08, background: 'var(--muted)' }}
-                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                        onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
+                        whileTap={{ scale: 0.96 }}
+                        whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                         style={{
-                          padding: '5px 7px',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border)',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          color: 'var(--stone)',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          transition: 'color 0.15s ease, background 0.15s ease',
+                          padding: '8px 12px',
+                          background: 'transparent', color: 'var(--priority-high)',
+                          border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
+                          fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 500,
                         }}
                       >
-                        <Pencil size={13} />
+                        Supprimer
                       </motion.button>
-                      <motion.button
-                        onClick={() => handleDelete(event)}
-                        title="Supprimer l'événement"
-                        whileTap={{ scale: 0.92 }}
-                        whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
-                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                        style={{
-                          padding: '5px 7px',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border)',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          color: 'var(--priority-high)',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          transition: 'background 0.15s ease',
-                        }}
-                      >
-                        <Trash size={13} color="var(--priority-high)" />
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  {/* Ligne pointillée fine style ticket */}
-                  <div
-                    style={{
-                      height: '1px',
-                      margin: '10px 0 11px 0',
-                      borderBottom: '1px dashed var(--border)',
-                      opacity: 0.85,
-                    }}
-                  />
-
-                  {/* Titre de l'événement avec TextReveal */}
-                  <TextReveal delay={0.06 + Math.min(i * 0.04, 0.2)} duration={0.4}>
-                    <div
-                      style={{
-                        fontSize: '0.92rem',
-                        fontWeight: 600,
-                        color: 'var(--ink)',
-                        lineHeight: 1.38,
-                        letterSpacing: '-0.01em',
-                      }}
-                    >
-                      {event.title}
-                    </div>
-                  </TextReveal>
-
-                  {/* Pied du ticket : Heure et Durée */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      marginTop: '10px',
-                      fontSize: '0.75rem',
-                      color: 'var(--stone)',
-                    }}
-                  >
-                    <Clock size={12} style={{ color: event.color }} />
-                    <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{event.time}</span>
-                    <span>·</span>
-                    <span>{event.duration}</span>
+                    )}
                   </div>
                 </motion.div>
-              ))}
+              ) : cycle ? (
+                <motion.div
+                  key="cycle-summary"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+                >
+                  <CycleSummary cycle={cycle} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="cycle-empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '10px 0 4px' }}
+                >
+                  <div style={{ fontSize: '1.4rem', lineHeight: 1 }}>🩸</div>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--stone)', textAlign: 'center', lineHeight: 1.4 }}>
+                    Suis ton cycle directement<br />dans l&apos;agenda
+                  </div>
+                  <motion.button
+                    onClick={openCycleForm}
+                    whileHover={{ background: 'var(--ink)', color: 'var(--cream)' }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                    style={{
+                      padding: '6px 14px', marginTop: '2px',
+                      background: 'transparent', color: 'var(--ink)',
+                      border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
+                      fontSize: '0.76rem', fontFamily: 'inherit',
+                    }}
+                  >
+                    Configurer mon cycle
+                  </motion.button>
+                </motion.div>
+              )}
             </AnimatePresence>
-          )}
-        </motion.div>
+          </motion.div>}
+
+          {/* Connected Vertical Timeline */}
+          <div style={{ position: 'relative', marginTop: '14px' }}>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--stone)', fontSize: '0.85rem' }}>
+                Chargement…
+              </div>
+            ) : selectedEvents.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                style={{
+                  textAlign: 'center',
+                  padding: '32px 16px',
+                  borderRadius: '16px',
+                  background: 'var(--cream)',
+                  border: '1px dashed var(--border)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'var(--warm-white)',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--stone)',
+                }}>
+                  <Calendar size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--ink)' }}>
+                    Journée libre
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--stone)', marginTop: '2px' }}>
+                    Aucun événement planifié
+                  </div>
+                </div>
+                <motion.button
+                  onClick={openAddForm}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{
+                    marginTop: '4px',
+                    padding: '5px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--warm-white)',
+                    color: 'var(--ink)',
+                    fontSize: '0.74rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <Plus size={12} />
+                  Ajouter un créneau
+                </motion.button>
+              </motion.div>
+            ) : (
+              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Ligne directrice de la timeline */}
+                <div className="agenda-timeline-connector" />
+
+                <AnimatePresence mode="popLayout">
+                  {selectedEvents.map((event, i) => {
+                    const endTime = formatEndTime(event.time, event.duration);
+                    return (
+                      <motion.div
+                        key={event.id}
+                        layout
+                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: -16, scale: 0.95, transition: { duration: 0.2, ease: 'easeOut' } }}
+                        transition={{
+                          duration: 0.3,
+                          delay: Math.min(i * 0.04, 0.2),
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
+                        style={{
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px',
+                          zIndex: 1,
+                        }}
+                      >
+                        {/* Puce lumineuse Timeline */}
+                        <div
+                          style={{
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '50%',
+                            background: event.color,
+                            boxShadow: `0 0 0 3px var(--card, var(--warm-white)), 0 0 8px ${event.color}88`,
+                            marginTop: '14px',
+                            flexShrink: 0,
+                          }}
+                        />
+
+                        {/* Carte de l'événement */}
+                        <motion.div
+                          whileHover={{
+                            y: -2,
+                            boxShadow: `0 8px 20px rgba(15, 23, 42, 0.08), 0 0 0 1px ${event.color}44`,
+                          }}
+                          style={{
+                            flex: 1,
+                            minWidth: 0,
+                            position: 'relative',
+                            background: `radial-gradient(ellipse at 0% 0%, ${event.color}14 0%, transparent 70%), var(--card, var(--warm-white))`,
+                            borderRadius: '14px',
+                            padding: '12px 14px',
+                            border: '1px solid var(--border)',
+                            borderLeft: `3px solid ${event.color}`,
+                            boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)',
+                            transition: 'border-color 0.2s ease, box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {/* Barre d'info supérieure */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
+                              {/* Badge horaire */}
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                color: 'var(--ink)',
+                                background: 'var(--cream)',
+                                padding: '2px 6px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border)',
+                              }}>
+                                <Clock size={11} style={{ color: event.color }} />
+                                {event.time} {endTime ? `– ${endTime}` : ''}
+                              </span>
+
+                              {/* Catégorie */}
+                              <span style={{
+                                fontSize: '0.64rem',
+                                fontWeight: 700,
+                                letterSpacing: '0.05em',
+                                textTransform: 'uppercase',
+                                color: 'var(--stone)',
+                                background: 'var(--warm-white)',
+                                padding: '2px 6px',
+                                borderRadius: '6px',
+                              }}>
+                                {event.category}
+                              </span>
+
+                              {event.recurrence !== 'none' && (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px',
+                                  fontSize: '0.62rem',
+                                  color: 'var(--stone)',
+                                  background: 'var(--warm-white)',
+                                  padding: '1px 5px',
+                                  borderRadius: '5px',
+                                  border: '1px solid var(--border)',
+                                }}>
+                                  <Repeat size={9} />
+                                  {RECURRENCE_LABELS[event.recurrence]}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Actions rapides */}
+                            <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                              <motion.button
+                                onClick={() => openEditForm(event)}
+                                title="Modifier l'événement"
+                                whileTap={{ scale: 0.92 }}
+                                whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                                style={{
+                                  padding: '4px 6px',
+                                  borderRadius: '7px',
+                                  border: '1px solid var(--border)',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                  color: 'var(--stone)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Pencil size={12} />
+                              </motion.button>
+                              <motion.button
+                                onClick={() => handleDelete(event)}
+                                title="Supprimer l'événement"
+                                whileTap={{ scale: 0.92 }}
+                                whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
+                                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                                style={{
+                                  padding: '4px 6px',
+                                  borderRadius: '7px',
+                                  border: '1px solid var(--border)',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                  color: 'var(--priority-high)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Trash size={12} color="var(--priority-high)" />
+                              </motion.button>
+                            </div>
+                          </div>
+
+                          {/* Titre */}
+                          <TextReveal delay={0.04 + Math.min(i * 0.03, 0.15)} duration={0.35}>
+                            <div
+                              style={{
+                                fontSize: '0.88rem',
+                                fontWeight: 600,
+                                color: 'var(--ink)',
+                                lineHeight: 1.35,
+                                letterSpacing: '-0.01em',
+                              }}
+                            >
+                              {event.title}
+                            </div>
+                          </TextReveal>
+
+                          {/* Durée */}
+                          <div style={{ fontSize: '0.68rem', color: 'var(--stone)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span>Durée : {event.duration}</span>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1006,26 +1349,30 @@ function MonthGrid({
 }) {
   return (
     <div style={{
-      background: 'var(--warm-white)', borderRadius: 'var(--radius-xl, 14px)',
-      border: '1px solid var(--border)',
+      background: 'var(--warm-white)', borderRadius: '24px',
       overflow: 'hidden',
-      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
     }}>
       {/* Weekday headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--cream)',
+      }}>
         {weekDayLabels.map(d => (
           <div key={d} style={{
             padding: '12px 0', textAlign: 'center',
             fontSize: '0.72rem', color: 'var(--stone)',
-            letterSpacing: '0.06em', textTransform: 'uppercase'
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            fontWeight: 700,
           }}>{d}</div>
         ))}
       </div>
 
       {/* Days */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '96px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: 'minmax(100px, 1fr)' }}>
         {Array.from({ length: firstDayOffset }).map((_, i) => (
-          <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} />
+          <div key={`empty-${i}`} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'rgba(0,0,0,0.01)' }} />
         ))}
         {days.map(day => {
           const dayEvents = events.filter(e => isSameDay(startOfDay(e.date), startOfDay(day)));
@@ -1049,24 +1396,30 @@ function MonthGrid({
                 transition: 'background 0.15s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '5px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <div style={{
                   width: '26px', height: '26px',
                   borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.8rem',
-                  background: today ? 'var(--accent)' : selected ? 'var(--accent-soft)' : 'transparent',
-                  color: today ? 'white' : selected ? 'var(--accent)' : 'var(--ink)',
-                  fontWeight: today ? '700' : selected ? '600' : '500',
+                  fontSize: '0.78rem',
+                  background: today ? 'var(--primary-btn-bg, var(--ink))' : selected ? 'var(--accent-soft)' : 'transparent',
+                  color: today ? 'var(--primary-btn-fg, #ffffff)' : selected ? 'var(--accent)' : 'var(--ink)',
+                  fontWeight: today ? 700 : selected ? 700 : 500,
+                  boxShadow: today ? '0 2px 6px var(--primary-btn-shadow, rgba(15,23,42,0.15))' : undefined,
+                  border: selected && !today ? '1px solid var(--accent)' : 'none',
                   transition: 'all 0.15s ease',
                 }}>
                   {format(day, 'd')}
                 </div>
                 {(cycleDay?.type === 'period' || cycleDay?.type === 'predicted-period') && (
-                  <div style={{
-                    width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
-                    background: '#D4607E',
-                  }} />
+                  <div
+                    title={cycleDay.type === 'period' ? 'Règles' : 'Prévision règles'}
+                    style={{
+                      width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
+                      background: '#D4607E',
+                      boxShadow: '0 0 6px rgba(212, 96, 126, 0.6)',
+                    }}
+                  />
                 )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
@@ -1081,11 +1434,11 @@ function MonthGrid({
                       initial={{ opacity: 0, scale: 0.94 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ y: -1, scale: 1.02 }}
-                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                       style={{
                         fontSize: '0.67rem',
                         padding: '3px 6px',
-                        borderRadius: '6px',
+                        borderRadius: '7px',
                         color: 'var(--ink)',
                         background: bg,
                         border: `1px solid ${border}`,
@@ -1126,11 +1479,12 @@ function MonthGrid({
                 {dayEvents.length > 2 && (
                   <div style={{
                     fontSize: '0.6rem',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: 'var(--stone)',
                     padding: '1px 6px',
                     borderRadius: '9999px',
-                    background: 'var(--muted)',
+                    background: 'var(--warm-white)',
+                    border: '1px solid var(--border)',
                     alignSelf: 'flex-start',
                     marginTop: '1px',
                   }}>
@@ -1148,7 +1502,7 @@ function MonthGrid({
 
 // ─── Week grid ────────────────────────────────────────────────────────────────
 
-const HOUR_HEIGHT = 52; // px per hour row
+const HOUR_HEIGHT = 54; // px per hour row
 
 interface DragState {
   eventId: string;
@@ -1194,6 +1548,18 @@ function WeekGrid({
   const scrollableRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
+  const [nowDate, setNowDate] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowDate(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const todayIndex = weekDays.findIndex(d => isSameDay(d, nowDate));
+  const currentHour = nowDate.getHours();
+  const currentMinute = nowDate.getMinutes();
+  const showNowIndicator = todayIndex !== -1 && currentHour >= 8 && currentHour < 24;
+  const nowTopPx = (currentHour - 8) * HOUR_HEIGHT + currentMinute * (HOUR_HEIGHT / 60);
 
   const handleEventPointerDown = (e: React.PointerEvent, event: Event) => {
     e.stopPropagation();
@@ -1290,26 +1656,24 @@ function WeekGrid({
 
   return (
     <div style={{
-      background: 'var(--warm-white)', borderRadius: '14px',
-      border: '1px solid var(--border)',
+      background: 'var(--warm-white)', borderRadius: '24px',
       overflow: 'hidden',
-      boxShadow: '0 1px 8px rgba(26,23,20,0.04)',
     }}>
       {/* Day headers */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '48px repeat(7, 1fr)',
         borderBottom: '1px solid var(--border)',
-        position: 'sticky', top: 0, zIndex: 2,
+        position: 'sticky', top: 0, zIndex: 10,
         background: 'var(--warm-white)',
       }}>
-        <div style={{ borderRight: '1px solid var(--border)' }} />
+        <div style={{ borderRight: '1px solid var(--border)', background: 'var(--cream)' }} />
         {weekDays.map(day => {
           const selected = isSameDay(day, selectedDate);
           const today = isToday(day);
           const cycleDay = cycleDays.find(cd => isSameDay(startOfDay(cd.date), startOfDay(day)));
-          const cycleBg = cycleDay?.type === 'period' ? 'rgba(192, 99, 74, 0.08)'
-            : cycleDay?.type === 'predicted-period' ? 'rgba(192, 99, 74, 0.05)'
+          const cycleBg = cycleDay?.type === 'period' ? 'rgba(212, 96, 126, 0.08)'
+            : cycleDay?.type === 'predicted-period' ? 'rgba(212, 96, 126, 0.05)'
             : undefined;
           return (
             <div
@@ -1320,23 +1684,28 @@ function WeekGrid({
                 textAlign: 'center',
                 cursor: 'pointer',
                 borderRight: '1px solid var(--border)',
-                background: selected ? 'rgba(122, 140, 110, 0.08)' : cycleBg ?? 'transparent',
-                transition: 'background 0.1s',
+                background: selected ? 'var(--accent-soft)' : cycleBg ?? 'transparent',
+                transition: 'background 0.15s',
               }}
             >
               <div style={{
-                fontSize: '0.68rem', color: 'var(--stone)',
-                textTransform: 'uppercase', letterSpacing: '0.05em',
+                fontSize: '0.68rem',
+                color: today ? 'var(--accent)' : 'var(--stone)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                fontWeight: today || selected ? 700 : 500,
               }}>
                 {format(day, 'EEE', { locale: fr })}
               </div>
               <div style={{
                 width: '28px', height: '28px', borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.85rem', margin: '2px auto 0',
-                background: today ? 'var(--terra)' : 'transparent',
-                color: today ? 'white' : selected ? 'var(--sage)' : 'var(--ink)',
-                fontWeight: today || selected ? 500 : 300,
+                fontSize: '0.82rem', margin: '3px auto 0',
+                background: today ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
+                color: today ? 'var(--primary-btn-fg, #ffffff)' : selected ? 'var(--accent)' : 'var(--ink)',
+                fontWeight: today ? 700 : selected ? 700 : 500,
+                border: selected && !today ? '1px solid var(--accent)' : 'none',
+                boxShadow: today ? '0 2px 6px var(--primary-btn-shadow, rgba(15,23,42,0.15))' : undefined,
               }}>
                 {format(day, 'd')}
               </div>
@@ -1344,7 +1713,8 @@ function WeekGrid({
                 <div style={{
                   width: '5px', height: '5px', borderRadius: '50%',
                   margin: '2px auto 0', flexShrink: 0,
-                  background: '#C2185B',
+                  background: '#D4607E',
+                  boxShadow: '0 0 5px rgba(212, 96, 126, 0.6)',
                 }} />
               )}
             </div>
@@ -1360,6 +1730,42 @@ function WeekGrid({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
+        {/* Now Indicator line & dot */}
+        {showNowIndicator && (
+          <div
+            style={{
+              position: 'absolute',
+              top: `${nowTopPx}px`,
+              left: `calc(48px + ${todayIndex} * ((100% - 48px) / 7))`,
+              width: 'calc((100% - 48px) / 7)',
+              zIndex: 8,
+              pointerEvents: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#EF4444',
+                boxShadow: '0 0 8px #EF4444, 0 0 2px #EF4444',
+                marginLeft: '-4px',
+                flexShrink: 0,
+              }}
+            />
+            <div
+              style={{
+                flex: 1,
+                height: '2px',
+                background: '#EF4444',
+                boxShadow: '0 0 4px rgba(239, 68, 68, 0.6)',
+              }}
+            />
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: '48px repeat(7, 1fr)' }}>
           {HOURS.map(hour => (
             <React.Fragment key={hour}>
@@ -1417,6 +1823,7 @@ function WeekGrid({
                             top: `${topOffset}px`,
                             left: '3px',
                             right: '3px',
+                            height: `${blockHeight}px`,
                             background: e.color + (isDragging ? '10' : '18'),
                             border: `1px solid ${e.color}35`,
                             borderLeft: `3px solid ${e.color}`,
@@ -1563,33 +1970,6 @@ function CycleSummary({ cycle }: { cycle: MenstrualCycle }) {
       </div>
     </>
   );
-}
-
-function parseHour(time: string): number {
-  if (!time) return 0;
-  const [h] = time.split(':');
-  const n = parseInt(h, 10);
-  return isNaN(n) ? 0 : n;
-}
-
-function parseStartMinutes(time: string): number {
-  if (!time) return 0;
-  const parts = time.split(':');
-  return parts.length >= 2 ? (parseInt(parts[1], 10) || 0) : 0;
-}
-
-function parseDurationHours(duration: string): number {
-  if (!duration) return 1;
-  const s = duration.trim().toLowerCase();
-  // "1h30min" ou "1h30" ou "1h"
-  const hMin = s.match(/^(\d+(?:\.\d+)?)h\s*(\d+)?(?:min)?$/);
-  if (hMin) return parseFloat(hMin[1]) + (hMin[2] ? parseInt(hMin[2], 10) / 60 : 0);
-  // "30min"
-  const min = s.match(/^(\d+)\s*min$/);
-  if (min) return parseInt(min[1], 10) / 60;
-  // nombre seul → heures
-  const n = parseFloat(s);
-  return isNaN(n) ? 1 : n;
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
