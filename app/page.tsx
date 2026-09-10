@@ -93,13 +93,16 @@ export default function Home() {
 
   const handleSignOut = () => {
     setIsSigningOut(true);
+    try {
+      signOut().catch(() => {});
+    } catch {}
   };
 
   useEffect(() => {
     if (!isSigningOut) return;
 
     let startTime: number | null = null;
-    const duration = 1800; // 1.8s
+    const duration = 1600; // 1.6s d'animation fluide
     let animationFrameId: number;
 
     const step = (timestamp: number) => {
@@ -112,18 +115,22 @@ export default function Home() {
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        signOut().then(() => {
-          router.push('/login');
-        });
+        window.location.replace('/login');
       }
     };
 
     animationFrameId = requestAnimationFrame(step);
 
+    // Sécurité absolue : forcer la redirection quoi qu'il arrive au bout de 2.2s
+    const fallbackTimeout = setTimeout(() => {
+      window.location.replace('/login');
+    }, 2200);
+
     return () => {
       cancelAnimationFrame(animationFrameId);
+      clearTimeout(fallbackTimeout);
     };
-  }, [isSigningOut, signOut, router]);
+  }, [isSigningOut]);
 
   const renderView = () => {
     switch (activeTab) {
