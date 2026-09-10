@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
-import { Lock } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import TodayView from './components/TodayView';
 import AgendaView from './components/AgendaView';
@@ -28,6 +27,7 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [signOutProgress, setSignOutProgress] = useState(0);
+  const [signOutStatus, setSignOutStatus] = useState('Fermeture sécurisée de session…');
 
   const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
@@ -93,6 +93,8 @@ export default function Home() {
 
   const handleSignOut = () => {
     setIsSigningOut(true);
+    setSignOutProgress(0);
+    setSignOutStatus('Fermeture sécurisée de session…');
     try {
       signOut().catch(() => {});
     } catch {}
@@ -102,7 +104,7 @@ export default function Home() {
     if (!isSigningOut) return;
 
     let startTime: number | null = null;
-    const duration = 1600; // 1.6s d'animation fluide
+    const duration = 3200; // 3.2s pour 2 tours complets et déconnexion fluide
     let animationFrameId: number;
 
     const step = (timestamp: number) => {
@@ -110,27 +112,40 @@ export default function Home() {
       const elapsed = timestamp - startTime;
       const t = Math.min(elapsed / duration, 1);
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      setSignOutProgress(Math.min(eased * 100, 100));
+      const current = Math.min(eased * 100, 100);
+      setSignOutProgress(current);
+
+      if (current < 28) {
+        setSignOutStatus('Fermeture sécurisée de session…');
+      } else if (current < 65) {
+        setSignOutStatus('Synchronisation de vos données…');
+      } else if (current < 92) {
+        setSignOutStatus('Sauvegarde de vos notes & tâches…');
+      } else {
+        setSignOutStatus(`À bientôt, ${displayName} !`);
+      }
 
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        window.location.replace('/login');
+        setTimeout(() => {
+          window.location.replace('/login');
+        }, 450);
       }
     };
 
     animationFrameId = requestAnimationFrame(step);
 
-    // Sécurité absolue : forcer la redirection quoi qu'il arrive au bout de 2.2s
+    // Sécurité absolue : forcer la redirection quoi qu'il arrive au bout de 4.5s
     const fallbackTimeout = setTimeout(() => {
       window.location.replace('/login');
-    }, 2200);
+    }, 4500);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(fallbackTimeout);
     };
-  }, [isSigningOut]);
+  }, [isSigningOut, displayName]);
 
   const renderView = () => {
     switch (activeTab) {
@@ -286,181 +301,165 @@ export default function Home() {
         )}
       </motion.div>
 
-      {/* ── Écran de déconnexion d'adieu immersif ── */}
+      {/* ── Écran de déconnexion plein écran immersif (identique à la connexion) ── */}
       <AnimatePresence>
         {isSigningOut && (
           <motion.div
-            key="signout-overlay"
+            key="signout-loading-screen"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.35 } }}
+            exit={{
+              opacity: 0,
+              scale: 1.05,
+              filter: 'blur(12px)',
+              transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+            }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'rgba(15, 23, 42, 0.45)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              background: 'var(--cream, #FAFAFA)',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '24px',
               fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
+              overflow: 'hidden',
             }}
           >
-            {/* Farewell Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -10 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            {/* Ambient subtle backdrop glows */}
+            <div
               style={{
-                width: '100%',
-                maxWidth: '390px',
-                background: 'var(--card, #FFFFFF)',
-                borderRadius: '24px',
-                padding: '38px 32px 30px',
-                boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
-                border: '1px solid var(--border)',
-                textAlign: 'center',
+                position: 'absolute',
+                width: '600px',
+                height: '600px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Central Block */}
+            <div
+              style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                textAlign: 'center',
                 position: 'relative',
-                overflow: 'hidden',
+                zIndex: 1,
               }}
             >
-              {/* Top monochrome accent line */}
+              {/* ── Logo synchronisé à 100% avec la vitesse de déconnexion (2 tours complets 720°) ── */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '3.5px',
-                  background: 'linear-gradient(90deg, var(--ink) 0%, var(--stone) 50%, var(--ink) 100%)',
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '20px',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border, #E2E8F0)',
+                  boxShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  marginBottom: '26px',
+                  transform: `rotate(${(signOutProgress / 100) * 720}deg) scale(${1 + Math.sin((signOutProgress / 100) * Math.PI * 2) * 0.06})`,
+                  willChange: 'transform',
                 }}
-              />
-
-              {/* Logo Badge with Lock Badge */}
-              <div style={{ position: 'relative', marginBottom: '20px' }}>
-                <motion.div
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 1.2, ease: 'easeInOut' }}
-                  style={{
-                    width: '68px',
-                    height: '68px',
-                    borderRadius: '20px',
-                    background: '#FFFFFF',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 10px 25px -4px rgba(15, 23, 42, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Image
-                    src="/logo.jpg"
-                    alt="My Planner logo"
-                    width={68}
-                    height={68}
-                    style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
-                    priority
-                  />
-                </motion.div>
-
-                {/* Lock icon bubble */}
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.25, duration: 0.3, type: 'spring' }}
-                  style={{
-                    position: 'absolute',
-                    bottom: '-4px',
-                    right: '-4px',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    background: 'var(--ink)',
-                    color: '#FFFFFF',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.3)',
-                    border: '2px solid var(--card, #FFFFFF)',
-                  }}
-                >
-                  <Lock size={13} />
-                </motion.div>
+              >
+                <Image
+                  src="/logo.jpg"
+                  alt="My Planner logo"
+                  width={76}
+                  height={76}
+                  style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                  priority
+                />
               </div>
 
-              {/* Farewell Title */}
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: '1.45rem',
-                  fontWeight: 800,
-                  color: 'var(--ink)',
-                  letterSpacing: '-0.025em',
-                  marginBottom: '6px',
-                }}
+              {/* Titre & Sous-titre dynamique */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.15 }}
+                style={{ marginBottom: '24px' }}
               >
-                À bientôt, {displayName} !
-              </h2>
+                <div
+                  className="font-display"
+                  style={{
+                    fontSize: '1.75rem',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    letterSpacing: '-0.03em',
+                    marginBottom: '4px',
+                  }}
+                >
+                  My Planner
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.86rem',
+                    color: 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                    minHeight: '20px',
+                    transition: 'color 0.2s ease',
+                  }}
+                >
+                  {signOutStatus}
+                </div>
+              </motion.div>
 
-              <p
-                style={{
-                  fontSize: '0.84rem',
-                  color: 'var(--stone)',
-                  fontWeight: 500,
-                  marginBottom: '24px',
-                }}
-              >
-                Fermeture sécurisée de votre session…
-              </p>
-
-              {/* Vault Progress Bar */}
-              <div style={{ width: '100%', marginBottom: '14px' }}>
+              {/* ── Barre de chargement avec effet de balayage lumineux (Shimmer) ── */}
+              <div style={{ width: '270px' }}>
+                {/* Track */}
                 <div
                   style={{
                     width: '100%',
-                    height: '5px',
-                    background: 'var(--muted, #F1F5F9)',
+                    height: '7px',
+                    background: 'rgba(15, 23, 42, 0.08)',
                     borderRadius: '999px',
                     overflow: 'hidden',
                     position: 'relative',
+                    boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
                   }}
                 >
+                  {/* Fill avec effet shimmer */}
                   <div
                     style={{
                       height: '100%',
                       width: `${signOutProgress}%`,
-                      background: 'var(--ink)',
+                      background: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                      backgroundSize: '240% 100%',
+                      animation: 'barShimmer 1.4s infinite linear',
                       borderRadius: '999px',
-                      transition: 'width 0.1s linear',
+                      position: 'relative',
+                      boxShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                      willChange: 'width',
                     }}
                   />
                 </div>
-              </div>
 
-              {/* Status pill */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '0.72rem',
-                  color: 'var(--stone)',
-                  fontWeight: 600,
-                }}
-              >
-                <span>✦</span>
-                <span>Vos données et notes sont synchronisées</span>
+                {/* Pourcentage et label */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '10px',
+                    fontSize: '0.75rem',
+                    color: 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                  }}
+                >
+                  <span>Déconnexion</span>
+                  <span style={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                    {Math.round(signOutProgress)}%
+                  </span>
+                </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

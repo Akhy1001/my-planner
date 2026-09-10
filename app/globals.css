@@ -509,3 +509,9 @@ input:focus, textarea:focus {
 .animate-celebrate {
   animation: celebrationBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* ── Bar shimmer animation ── */
+@keyframes barShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
