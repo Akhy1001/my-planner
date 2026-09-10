@@ -97,22 +97,28 @@ export default function TodayView() {
       >
         {/* Titre & Date */}
         <div>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.74rem',
-            color: 'var(--stone)',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            marginBottom: '6px',
-          }}>
+          <TextReveal
+            delay={0.02}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.74rem',
+              color: 'var(--stone)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              marginBottom: '6px',
+            }}
+          >
             <Calendar size={13} style={{ color: 'var(--stone)' }} />
             <span>{format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}</span>
-          </div>
+          </TextReveal>
 
-          <h1
+          <TextReveal
+            as="h1"
+            key={`${greeting}-${displayName}`}
+            delay={0.06}
             className="font-display"
             style={{
               fontSize: '2.15rem',
@@ -139,9 +145,12 @@ export default function TodayView() {
             ) : (
               <span>✦</span>
             )}
-          </h1>
+          </TextReveal>
 
-          <p style={{ fontSize: '0.84rem', color: 'var(--stone)', marginTop: '4px', fontWeight: 500 }}>
+          <TextReveal
+            delay={0.12}
+            style={{ fontSize: '0.84rem', color: 'var(--stone)', marginTop: '4px', fontWeight: 500 }}
+          >
             {loading ? (
               <span className="skeleton" style={{ display: 'inline-block', width: '180px', height: '16px' }} />
             ) : tasks.length === 0 ? (
@@ -149,7 +158,7 @@ export default function TodayView() {
             ) : (
               `${tasks.length} tâche${tasks.length > 1 ? 's' : ''} au programme · ${doneTasks} terminée${doneTasks > 1 ? 's' : ''} (${todoTasks} restante${todoTasks > 1 ? 's' : ''})`
             )}
-          </p>
+          </TextReveal>
         </div>
 
         {/* Apple Watch Progress Ring Card */}

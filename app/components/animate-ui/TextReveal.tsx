@@ -25,7 +25,8 @@ export function TextReveal({
   style = {},
   as = 'div',
 }: TextRevealProps) {
-  const isInline = style.display === 'inline-block' || as === 'span';
+  const displayStyle = style.display ?? (as === 'span' ? 'inline-block' : 'block');
+  const isInline = displayStyle === 'inline-block' || displayStyle === 'inline-flex' || displayStyle === 'inline' || as === 'span';
   const MotionTag = motion[as] as React.ComponentType<any>;
 
   return (
@@ -48,7 +49,7 @@ export function TextReveal({
         className={className}
         style={{
           ...style,
-          display: isInline ? 'inline-block' : 'block',
+          display: displayStyle,
           margin: 0,
         }}
       >
