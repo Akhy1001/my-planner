@@ -4,6 +4,7 @@ import { Target, ScribbleStrikethrough, TextReveal } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGoals, Goal } from '@/hooks/useGoals';
+import { Calendar } from 'lucide-react';
 
 const categoryColors: Record<string, string> = {
   'Croissance': 'var(--lavender)',
@@ -140,8 +141,16 @@ export default function GoalsView() {
                   }} />
                 </div>
                 {goal.deadline && (
-                  <div style={{ fontSize: '0.68rem', color: 'var(--stone)', marginTop: '6px' }}>
-                    📅 {new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  <div style={{
+                    fontSize: '0.68rem',
+                    color: 'var(--stone)',
+                    marginTop: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}>
+                    <Calendar size={11} strokeWidth={1.8} style={{ opacity: 0.8, flexShrink: 0 }} />
+                    <span>{new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
                 )}
               </motion.div>
@@ -177,9 +186,18 @@ function GoalDetail({ goal, onToggle, onAddMilestone }: { goal: Goal; onToggle: 
             color: categoryColors[goal.category] || 'var(--sage)',
             border: `1px solid ${(categoryColors[goal.category] || 'var(--sage)')}40`
           }}>{goal.category}</span>
-          {goal.deadline && <span style={{ fontSize: '0.72rem', color: 'var(--stone)' }}>
-            📅 {new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-          </span>}
+          {goal.deadline && (
+            <span style={{
+              fontSize: '0.72rem',
+              color: 'var(--stone)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}>
+              <Calendar size={12} strokeWidth={1.8} style={{ opacity: 0.8, flexShrink: 0 }} />
+              <span>{new Date(goal.deadline + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            </span>
+          )}
         </div>
         <TextReveal
           as="h2"
