@@ -8,10 +8,10 @@ import FormatToolbar from './FormatToolbar';
 import { Pin } from 'lucide-react';
 
 const tagColors: Record<string, string> = {
-  'Idées': '#D97706',      // Ambre doré chaleureux & lumineux
-  'Travail': '#2563EB',    // Bleu roi intense & lisible
-  'Personnel': '#059669',  // Émeraude frais & net
-  'Projets': '#7C3AED',    // Violet profond & vibrant
+  'Idées': '#E11D48',      // Rose Corail vif & lumineux
+  'Travail': '#9D174D',    // Framboise velours intense
+  'Personnel': '#D4607E',  // Rose poudré signature
+  'Projets': '#A21CAF',    // Prune rosée / Fuchsia chic
 };
 
 export default function NotesView() {
