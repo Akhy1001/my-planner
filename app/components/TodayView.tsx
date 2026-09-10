@@ -19,7 +19,8 @@ import {
   Clock,
   Tag,
   ListFilter,
-  Zap
+  Zap,
+  Heart
 } from 'lucide-react';
 
 type Priority = 'high' | 'medium' | 'low';
@@ -38,9 +39,10 @@ export default function TodayView() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
 
   const email = user?.email?.toLowerCase().trim();
+  const isRose = email?.startsWith('rstrpn05@');
   const displayName = email?.startsWith('anas.fz1001@')
     ? 'Anas'
-    : email?.startsWith('rstrpn05@')
+    : isRose
     ? 'Rose'
     : (() => {
         const rawName = user?.email?.split('@')[0] ?? 'Utilisateur';
@@ -118,9 +120,25 @@ export default function TodayView() {
               color: 'var(--ink)',
               lineHeight: 1.15,
               letterSpacing: '-0.025em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              flexWrap: 'wrap',
             }}
           >
-            {greeting}, {displayName} ✦
+            <span>{greeting}, {displayName}</span>
+            {isRose ? (
+              <Heart
+                size={26}
+                style={{
+                  color: 'var(--accent, #D4607E)',
+                  fill: 'var(--accent, #D4607E)',
+                  display: 'inline-block',
+                }}
+              />
+            ) : (
+              <span>✦</span>
+            )}
           </h1>
 
           <p style={{ fontSize: '0.84rem', color: 'var(--stone)', marginTop: '4px', fontWeight: 500 }}>
