@@ -10,7 +10,7 @@ import {
   startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, differenceInDays,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check } from 'lucide-react';
+import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check, X, CalendarPlus } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
 import { useMenstrualCycle, computeCycleDays, daysUntilNextPeriod, CycleDay, MenstrualCycle } from '@/hooks/useMenstrualCycle';
 import { useAuth } from '@/hooks/useAuth';
@@ -698,41 +698,109 @@ export default function AgendaView() {
           </div>
 
           {/* Add / Edit form */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
           {showForm && (
             <motion.div
               key="event-form"
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.97 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: -20, scale: 0.96, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -16, scale: 0.96, filter: 'blur(6px)' }}
+              transition={{
+                type: 'spring',
+                damping: 24,
+                stiffness: 280,
+                mass: 0.75,
+              }}
               style={{
                 background: 'var(--card, var(--warm-white))',
-                borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '16px',
+                borderRadius: '20px',
+                padding: '20px',
+                marginBottom: '18px',
                 border: '1px solid var(--border)',
-                boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
+                boxShadow: '0 12px 36px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04)',
                 transformOrigin: 'top center',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
+              {/* Ligne d'accent lumineuse supérieure */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, var(--accent), #93C5FD, var(--accent))',
+                  transformOrigin: 'left',
+                }}
+              />
+
               {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div className="font-display" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink)' }}>
-                  {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <motion.div
+                    initial={{ rotate: -20, scale: 0.8 }}
+                    animate={{ rotate: 0, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 20 }}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '8px',
+                      background: 'var(--accent-soft)',
+                      color: 'var(--accent)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {editingBaseId ? <Pencil size={15} /> : <CalendarPlus size={15} />}
+                  </motion.div>
+                  <div className="font-display" style={{ fontSize: '0.94rem', fontWeight: 700, color: 'var(--ink)' }}>
+                    {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
+                  </div>
                 </div>
-                <span style={{
-                  fontSize: '0.62rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  padding: '2px 8px',
-                  borderRadius: '9999px',
-                  background: 'var(--accent-soft)',
-                  color: 'var(--accent)',
-                }}>
-                  {editingBaseId ? 'Édition' : 'Agenda'}
-                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    fontSize: '0.62rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    padding: '3px 9px',
+                    borderRadius: '9999px',
+                    background: 'var(--accent-soft)',
+                    color: 'var(--accent)',
+                  }}>
+                    {editingBaseId ? 'Édition' : 'Agenda'}
+                  </span>
+                  <motion.button
+                    type="button"
+                    onClick={closeForm}
+                    whileHover={{ scale: 1.12, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--stone)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '6px',
+                    }}
+                    title="Fermer"
+                    aria-label="Fermer le menu"
+                  >
+                    <X size={16} />
+                  </motion.button>
+                </div>
               </div>
 
               {/* Error */}
@@ -740,9 +808,9 @@ export default function AgendaView() {
                 {formError && (
                   <motion.div
                     key="form-error"
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
+                    initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
                     style={{
                       fontSize: '0.75rem',
@@ -783,15 +851,18 @@ export default function AgendaView() {
                   Catégorie
                 </label>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  {PRESET_CATEGORIES.map(cat => {
+                  {PRESET_CATEGORIES.map((cat, i) => {
                     const isSelected = formData.category.trim().toLowerCase() === cat.toLowerCase();
                     return (
                       <motion.button
                         key={cat}
                         type="button"
                         onClick={() => setFormData({ ...formData, category: cat })}
-                        whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.03 }}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.02 * i + 0.05, duration: 0.2 }}
+                        whileTap={{ scale: 0.93 }}
+                        whileHover={{ scale: 1.05 }}
                         style={{
                           padding: '4px 10px',
                           borderRadius: '8px',
@@ -846,11 +917,15 @@ export default function AgendaView() {
               {/* Quick duration presets */}
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                  {PRESET_DURATIONS.map(d => (
+                  {PRESET_DURATIONS.map((d, i) => (
                     <motion.button
                       key={d}
                       type="button"
-                      whileTap={{ scale: 0.94 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.02 * i + 0.06, duration: 0.2 }}
+                      whileTap={{ scale: 0.92 }}
+                      whileHover={{ scale: 1.07 }}
                       onClick={() => setFormData({ ...formData, duration: d })}
                       style={{
                         padding: '2px 8px',
@@ -892,31 +967,39 @@ export default function AgendaView() {
               </div>
 
               {/* Color picker */}
-              <div style={{ marginBottom: '14px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Couleur de l&apos;étiquette
                 </label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  {PRESET_COLORS.map(c => {
+                  {PRESET_COLORS.map((c, i) => {
                     const isSelected = formData.color === c;
                     return (
                       <motion.button
                         key={c}
                         type="button"
                         onClick={() => setFormData({ ...formData, color: c })}
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.02 * i + 0.08, type: 'spring', stiffness: 400, damping: 20 }}
+                        whileHover={{ scale: 1.25 }}
+                        whileTap={{ scale: 0.85 }}
                         style={{
                           width: '24px', height: '24px', borderRadius: '50%',
                           background: c, cursor: 'pointer', flexShrink: 0,
                           border: isSelected ? '2px solid var(--ink)' : '2px solid transparent',
                           boxShadow: isSelected ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'all 0.15s ease',
+                          transition: 'border 0.15s, box-shadow 0.15s',
                         }}
                       >
                         {isSelected && (
-                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                            style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }}
+                          />
                         )}
                       </motion.button>
                     );
@@ -924,8 +1007,11 @@ export default function AgendaView() {
                   {/* Sélecteur libre — pastille arc-en-ciel */}
                   <motion.label
                     title="Couleur personnalisée"
-                    whileHover={{ scale: 1.15 }}
-                    whileTap={{ scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.02 * PRESET_COLORS.length + 0.08, type: 'spring', stiffness: 400, damping: 20 }}
+                    whileHover={{ scale: 1.25 }}
+                    whileTap={{ scale: 0.85 }}
                     style={{
                       width: '24px', height: '24px', borderRadius: '50%',
                       background: !PRESET_COLORS.includes(formData.color)
@@ -936,7 +1022,7 @@ export default function AgendaView() {
                       boxShadow: !PRESET_COLORS.includes(formData.color) ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       position: 'relative',
-                      transition: 'all 0.15s ease',
+                      transition: 'border 0.15s, box-shadow 0.15s',
                     }}
                   >
                     <input
@@ -963,7 +1049,7 @@ export default function AgendaView() {
                   onClick={handleSubmit}
                   whileTap={{ scale: 0.96 }}
                   whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     flex: 1, padding: '10px 14px',
                     background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
@@ -971,18 +1057,20 @@ export default function AgendaView() {
                     fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
                     boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    gap: '6px',
                     transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
                 >
-                  {editingBaseId ? 'Enregistrer' : 'Ajouter'}
+                  {editingBaseId ? <Check size={15} /> : <Plus size={15} />}
+                  <span>{editingBaseId ? 'Enregistrer' : 'Ajouter'}</span>
                 </motion.button>
                 <motion.button
                   onClick={closeForm}
                   whileHover={{ scale: 1.02, background: 'var(--muted)' }}
                   whileTap={{ scale: 0.96 }}
-                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     padding: '10px 16px',
                     background: 'transparent', color: 'var(--stone)',
