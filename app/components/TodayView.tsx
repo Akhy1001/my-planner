@@ -168,10 +168,10 @@ export default function TodayView() {
                 <Heart
                   size={26}
                   style={{
-                    color: 'var(--accent, #D4607E)',
-                    fill: 'var(--accent, #D4607E)',
+                    color: 'var(--ink, #000000)',
+                    fill: 'var(--ink, #000000)',
                     display: 'inline-block',
-                    filter: 'drop-shadow(0 2px 8px rgba(212, 96, 126, 0.35))',
+                    filter: 'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2))',
                   }}
                 />
               </motion.div>
