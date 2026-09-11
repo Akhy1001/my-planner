@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash, PlayfulTodolist, CheckCircle, Edit, ScribbleStrikethrough, TextReveal } from './animate-ui';
+import { Trash, CheckCircle, Edit, ScribbleStrikethrough, TextReveal } from './animate-ui';
 import AddButton from './AddButton';
 import { useTasks, Task } from '@/hooks/useTasks';
 import { useJournal } from '@/hooks/useJournal';
@@ -1081,12 +1081,6 @@ export default function TodayView() {
             )}
             </div>
           </motion.div>
-
-          {/* ── BLOC 2 : TODOLIST (BLOC DISTINCT) ── */}
-          <div id="playful-todolist-block">
-            <PlayfulTodolist />
-          </div>
-
         </div>
 
         {/* ── COLONNE DROITE (WIDGETS BENTO BIEN-ÊTRE & FOCUS) ── */}
