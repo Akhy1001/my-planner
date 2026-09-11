@@ -29,7 +29,7 @@ const PRESET_CATEGORIES = [
   'Études',
 ];
 
-const PRESET_DURATIONS = ['15min', '30min', '45min', '1h', '1h30', '2h'];
+const PRESET_DURATIONS = ['15min', '30min', '45min', '1h', '1h30', '2h', '3h'];
 
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   none: 'Aucune',
