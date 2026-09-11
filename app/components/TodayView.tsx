@@ -134,10 +134,8 @@ export default function TodayView() {
             <span>{format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}</span>
           </TextReveal>
 
-          <TextReveal
-            as="h1"
+          <h1
             key={`${greeting}-${displayName}`}
-            delay={0.06}
             className="font-display"
             style={{
               fontSize: '2.15rem',
@@ -149,22 +147,17 @@ export default function TodayView() {
               alignItems: 'center',
               gap: '8px',
               flexWrap: 'wrap',
+              margin: 0,
             }}
           >
-            <span>{greeting}, {displayName}</span>
+            <TextReveal as="span" delay={0.06}>
+              <span>{greeting}, {displayName}</span>
+            </TextReveal>
             {isRose ? (
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2.2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                whileHover={{ scale: 1.25 }}
-                whileTap={{ scale: 0.9 }}
-                style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
+              <span
+                className="greeting-heart-icon"
+                title="Mon cœur"
+                aria-label="Cœur animé"
               >
                 <Heart
                   size={26}
@@ -175,46 +168,17 @@ export default function TodayView() {
                     filter: 'drop-shadow(0 2px 8px rgba(212, 96, 126, 0.35))',
                   }}
                 />
-              </motion.div>
+              </span>
             ) : (
-              <motion.span
-                animate={{
-                  scale: [1, 1.25, 0.96, 1.18, 1],
-                  rotate: [0, 14, -8, 12, 0],
-                  filter: [
-                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
-                    'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.22))',
-                    'drop-shadow(0 0 1px rgba(0, 0, 0, 0.08))',
-                    'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18))',
-                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
-                  ],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                whileHover={{
-                  scale: 1.4,
-                  rotate: 180,
-                  transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-                }}
-                whileTap={{ scale: 0.85 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--ink, #000000)',
-                  cursor: 'pointer',
-                  fontSize: '1.75rem',
-                  lineHeight: 1,
-                  userSelect: 'none',
-                }}
+              <span
+                className="greeting-star-icon"
+                title="Étoile étincelante"
+                aria-label="Étoile animée"
               >
                 ✦
-              </motion.span>
+              </span>
             )}
-          </TextReveal>
+          </h1>
 
           <TextReveal
             delay={0.12}
