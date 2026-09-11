@@ -21,6 +21,14 @@ export default function LoginPage() {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Authentification validée…');
   const [loadingIsRose, setLoadingIsRose] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('planner-theme');
+      setIsDark(savedTheme === 'dark' || document.documentElement.classList.contains('dark'));
+    }
+  }, []);
 
   const isRose = email.trim().toLowerCase().startsWith('rstrpn05@') || email.trim().toLowerCase() === 'rstrpn05@gmail.com';
   const activeIsRose = isSuccessLoading ? loadingIsRose : isRose;
@@ -511,180 +519,219 @@ export default function LoginPage() {
 
       {/* ── Écran de chargement immersif post-connexion (Monochrome ou Rose selon le compte) ── */}
       <AnimatePresence>
-        {isSuccessLoading && (
-          <motion.div
-            key="success-loading-screen"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{
-              opacity: 0,
-              scale: 1.05,
-              filter: 'blur(12px)',
-              transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-            }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 9999,
-              background: activeIsRose ? '#FEF0F5' : 'var(--cream, #FAFAFA)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
-              overflow: 'hidden',
-            }}
-          >
-            {/* Ambient subtle backdrop glows */}
-            <div
-              style={{
-                position: 'absolute',
-                width: '600px',
-                height: '600px',
-                borderRadius: '50%',
-                background: activeIsRose
-                  ? 'radial-gradient(circle, rgba(212, 96, 126, 0.16) 0%, rgba(184, 126, 192, 0.08) 50%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
-                pointerEvents: 'none',
-              }}
-            />
+        {isSuccessLoading && (() => {
+          const loginPalette = activeIsRose
+            ? {
+                bg: '#FEF0F5',
+                glow: 'radial-gradient(circle, rgba(212, 96, 126, 0.16) 0%, rgba(184, 126, 192, 0.08) 50%, transparent 70%)',
+                logoBorder: '1px solid #F0D4E4',
+                logoShadow: '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)',
+                titleColor: '#3B1529',
+                subtitleColor: '#8A4B6B',
+                trackBg: 'rgba(212, 96, 126, 0.16)',
+                trackShadow: 'inset 0 1px 2px rgba(212, 96, 126, 0.1)',
+                barBg: 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 35%, #FFFFFF 50%, #F0A8BC 65%, #D4607E 100%)',
+                barShadow: '0 0 12px rgba(212, 96, 126, 0.45)',
+                labelColor: '#8A4B6B',
+                percentColor: '#D4607E',
+              }
+            : isDark
+            ? {
+                bg: '#09090B',
+                glow: 'radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(148, 163, 184, 0.04) 45%, transparent 70%)',
+                logoBorder: '1px solid rgba(255, 255, 255, 0.18)',
+                logoShadow: '0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 24px rgba(255, 255, 255, 0.12)',
+                titleColor: '#FFFFFF',
+                subtitleColor: 'rgba(255, 255, 255, 0.75)',
+                trackBg: 'rgba(255, 255, 255, 0.14)',
+                trackShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.5)',
+                barBg: 'linear-gradient(90deg, #FFFFFF 0%, #E2E8F0 35%, #FFFFFF 50%, #CBD5E1 65%, #FFFFFF 100%)',
+                barShadow: '0 0 14px rgba(255, 255, 255, 0.6)',
+                labelColor: 'rgba(255, 255, 255, 0.65)',
+                percentColor: '#FFFFFF',
+              }
+            : {
+                bg: '#FAFAFA',
+                glow: 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                logoBorder: '1px solid var(--border, #E2E8F0)',
+                logoShadow: '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                titleColor: '#0F172A',
+                subtitleColor: 'var(--stone, #64748B)',
+                trackBg: 'rgba(15, 23, 42, 0.08)',
+                trackShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
+                barBg: 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                barShadow: '0 0 10px rgba(15, 23, 42, 0.35)',
+                labelColor: 'var(--stone, #64748B)',
+                percentColor: '#0F172A',
+              };
 
-            {/* Central Block */}
-            <div
+          return (
+            <motion.div
+              key="success-loading-screen"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{
+                opacity: 0,
+                scale: 1.05,
+                filter: 'blur(12px)',
+                transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+              }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 9999,
+                background: loginPalette.bg,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                textAlign: 'center',
-                position: 'relative',
-                zIndex: 1,
+                justifyContent: 'center',
+                fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
+                overflow: 'hidden',
               }}
             >
-              {/* ── Logo avec rotation synchronisée et rebonds fluides constants ── */}
-              <div className="logo-fluid-bounce" style={{ marginBottom: '26px' }}>
-                <div
-                  style={{
-                    width: '76px',
-                    height: '76px',
-                    borderRadius: '20px',
-                    background: '#FFFFFF',
-                    border: activeIsRose ? '1px solid #F0D4E4' : '1px solid var(--border, #E2E8F0)',
-                    boxShadow: activeIsRose
-                      ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
-                      : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    transform: `rotate(${(progress / 100) * 720}deg)`,
-                    willChange: 'transform',
-                  }}
-                >
-                  <Image
-                    src="/logo.jpg"
-                    alt="My Planner logo"
-                    width={76}
-                    height={76}
-                    style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
-                    priority
-                  />
-                </div>
-              </div>
+              {/* Ambient subtle backdrop glows */}
+              <div
+                style={{
+                  position: 'absolute',
+                  width: '600px',
+                  height: '600px',
+                  borderRadius: '50%',
+                  background: loginPalette.glow,
+                  pointerEvents: 'none',
+                }}
+              />
 
-              {/* Titre & Sous-titre */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.15 }}
-                style={{ marginBottom: '24px' }}
+              {/* Central Block */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
               >
-                <div
-                  className="font-display"
-                  style={{
-                    fontSize: '1.75rem',
-                    fontWeight: 800,
-                    color: activeIsRose ? '#3B1529' : '#0F172A',
-                    letterSpacing: '-0.03em',
-                    marginBottom: '4px',
-                  }}
-                >
-                  My Planner
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.86rem',
-                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
-                    fontWeight: 600,
-                    minHeight: '20px',
-                    transition: 'color 0.2s ease',
-                  }}
-                >
-                  {statusText}
-                </div>
-              </motion.div>
-
-              {/* ── Barre de chargement avec effet de balayage lumineux (Shimmer) ── */}
-              <div style={{ width: '270px' }}>
-                {/* Track */}
-                <div
-                  style={{
-                    width: '100%',
-                    height: '7px',
-                    background: activeIsRose ? 'rgba(212, 96, 126, 0.16)' : 'rgba(15, 23, 42, 0.08)',
-                    borderRadius: '999px',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
-                  }}
-                >
-                  {/* Fill avec effet shimmer */}
+                {/* ── Logo avec rotation synchronisée et rebonds fluides constants ── */}
+                <div className="logo-fluid-bounce" style={{ marginBottom: '26px' }}>
                   <div
                     style={{
-                      height: '100%',
-                      width: `${progress}%`,
-                      background: activeIsRose
-                        ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 35%, #FFFFFF 50%, #F0A8BC 65%, #D4607E 100%)'
-                        : 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
-                      backgroundSize: '240% 100%',
-                      animation: 'barShimmer 1.4s infinite linear',
-                      borderRadius: '999px',
-                      position: 'relative',
-                      boxShadow: activeIsRose
-                        ? '0 0 12px rgba(212, 96, 126, 0.45)'
-                        : '0 0 10px rgba(15, 23, 42, 0.35)',
-                      willChange: 'width',
-                    }}
-                  />
-                </div>
-
-                {/* Pourcentage et détails */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: '10px',
-                    fontSize: '0.75rem',
-                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
-                    fontWeight: 600,
-                  }}
-                >
-                  <span>Initialisation</span>
-                  <span
-                    style={{
-                      color: activeIsRose ? '#D4607E' : '#0F172A',
-                      fontWeight: 800,
-                      fontVariantNumeric: 'tabular-nums',
+                      width: '76px',
+                      height: '76px',
+                      borderRadius: '20px',
+                      background: '#FFFFFF',
+                      border: loginPalette.logoBorder,
+                      boxShadow: loginPalette.logoShadow,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      transform: `rotate(${(progress / 100) * 720}deg)`,
+                      willChange: 'transform',
                     }}
                   >
-                    {Math.round(progress)}%
-                  </span>
+                    <Image
+                      src="/logo.jpg"
+                      alt="My Planner logo"
+                      width={76}
+                      height={76}
+                      style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                      priority
+                    />
+                  </div>
+                </div>
+
+                {/* Titre & Sous-titre */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.15 }}
+                  style={{ marginBottom: '24px' }}
+                >
+                  <div
+                    className="font-display"
+                    style={{
+                      fontSize: '1.75rem',
+                      fontWeight: 800,
+                      color: loginPalette.titleColor,
+                      letterSpacing: '-0.03em',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    My Planner
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.86rem',
+                      color: loginPalette.subtitleColor,
+                      fontWeight: 600,
+                      minHeight: '20px',
+                      transition: 'color 0.2s ease',
+                    }}
+                  >
+                    {statusText}
+                  </div>
+                </motion.div>
+
+                {/* ── Barre de chargement avec effet de balayage lumineux (Shimmer) ── */}
+                <div style={{ width: '270px' }}>
+                  {/* Track */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '7px',
+                      background: loginPalette.trackBg,
+                      borderRadius: '999px',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      boxShadow: loginPalette.trackShadow,
+                    }}
+                  >
+                    {/* Fill avec effet shimmer */}
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${progress}%`,
+                        background: loginPalette.barBg,
+                        backgroundSize: '240% 100%',
+                        animation: 'barShimmer 1.4s infinite linear',
+                        borderRadius: '999px',
+                        position: 'relative',
+                        boxShadow: loginPalette.barShadow,
+                        willChange: 'width',
+                      }}
+                    />
+                  </div>
+
+                  {/* Pourcentage et détails */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: '10px',
+                      fontSize: '0.75rem',
+                      color: loginPalette.labelColor,
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span>Initialisation</span>
+                    <span
+                      style={{
+                        color: loginPalette.percentColor,
+                        fontWeight: 800,
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {Math.round(progress)}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
 
       <style>{`
