@@ -152,16 +152,66 @@ export default function TodayView() {
           >
             <span>{greeting}, {displayName}</span>
             {isRose ? (
-              <Heart
-                size={26}
-                style={{
-                  color: 'var(--accent, #D4607E)',
-                  fill: 'var(--accent, #D4607E)',
-                  display: 'inline-block',
+              <motion.div
+                animate={{
+                  scale: [1, 1.15, 1, 1.1, 1],
                 }}
-              />
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                whileHover={{ scale: 1.25 }}
+                whileTap={{ scale: 0.9 }}
+                style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
+              >
+                <Heart
+                  size={26}
+                  style={{
+                    color: 'var(--accent, #D4607E)',
+                    fill: 'var(--accent, #D4607E)',
+                    display: 'inline-block',
+                    filter: 'drop-shadow(0 2px 8px rgba(212, 96, 126, 0.35))',
+                  }}
+                />
+              </motion.div>
             ) : (
-              <span>✦</span>
+              <motion.span
+                animate={{
+                  scale: [1, 1.25, 0.96, 1.18, 1],
+                  rotate: [0, 14, -8, 12, 0],
+                  filter: [
+                    'drop-shadow(0 0 0px var(--accent, #3B82F6))',
+                    'drop-shadow(0 0 8px var(--accent, #3B82F6))',
+                    'drop-shadow(0 0 1px var(--accent, #3B82F6))',
+                    'drop-shadow(0 0 7px var(--accent, #3B82F6))',
+                    'drop-shadow(0 0 0px var(--accent, #3B82F6))',
+                  ],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                whileHover={{
+                  scale: 1.4,
+                  rotate: 180,
+                  transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                }}
+                whileTap={{ scale: 0.85 }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--accent, #3B82F6)',
+                  cursor: 'pointer',
+                  fontSize: '1.75rem',
+                  lineHeight: 1,
+                  userSelect: 'none',
+                }}
+              >
+                ✦
+              </motion.span>
             )}
           </TextReveal>
 
