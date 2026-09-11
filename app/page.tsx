@@ -367,36 +367,37 @@ export default function Home() {
                 zIndex: 1,
               }}
             >
-              {/* ── Logo synchronisé à 100% avec la vitesse de déconnexion (2 tours complets 720°) ── */}
-              <div
-                style={{
-                  width: '76px',
-                  height: '76px',
-                  borderRadius: '20px',
-                  background: '#FFFFFF',
-                  border: (signingOutIsPink || isPinkUser)
-                    ? '1px solid #F0D4E4'
-                    : '1px solid var(--border, #E2E8F0)',
-                  boxShadow: (signingOutIsPink || isPinkUser)
-                    ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
-                    : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                  marginBottom: '26px',
-                  transform: `rotate(${(signOutProgress / 100) * 720}deg) scale(${1 + Math.sin((signOutProgress / 100) * Math.PI * 2) * 0.06})`,
-                  willChange: 'transform',
-                }}
-              >
-                <Image
-                  src="/logo.jpg"
-                  alt="My Planner logo"
-                  width={76}
-                  height={76}
-                  style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
-                  priority
-                />
+              {/* ── Logo avec rotation synchronisée et rebonds fluides constants ── */}
+              <div className="logo-fluid-bounce" style={{ marginBottom: '26px' }}>
+                <div
+                  style={{
+                    width: '76px',
+                    height: '76px',
+                    borderRadius: '20px',
+                    background: '#FFFFFF',
+                    border: (signingOutIsPink || isPinkUser)
+                      ? '1px solid #F0D4E4'
+                      : '1px solid var(--border, #E2E8F0)',
+                    boxShadow: (signingOutIsPink || isPinkUser)
+                      ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
+                      : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    transform: `rotate(${(signOutProgress / 100) * 720}deg)`,
+                    willChange: 'transform',
+                  }}
+                >
+                  <Image
+                    src="/logo.jpg"
+                    alt="My Planner logo"
+                    width={76}
+                    height={76}
+                    style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                    priority
+                  />
+                </div>
               </div>
 
               {/* Titre & Sous-titre dynamique */}
