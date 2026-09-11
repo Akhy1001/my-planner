@@ -181,11 +181,11 @@ export default function TodayView() {
                   scale: [1, 1.25, 0.96, 1.18, 1],
                   rotate: [0, 14, -8, 12, 0],
                   filter: [
-                    'drop-shadow(0 0 0px var(--accent, #3B82F6))',
-                    'drop-shadow(0 0 8px var(--accent, #3B82F6))',
-                    'drop-shadow(0 0 1px var(--accent, #3B82F6))',
-                    'drop-shadow(0 0 7px var(--accent, #3B82F6))',
-                    'drop-shadow(0 0 0px var(--accent, #3B82F6))',
+                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
+                    'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.22))',
+                    'drop-shadow(0 0 1px rgba(0, 0, 0, 0.08))',
+                    'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18))',
+                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
                   ],
                 }}
                 transition={{
@@ -203,7 +203,7 @@ export default function TodayView() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--accent, #3B82F6)',
+                  color: 'var(--ink, #000000)',
                   cursor: 'pointer',
                   fontSize: '1.75rem',
                   lineHeight: 1,
