@@ -10,7 +10,7 @@ import {
   startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, differenceInDays,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check, X, CalendarPlus } from 'lucide-react';
+import { Pencil, Clock, Repeat, ChevronLeft, ChevronRight, Calendar, Sparkles, Plus, Check } from 'lucide-react';
 import { useEvents, Event, RecurrenceType } from '@/hooks/useEvents';
 import { useMenstrualCycle, computeCycleDays, daysUntilNextPeriod, CycleDay, MenstrualCycle } from '@/hooks/useMenstrualCycle';
 import { useAuth } from '@/hooks/useAuth';
@@ -210,11 +210,9 @@ export default function AgendaView() {
   // Week view data
   const weekDays = eachDayOfInterval({ start: currentWeekStart, end: endOfWeek(currentWeekStart, WEEK_OPTS) });
 
-  const selectedEvents = useMemo(() => {
-    return events
-      .filter(e => isSameDay(startOfDay(e.date), startOfDay(selectedDate)))
-      .sort((a, b) => a.time.localeCompare(b.time));
-  }, [events, selectedDate]);
+  const selectedEvents = events
+    .filter(e => isSameDay(startOfDay(e.date), startOfDay(selectedDate)))
+    .sort((a, b) => a.time.localeCompare(b.time));
 
   const goToToday = () => {
     const today = startOfDay(new Date());
@@ -704,93 +702,37 @@ export default function AgendaView() {
           {showForm && (
             <motion.div
               key="event-form"
-              initial={{ opacity: 0, y: -12, scale: 0.98 }}
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, y: -6, scale: 0.97 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 background: 'var(--card, var(--warm-white))',
-                borderRadius: '20px',
-                padding: '20px',
-                marginBottom: '18px',
+                borderRadius: '16px',
+                padding: '16px',
+                marginBottom: '16px',
                 border: '1px solid var(--border)',
-                boxShadow: '0 12px 36px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04)',
+                boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
                 transformOrigin: 'top center',
-                position: 'relative',
-                overflow: 'hidden',
               }}
             >
-              {/* Ligne d'accent lumineuse supérieure */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '3px',
-                  background: 'linear-gradient(90deg, var(--accent), #93C5FD, var(--accent))',
-                }}
-              />
-
               {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div
-                    style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '8px',
-                      background: 'var(--accent-soft)',
-                      color: 'var(--accent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {editingBaseId ? <Pencil size={15} /> : <CalendarPlus size={15} />}
-                  </div>
-                  <div className="font-display" style={{ fontSize: '0.94rem', fontWeight: 700, color: 'var(--ink)' }}>
-                    {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div className="font-display" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink)' }}>
+                  {editingBaseId ? 'Modifier l\'événement' : 'Nouvel événement'}
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    padding: '3px 9px',
-                    borderRadius: '9999px',
-                    background: 'var(--accent-soft)',
-                    color: 'var(--accent)',
-                  }}>
-                    {editingBaseId ? 'Édition' : 'Agenda'}
-                  </span>
-                  <motion.button
-                    type="button"
-                    onClick={closeForm}
-                    whileHover={{ scale: 1.12, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ duration: 0.15 }}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--stone)',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '6px',
-                    }}
-                    title="Fermer"
-                    aria-label="Fermer le menu"
-                  >
-                    <X size={16} />
-                  </motion.button>
-                </div>
+                <span style={{
+                  fontSize: '0.62rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent)',
+                }}>
+                  {editingBaseId ? 'Édition' : 'Agenda'}
+                </span>
               </div>
 
               {/* Error */}
@@ -798,9 +740,9 @@ export default function AgendaView() {
                 {formError && (
                   <motion.div
                     key="form-error"
-                    initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.15 }}
                     style={{
                       fontSize: '0.75rem',
@@ -848,9 +790,8 @@ export default function AgendaView() {
                         key={cat}
                         type="button"
                         onClick={() => setFormData({ ...formData, category: cat })}
-                        whileTap={{ scale: 0.94 }}
-                        whileHover={{ scale: 1.04 }}
-                        transition={{ duration: 0.15 }}
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.03 }}
                         style={{
                           padding: '4px 10px',
                           borderRadius: '8px',
@@ -910,8 +851,6 @@ export default function AgendaView() {
                       key={d}
                       type="button"
                       whileTap={{ scale: 0.94 }}
-                      whileHover={{ scale: 1.06 }}
-                      transition={{ duration: 0.15 }}
                       onClick={() => setFormData({ ...formData, duration: d })}
                       style={{
                         padding: '2px 8px',
@@ -953,7 +892,7 @@ export default function AgendaView() {
               </div>
 
               {/* Color picker */}
-              <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: 'var(--stone)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Couleur de l&apos;étiquette
                 </label>
@@ -965,16 +904,15 @@ export default function AgendaView() {
                         key={c}
                         type="button"
                         onClick={() => setFormData({ ...formData, color: c })}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.88 }}
-                        transition={{ duration: 0.15 }}
+                        whileHover={{ scale: 1.15 }}
+                        whileTap={{ scale: 0.9 }}
                         style={{
                           width: '24px', height: '24px', borderRadius: '50%',
                           background: c, cursor: 'pointer', flexShrink: 0,
                           border: isSelected ? '2px solid var(--ink)' : '2px solid transparent',
                           boxShadow: isSelected ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'border 0.15s, box-shadow 0.15s',
+                          transition: 'all 0.15s ease',
                         }}
                       >
                         {isSelected && (
@@ -986,9 +924,8 @@ export default function AgendaView() {
                   {/* Sélecteur libre — pastille arc-en-ciel */}
                   <motion.label
                     title="Couleur personnalisée"
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.88 }}
-                    transition={{ duration: 0.15 }}
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.9 }}
                     style={{
                       width: '24px', height: '24px', borderRadius: '50%',
                       background: !PRESET_COLORS.includes(formData.color)
@@ -999,7 +936,7 @@ export default function AgendaView() {
                       boxShadow: !PRESET_COLORS.includes(formData.color) ? '0 0 0 2px var(--card)' : '0 1px 2px rgba(0,0,0,0.1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       position: 'relative',
-                      transition: 'border 0.15s, box-shadow 0.15s',
+                      transition: 'all 0.15s ease',
                     }}
                   >
                     <input
@@ -1026,7 +963,7 @@ export default function AgendaView() {
                   onClick={handleSubmit}
                   whileTap={{ scale: 0.96 }}
                   whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     flex: 1, padding: '10px 14px',
                     background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, var(--cream))',
@@ -1034,20 +971,18 @@ export default function AgendaView() {
                     fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
                     boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    gap: '6px',
                     transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
                 >
-                  {editingBaseId ? <Check size={15} /> : <Plus size={15} />}
-                  <span>{editingBaseId ? 'Enregistrer' : 'Ajouter'}</span>
+                  {editingBaseId ? 'Enregistrer' : 'Ajouter'}
                 </motion.button>
                 <motion.button
                   onClick={closeForm}
                   whileHover={{ scale: 1.02, background: 'var(--muted)' }}
                   whileTap={{ scale: 0.96 }}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     padding: '10px 16px',
                     background: 'transparent', color: 'var(--stone)',
@@ -1065,9 +1000,9 @@ export default function AgendaView() {
           {/* Cycle menstruel — visible uniquement pour rstrpn05@gmail.com */}
           {isCycleUser && <motion.div
             layout
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 24, scale: 0.96, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
             style={{
               background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(254, 240, 245, 0.9) 100%)',
               borderRadius: '20px',
@@ -1079,6 +1014,21 @@ export default function AgendaView() {
               overflow: 'hidden',
             }}
           >
+            {/* Voile lumineux d'apparition (Light Sheen) */}
+            <motion.div
+              initial={{ x: '-100%', opacity: 0.7 }}
+              animate={{ x: '250%', opacity: 0 }}
+              transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                width: '45%',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%)',
+                pointerEvents: 'none',
+                zIndex: 4,
+              }}
+            />
 
             {/* Ligne d'accent lumineuse supérieure avec déploiement fluide */}
             <motion.div
@@ -1323,10 +1273,9 @@ export default function AgendaView() {
             ) : selectedEvents.length === 0 ? (
               <motion.div
                 key="empty"
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 style={{
                   textAlign: 'center',
                   padding: '32px 16px',
@@ -1389,18 +1338,19 @@ export default function AgendaView() {
                 {/* Ligne directrice de la timeline */}
                 <div className="agenda-timeline-connector" />
 
-                <AnimatePresence mode="popLayout" initial={false}>
-                  {selectedEvents.map((event) => {
+                <AnimatePresence mode="popLayout">
+                  {selectedEvents.map((event, i) => {
                     const endTime = formatEndTime(event.time, event.duration);
                     return (
                       <motion.div
                         key={event.id}
                         layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                        initial={{ opacity: 0, y: 18, scale: 0.96, filter: 'blur(8px)' }}
+                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, x: -16, scale: 0.95, filter: 'blur(4px)', transition: { duration: 0.2, ease: 'easeOut' } }}
                         transition={{
-                          duration: 0.22,
+                          duration: 0.45,
+                          delay: 0.05 + Math.min(i * 0.06, 0.28),
                           ease: [0.16, 1, 0.3, 1],
                         }}
                         style={{
@@ -1411,8 +1361,11 @@ export default function AgendaView() {
                           zIndex: 1,
                         }}
                       >
-                        {/* Puce lumineuse Timeline */}
-                        <div
+                        {/* Puce lumineuse Timeline avec rebond dynamique */}
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 0.08 + Math.min(i * 0.06, 0.28) }}
                           style={{
                             width: '12px',
                             height: '12px',
@@ -1444,6 +1397,21 @@ export default function AgendaView() {
                             overflow: 'hidden',
                           }}
                         >
+                          {/* Balayage lumineux satiné sur la carte d'événement */}
+                          <motion.div
+                            initial={{ x: '-100%', opacity: 0.35 }}
+                            animate={{ x: '250%', opacity: 0 }}
+                            transition={{ duration: 0.9, delay: 0.15 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              bottom: 0,
+                              width: '40%',
+                              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%)',
+                              pointerEvents: 'none',
+                              zIndex: 2,
+                            }}
+                          />
                           {/* Barre d'info supérieure */}
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
@@ -1540,17 +1508,19 @@ export default function AgendaView() {
                           </div>
 
                           {/* Titre */}
-                          <div
-                            style={{
-                              fontSize: '0.88rem',
-                              fontWeight: 600,
-                              color: 'var(--ink)',
-                              lineHeight: 1.35,
-                              letterSpacing: '-0.01em',
-                            }}
-                          >
-                            {event.title}
-                          </div>
+                          <TextReveal delay={0.04 + Math.min(i * 0.03, 0.15)} duration={0.35}>
+                            <div
+                              style={{
+                                fontSize: '0.88rem',
+                                fontWeight: 600,
+                                color: 'var(--ink)',
+                                lineHeight: 1.35,
+                                letterSpacing: '-0.01em',
+                              }}
+                            >
+                              {event.title}
+                            </div>
+                          </TextReveal>
 
                           {/* Durée */}
                           <div style={{ fontSize: '0.68rem', color: 'var(--stone)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
