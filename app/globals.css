@@ -1,61 +1,173 @@
-/* Geist is loaded via the npm 'geist' package in layout.tsx */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --cream: #F8F6F2;
-  --warm-white: #F0EDE6;
-  --ink: #18181B;
-  --ink-light: #3F3F46;
-  --sage: #6B8F71;
-  --sage-light: #A8C5AD;
-  --terra: #C0634A;
-  --terra-light: #E8A882;
-  --gold: #C9973C;
-  --gold-light: #E8D08A;
-  --lavender: #8075A8;
-  --stone: #A1A1AA;
-  --stone-light: #D4D4D8;
-  --border: #E4E4E7;
+  /* ── Charte Graphique My Task — Variables Systèmes ── */
+  --background: #FAFAFA;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --ring: #3B82F6;
+
+  /* Rétrocompatibilité surfaces existantes */
+  --cream: #FAFAFA;
+  --warm-white: #FFFFFF;
+  --ink: #0F172A;
+  --ink-light: #475569;
+  --stone: #64748B;
+  --stone-light: #CBD5E1;
+
+  /* Accents par défaut (Profil Anas — Bleu Tech) */
+  --accent: #3B82F6;
+  --accent-soft: #EFF6FF;
+  --accent-hover: #2563EB;
+  --sage: #3B82F6;
+  --sage-light: #93C5FD;
+  --terra: #EF4444;
+  --terra-light: #FCA5A5;
+  --gold: #F97316;
+  --gold-light: #FDBA74;
+  --lavender: #8B5CF6;
+
+  /* Couleurs Sémantiques & Priorités (Section 3.3) */
+  --priority-high: #EF4444;
+  --priority-high-bg: #FEF2F2;
+  --priority-medium: #F97316;
+  --priority-medium-bg: #FFF7ED;
+  --priority-low: #3B82F6;
+  --priority-low-bg: #EFF6FF;
+
+  /* Rayons de courbure (Section 4) */
+  --radius: 0.625rem;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 22px;
+  --radius-full: 9999px;
+
+  /* Boutons d'action principaux avec dégradé subtil blanc */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%), var(--ink);
+  --primary-btn-fg: var(--cream);
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), var(--ink-light);
+  --primary-btn-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
 }
 
-/* ── Thème Sombre ── */
-[data-theme="dark"] {
-  --cream: #18181B;
-  --warm-white: #27272A;
-  --ink: #F4F4F5;
+/* ── Mode Sombre (Section 3.1) ── */
+[data-theme="dark"],
+html.dark {
+  --background: #09090B;
+  --foreground: #F8FAFC;
+  --card: #18181B;
+  --card-foreground: #F8FAFC;
+  --popover: #18181B;
+  --border: #27272A;
+  --input: rgba(255, 255, 255, 0.15);
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+  --ring: #3B82F6;
+
+  --cream: #09090B;
+  --warm-white: #18181B;
+  --ink: #F8FAFC;
   --ink-light: #A1A1AA;
-  --sage: #6B8F71;
-  --sage-light: #4A6B50;
-  --terra: #C0634A;
-  --terra-light: #8C3D28;
-  --gold: #C9973C;
-  --gold-light: #8C6520;
-  --lavender: #8075A8;
   --stone: #71717A;
   --stone-light: #3F3F46;
-  --border: #3F3F46;
+
+  --accent: #3B82F6;
+  --accent-soft: rgba(59, 130, 246, 0.15);
+  --accent-hover: #60A5FA;
+  --sage: #3B82F6;
+  --sage-light: #60A5FA;
+  --terra: #F87171;
+  --terra-light: rgba(239, 68, 68, 0.3);
+  --gold: #FB923C;
+  --gold-light: rgba(249, 115, 22, 0.3);
+  --lavender: #A78BFA;
+
+  --priority-high: #F87171;
+  --priority-high-bg: rgba(239, 68, 68, 0.2);
+  --priority-medium: #FB923C;
+  --priority-medium-bg: rgba(249, 115, 22, 0.2);
+  --priority-low: #60A5FA;
+  --priority-low-bg: rgba(59, 130, 246, 0.2);
+
+  /* Boutons d'action principaux avec dégradé subtil blanc */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%), #0F172A;
+  --primary-btn-fg: #F8FAFC;
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #1E293B;
+  --primary-btn-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-[data-theme="dark"] .paper-bg {
+[data-theme="dark"] .paper-bg,
+html.dark .paper-bg {
   background-color: var(--cream);
   background-image:
-    radial-gradient(ellipse at 15% 50%, rgba(107, 143, 113, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 15%, rgba(192, 99, 74, 0.06) 0%, transparent 60%);
+    radial-gradient(ellipse at 15% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
 }
 
-/* ── Thème Pastel Rose (rstrpn05@gmail.com) ── */
-[data-theme="pink"] {
+/* ── Profil Anas (Thème Bleu Tech — Section 3.2.A) ── */
+[data-profile="anas"],
+[data-theme="sand"] {
+  --accent: #3B82F6;
+  --accent-soft: #EFF6FF;
+  --accent-hover: #2563EB;
+  --sage: #3B82F6;
+  --sage-light: #93C5FD;
+  --ring: #3B82F6;
+}
+
+[data-theme="dark"][data-profile="anas"],
+[data-theme="dark"][data-theme="sand"],
+html.dark[data-profile="anas"],
+html.dark[data-theme="sand"] {
+  --accent: #3B82F6;
+  --accent-soft: rgba(59, 130, 246, 0.15);
+  --accent-hover: #60A5FA;
+  --sage: #3B82F6;
+  --sage-light: #60A5FA;
+}
+
+/* ── Profil Rose (Thème Rose Pastel — rstrpn05@gmail.com) ── */
+[data-profile="rose"],
+[data-theme="pink"],
+[data-theme="dark"][data-profile="rose"],
+[data-theme="dark"][data-theme="pink"],
+html.dark[data-profile="rose"],
+html.dark[data-theme="pink"] {
+  --background: #FEF0F5;
+  --foreground: #3B1529;
+  --card: #FAE4ED;
+  --card-foreground: #3B1529;
+  --popover: #FAE4ED;
+  --border: #F0D4E4;
+  --input: #F0D4E4;
+  --muted: #FAE4ED;
+  --muted-foreground: #8A4B6B;
+  --ring: #D4607E;
+
+  /* Surfaces & Textes */
   --cream: #FEF0F5;
   --warm-white: #FAE4ED;
   --ink: #3B1529;
   --ink-light: #6B3050;
+  --stone: #B898A8;
+  --stone-light: #E4C8D8;
+
+  /* Palette d'accents & composants */
+  --accent: #D4607E;
+  --accent-soft: #FDF2F5;
+  --accent-hover: #C04472;
   --sage: #D4607E;
   --sage-light: #F0A8BC;
   --terra: #C04472;
@@ -63,61 +175,41 @@
   --gold: #D483A0;
   --gold-light: #F0C8D8;
   --lavender: #B87EC0;
-  --stone: #B898A8;
-  --stone-light: #E4C8D8;
-  --border: #F0D4E4;
+
+  /* Priorités en harmonie avec le thème rose */
+  --priority-high: #C04472;
+  --priority-high-bg: #FDE8F0;
+  --priority-medium: #D483A0;
+  --priority-medium-bg: #FFF0F5;
+  --priority-low: #D4607E;
+  --priority-low-bg: #FEF0F5;
+
+  /* Boutons d'action principaux (harmonisé avec le rose pastel de la charte et dégradé subtil blanc) */
+  --primary-btn-bg: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), var(--accent);
+  --primary-btn-fg: #FFFFFF;
+  --primary-btn-hover: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 70%), var(--accent-hover);
+  --primary-btn-shadow: 0 4px 12px rgba(212, 96, 126, 0.25);
 }
 
-[data-theme="pink"] .paper-bg {
+[data-profile="rose"] .paper-bg,
+[data-theme="pink"] .paper-bg,
+html.dark[data-profile="rose"] .paper-bg {
   background-color: var(--cream);
   background-image:
     radial-gradient(ellipse at 15% 50%, rgba(212, 96, 126, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 85% 15%, rgba(184, 126, 192, 0.07) 0%, transparent 60%);
 }
 
+[data-profile="rose"] .task-check:hover,
 [data-theme="pink"] .task-check:hover {
-  border-color: var(--sage);
-  background: rgba(212, 96, 126, 0.07);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
+[data-profile="rose"] .task-check.checked,
 [data-theme="pink"] .task-check.checked {
-  background: var(--sage);
-  border-color: var(--sage);
-}
-
-/* ── Thème Sand (anas.fz1001@gmail.com) ── */
-[data-theme="sand"] {
-  --cream: #fdfdfc;
-  --warm-white: #f9f9f8;
-  --ink: #21201c;
-  --ink-light: #63635e;
-  --sage: #6f6e69;
-  --sage-light: #a9a9a2;
-  --terra: #4a4945;
-  --terra-light: #8d8d86;
-  --gold: #82827c;
-  --gold-light: #bcbbb5;
-  --lavender: #6f6e69;
-  --stone: #8d8d86;
-  --stone-light: #dad9d6;
-  --border: #e9e8e6;
-}
-
-[data-theme="sand"] .paper-bg {
-  background-color: var(--cream);
-  background-image:
-    radial-gradient(ellipse at 15% 50%, rgba(111, 110, 105, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 15%, rgba(74, 73, 69, 0.04) 0%, transparent 60%);
-}
-
-[data-theme="sand"] .task-check:hover {
-  border-color: var(--sage);
-  background: rgba(111, 110, 105, 0.07);
-}
-
-[data-theme="sand"] .task-check.checked {
-  background: var(--sage);
-  border-color: var(--sage);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 
@@ -130,7 +222,7 @@
 html, body {
   background-color: var(--cream);
   color: var(--ink);
-  font-family: var(--font-geist-sans), 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'Nunito', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
   font-style: normal;
   line-height: 1.6;
@@ -140,7 +232,7 @@ html, body {
 }
 
 button, input, textarea, select {
-  font-family: inherit;
+  font-family: 'Nunito', inherit;
   font-style: normal;
 }
 
@@ -286,84 +378,87 @@ button, input, textarea, select {
 
 /* Display font */
 .font-display {
-  font-family: var(--font-geist-sans), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  font-weight: 700;
+  font-family: 'Nunito', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
   font-style: normal;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
+}
+
+h1, h2, h3 {
+  font-family: 'Nunito', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 /* Paper background */
 .paper-bg {
-  background-color: var(--cream);
-  background-image:
-    radial-gradient(ellipse at 15% 50%, rgba(107, 143, 113, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 15%, rgba(192, 99, 74, 0.05) 0%, transparent 60%);
+  background-color: var(--background, var(--cream));
 }
 
 /* ── Task checkbox ── */
 .task-check {
   width: 20px; height: 20px;
   border: 1.5px solid var(--stone-light);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 6px);
   flex-shrink: 0; cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex; align-items: center; justify-content: center;
 }
-.task-check:hover { border-color: var(--sage); background: rgba(107,143,113,0.07); }
-.task-check.checked { background: var(--sage); border-color: var(--sage); }
+.task-check:hover { border-color: var(--accent); background: var(--accent-soft); }
+.task-check.checked { background: var(--accent); border-color: var(--accent); }
 .task-row {
   transition: background 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
 }
 .task-row.task-done {
-  box-shadow: inset 0 0 0 1px rgba(192, 99, 74, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.14);
 }
 .task-check-pulse {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 8px);
   background: rgba(255, 255, 255, 0.3);
 }
 .task-text-done {
   text-decoration: none;
-  opacity: 0.82;
+  opacity: 0.75;
   color: var(--stone);
 }
 
 /* Priorities */
-.priority-high   { background: var(--terra);   }
-.priority-medium { background: var(--gold);    }
-.priority-low    { background: var(--sage);    }
+.priority-high   { background: var(--priority-high); color: white; }
+.priority-medium { background: var(--priority-medium); color: white; }
+.priority-low    { background: var(--priority-low); color: white; }
 
 /* Habit day squares */
 .habit-day {
   width: 28px; height: 28px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 6px);
   border: 1.5px solid var(--border);
   cursor: pointer; transition: all 0.15s ease;
 }
-.habit-day:hover { border-color: var(--sage-light); }
-.habit-day.done  { background: var(--sage); border-color: var(--sage); }
-.habit-day.today { border-color: var(--terra); }
+.habit-day:hover { border-color: var(--accent); }
+.habit-day.done  { background: var(--accent); border-color: var(--accent); }
+.habit-day.today { border-color: var(--priority-high); }
 
 /* Mood buttons */
 .mood-btn {
   font-size: 1.5rem;
   padding: 8px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 8px);
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   border: 2px solid transparent;
   background: none;
 }
 .mood-btn:hover  { background: var(--warm-white); transform: scale(1.12); }
-.mood-btn.selected { border-color: var(--gold); background: rgba(201, 151, 60, 0.1); }
+.mood-btn.selected { border-color: var(--accent); background: var(--accent-soft); }
 
 /* Card */
 .card {
-  background: var(--warm-white);
-  border-radius: var(--radius-lg);
+  background: var(--card, var(--warm-white));
+  border-radius: var(--radius-lg, 10px);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 /* Hover lift effect (like the reference site) */
@@ -372,14 +467,34 @@ button, input, textarea, select {
 }
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(24, 24, 27, 0.1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 /* ── Input / Textarea focus glow ── */
 input:focus, textarea:focus {
-  border-color: var(--sage-light) !important;
-  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.12) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
   transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+/* ── Clean Task Input (Supprime totalement l'encadré blanc ou halo interne) ── */
+.clean-task-input,
+.clean-task-input:focus,
+.clean-task-input:focus-visible,
+.clean-task-input:active,
+.clean-task-input:hover {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.task-input-bar:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
 }
 
 /* ── Skeleton shimmer ── */
@@ -414,3 +529,330 @@ input:focus, textarea:focus {
 .animate-celebrate {
   animation: celebrationBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* ── Bar shimmer animation ── */
+@keyframes barShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ── ADAPTATION IPAD & TABLETTES (IPADOS & TOUCH OPTIMISATIONS) ────
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. Global Touch & iPad feel */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button, input, select, textarea, .task-check, .habit-day, .mood-btn {
+  touch-action: manipulation;
+}
+
+/* 2. Sidebar iPad Rail (<= 1024px : iPad Mini, 10.2", 10.9", 11" Pro) */
+.app-sidebar {
+  width: 230px;
+  background: var(--warm-white);
+  border-right: 1px solid var(--border);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  flex-shrink: 0;
+}
+
+.sidebar-date-compact {
+  display: none;
+}
+
+.sidebar-date-full {
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .app-sidebar {
+    width: 76px !important;
+    padding: 18px 0 !important;
+  }
+
+  .sidebar-logo-block {
+    padding: 0 0 16px !important;
+    justify-content: center !important;
+  }
+
+  .sidebar-logo-text {
+    display: none !important;
+  }
+
+  .sidebar-date-card {
+    margin: 0 8px 16px !important;
+    padding: 10px 4px !important;
+    border-radius: 14px !important;
+  }
+
+  .sidebar-date-full {
+    display: none !important;
+  }
+
+  .sidebar-date-compact {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .sidebar-nav-container {
+    padding: 0 8px !important;
+  }
+
+  .sidebar-nav-btn {
+    padding: 12px 0 !important;
+    justify-content: center !important;
+    border-radius: 14px !important;
+    min-height: 46px !important;
+  }
+
+  .sidebar-nav-label {
+    display: none !important;
+  }
+
+  .sidebar-nav-dot {
+    display: none !important;
+  }
+
+  .sidebar-theme-toggle {
+    padding: 0 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .sidebar-profile-container {
+    padding: 0 8px !important;
+  }
+
+  .sidebar-profile-card {
+    padding: 8px 4px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: center !important;
+    border-radius: 14px !important;
+  }
+
+  .sidebar-user-info {
+    display: none !important;
+  }
+
+  .sidebar-logout-btn {
+    padding: 8px !important;
+  }
+}
+
+/* 3. Today View Bento Layout on iPad */
+.today-view-container {
+  padding: 32px;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.today-header-bento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.today-bento-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.today-widgets-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .today-view-container {
+    padding: 22px 18px !important;
+  }
+
+  .today-header-bento {
+    gap: 16px !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .today-header-bento h1 {
+    font-size: 1.85rem !important;
+  }
+
+  .today-bento-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .today-widgets-column {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  .today-progress-card {
+    padding: 10px 14px !important;
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .today-header-bento {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .today-widgets-column {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 4. Agenda View Bento Horizon */
+.agenda-view-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr);
+  gap: 24px;
+  padding: 32px;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  align-items: start;
+}
+
+.agenda-sidebar-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenda-bento-card {
+  background: var(--card, var(--warm-white));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.agenda-timeline-connector {
+  position: absolute;
+  top: 18px;
+  bottom: -14px;
+  left: 17px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--border) 0%, var(--border) 85%, transparent 100%);
+  z-index: 0;
+}
+
+@media (max-width: 1024px) {
+  .agenda-view-container {
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px !important;
+    gap: 20px !important;
+  }
+
+  .agenda-sidebar-panel {
+    width: 100% !important;
+  }
+}
+
+/* 5. Habits View on iPad */
+.habits-view-container {
+  padding: 32px;
+  overflow-y: auto;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1024px) {
+  .habits-view-container {
+    padding: 22px 18px !important;
+  }
+
+  .habit-day {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* 6. Notes & Goals on iPad */
+.notes-view-container,
+.goals-view-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notes-sidebar-panel {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.goals-sidebar-panel {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.goals-detail-panel {
+  padding: 32px;
+}
+
+@media (max-width: 1024px) {
+  .notes-sidebar-panel {
+    width: 230px !important;
+  }
+
+  .goals-sidebar-panel {
+    width: 240px !important;
+    padding: 18px 12px !important;
+  }
+
+  .goals-detail-panel {
+    padding: 20px 18px !important;
+  }
+}
+
+/* ── View Transitions : Effet d'onde circulaire au basculement Clair / Sombre ── */
+::view-transition-group(root) {
+  animation-duration: 0.95s;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 99999;
+}
+
+/* Fallback de transition fluide pour les navigateurs ne supportant pas View Transitions */
+.theme-transition-fallback,
+.theme-transition-fallback *,
+.theme-transition-fallback *::before,
+.theme-transition-fallback *::after {
+  transition: background-color 0.65s ease, border-color 0.65s ease, color 0.65s ease, fill 0.65s ease, stroke 0.65s ease !important;
+}
+

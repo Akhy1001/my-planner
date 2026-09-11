@@ -1,7 +1,9 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -12,229 +14,694 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
+
+  // État de l'écran de chargement post-connexion
+  const [isSuccessLoading, setIsSuccessLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [statusText, setStatusText] = useState('Authentification validée…');
+  const [loadingIsRose, setLoadingIsRose] = useState(false);
+
+  const isRose = email.trim().toLowerCase().startsWith('rstrpn05@') || email.trim().toLowerCase() === 'rstrpn05@gmail.com';
+  const activeIsRose = isSuccessLoading ? loadingIsRose : isRose;
+
+  const startLoadingSimulation = (roseUser: boolean) => {
+    setLoadingIsRose(roseUser);
+    setProgress(0);
+    setStatusText('Authentification validée…');
+    setIsSuccessLoading(true);
+  };
+
+  useEffect(() => {
+    if (!isSuccessLoading) return;
+
+    let startTime: number | null = null;
+    const duration = 4800; // 4.8s : temps prolongé pour une rotation douce et cinématographique
+    let animationFrameId: number;
+    let finishTimeoutId: NodeJS.Timeout;
+
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const t = Math.min(elapsed / duration, 1);
+
+      // Courbe d'accélération/décélération ultra-fluide (Ease-in-out cubique)
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const current = Math.min(eased * 100, 100);
+
+      setProgress(current);
+
+      if (current < 28) {
+        setStatusText('Authentification validée…');
+      } else if (current < 65) {
+        setStatusText('Synchronisation de votre profil…');
+      } else if (current < 92) {
+        setStatusText('Chargement de vos notes & tâches…');
+      } else {
+        setStatusText(loadingIsRose ? 'Bienvenue Rose ! 💖' : 'Bienvenue sur My Planner !');
+      }
+
+      if (t < 1) {
+        animationFrameId = requestAnimationFrame(step);
+      } else {
+        finishTimeoutId = setTimeout(() => {
+          try {
+            sessionStorage.setItem('splash-seen', '1');
+          } catch {}
+          router.push('/');
+        }, 650);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      clearTimeout(finishTimeoutId);
+    };
+  }, [isSuccessLoading, loadingIsRose, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { error } = await signIn(email.trim(), password);
+    const trimmedEmail = email.trim();
+    const roseUser = trimmedEmail.toLowerCase().startsWith('rstrpn05@') || trimmedEmail.toLowerCase() === 'rstrpn05@gmail.com';
+    const { error } = await signIn(trimmedEmail, password);
     if (error) {
       setError('Email ou mot de passe incorrect.');
       setLoading(false);
     } else {
-      router.push('/');
+      setLoading(false);
+      startLoadingSimulation(roseUser);
     }
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #F8F6F2 0%, #F0EDE6 50%, #EDE8E0 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Nunito', sans-serif",
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Decorative blobs */}
-      <div style={{
-        position: 'absolute', top: '-120px', right: '-120px',
-        width: '500px', height: '500px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(107,143,113,0.15) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '-80px', left: '-80px',
-        width: '380px', height: '380px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(128,117,168,0.12) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', top: '40%', left: '12%',
-        width: '200px', height: '200px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(192,99,74,0.08) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Card */}
-      <div style={{
-        width: '100%', maxWidth: '420px',
-        margin: '20px',
-        background: 'rgba(255,255,255,0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '32px',
-        padding: '52px 48px',
-        boxShadow: '0 20px 80px rgba(24, 24, 27, 0.10), 0 4px 16px rgba(24,24,27,0.05)',
-        border: '1px solid rgba(255,255,255,0.8)',
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'radial-gradient(ellipse at 50% 15%, rgba(15, 23, 42, 0.035) 0%, transparent 60%), var(--cream, #FAFAFA)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
         position: 'relative',
-      }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-          <Image
-            src="/logo.jpg"
-            alt="Mon Planner logo"
-            width={52}
-            height={52}
-            style={{ borderRadius: '18px', margin: '0 auto 16px', display: 'block' }}
-            priority
-          />
-          <div className="font-display" style={{
-            fontSize: '1.8rem', color: 'var(--ink)',
-            fontWeight: '700', letterSpacing: '-0.04em',
-          }}>
-            Mon Planner
+        overflow: 'hidden',
+        padding: '24px',
+      }}
+    >
+      {/* ── Subtle Monochrome Ambient Glows (Profil Anas) ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '5%',
+          left: '12%',
+          width: '500px',
+          height: '500px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(15, 23, 42, 0.04) 0%, rgba(15, 23, 42, 0.01) 50%, transparent 70%)',
+          filter: 'blur(55px)',
+          pointerEvents: 'none',
+          animation: 'floatOrb1 16s ease-in-out infinite alternate',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '8%',
+          right: '10%',
+          width: '520px',
+          height: '520px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(15, 23, 42, 0.035) 0%, rgba(15, 23, 42, 0.01) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          animation: 'floatOrb2 18s ease-in-out infinite alternate',
+        }}
+      />
+
+      {/* ── Main Monochrome Card ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          width: '100%',
+          maxWidth: '430px',
+          background: '#FFFFFF',
+          borderRadius: '22px',
+          padding: '42px 36px 36px',
+          boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)',
+          border: '1px solid var(--border, #E2E8F0)',
+          position: 'relative',
+          zIndex: 1,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Subtle Top Accent Line */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '3px',
+            background: activeIsRose
+              ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 50%, #D4607E 100%)'
+              : 'linear-gradient(90deg, #0F172A 0%, #475569 50%, #0F172A 100%)',
+            transition: 'background 0.3s ease',
+          }}
+        />
+
+        {/* Header Branding */}
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          {/* Logo Badge */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '18px',
+              overflow: 'hidden',
+              border: activeIsRose ? '1px solid #F0D4E4' : '1px solid var(--border, #E2E8F0)',
+              boxShadow: activeIsRose
+                ? '0 8px 24px -4px rgba(212, 96, 126, 0.2), 0 2px 6px rgba(212, 96, 126, 0.08)'
+                : '0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              background: '#FFFFFF',
+              transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+            }}
+          >
+            <Image
+              src="/logo.jpg"
+              alt="My Planner logo"
+              width={64}
+              height={64}
+              style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+              priority
+            />
+          </motion.div>
+
+          {/* Badge */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              background: activeIsRose ? 'rgba(212, 96, 126, 0.08)' : 'rgba(15, 23, 42, 0.05)',
+              border: activeIsRose ? '1px solid rgba(212, 96, 126, 0.22)' : '1px solid rgba(15, 23, 42, 0.08)',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              color: activeIsRose ? '#D4607E' : '#0F172A',
+              marginBottom: '10px',
+              letterSpacing: '0.02em',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            {activeIsRose ? (
+              <Heart size={12} style={{ color: '#D4607E', fill: '#D4607E' }} />
+            ) : (
+              <Sparkles size={12} style={{ color: '#0F172A' }} />
+            )}
+            <span>{activeIsRose ? 'Espace Rose' : 'Digital Journal & Todos'}</span>
           </div>
-          <div style={{
-            fontSize: '0.8rem', color: 'var(--stone)',
-            marginTop: '6px', fontWeight: '400',
-          }}>
-            Connectez-vous à votre espace
-          </div>
+
+          <h1
+            className="font-display"
+            style={{
+              fontSize: '1.95rem',
+              fontWeight: 800,
+              color: '#0F172A',
+              letterSpacing: '-0.03em',
+              marginBottom: '4px',
+            }}
+          >
+            My Planner
+          </h1>
+          <p
+            style={{
+              fontSize: '0.86rem',
+              color: 'var(--stone, #64748B)',
+              fontWeight: 500,
+            }}
+          >
+            Connectez-vous à votre espace personnel
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
-          {/* Email */}
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{
-              display: 'block', fontSize: '0.75rem',
-              color: 'var(--ink)', fontWeight: '600',
-              letterSpacing: '0.02em', marginBottom: '7px',
-            }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          {/* Email input */}
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '0.76rem',
+                color: focusedField === 'email' ? '#0F172A' : 'var(--stone, #64748B)',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '6px',
+                transition: 'color 0.2s ease',
+              }}
+            >
               Adresse email
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="vous@exemple.com"
-              required
-              autoComplete="email"
-              style={{
-                width: '100%', padding: '13px 18px',
-                border: '2px solid var(--border)',
-                borderRadius: '16px',
-                background: 'var(--cream)',
-                fontSize: '0.9rem', color: 'var(--ink)',
-                outline: 'none', fontFamily: 'inherit',
-                transition: 'all 0.2s',
-                boxSizing: 'border-box',
-              }}
-              onFocus={e => { e.target.style.borderColor = 'var(--ink)'; e.target.style.background = 'white'; }}
-              onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'var(--cream)'; }}
-            />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: focusedField === 'email' ? '#0F172A' : 'var(--stone, #64748B)',
+                  pointerEvents: 'none',
+                  transition: 'color 0.2s ease',
+                }}
+              >
+                <Mail size={16} />
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField(null)}
+                placeholder="vous@exemple.com"
+                required
+                autoComplete="email"
+                style={{
+                  width: '100%',
+                  padding: '11px 14px 11px 40px',
+                  border: focusedField === 'email' ? '1.5px solid #0F172A' : '1px solid var(--border, #E2E8F0)',
+                  borderRadius: '12px',
+                  background: focusedField === 'email' ? '#FFFFFF' : 'var(--cream, #FAFAFA)',
+                  fontSize: '0.88rem',
+                  color: '#0F172A',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s ease',
+                  boxShadow: focusedField === 'email' ? '0 0 0 4px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)' : 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
           </div>
 
-          {/* Password */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block', fontSize: '0.75rem',
-              color: 'var(--ink)', fontWeight: '600',
-              letterSpacing: '0.02em', marginBottom: '7px',
-            }}>
+          {/* Password input */}
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '0.76rem',
+                color: focusedField === 'password' ? '#0F172A' : 'var(--stone, #64748B)',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '6px',
+                transition: 'color 0.2s ease',
+              }}
+            >
               Mot de passe
             </label>
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: focusedField === 'password' ? '#0F172A' : 'var(--stone, #64748B)',
+                  pointerEvents: 'none',
+                  transition: 'color 0.2s ease',
+                }}
+              >
+                <Lock size={16} />
+              </span>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
                 style={{
-                  width: '100%', padding: '13px 48px 13px 18px',
-                  border: '2px solid var(--border)',
-                  borderRadius: '16px',
-                  background: 'var(--cream)',
-                  fontSize: '0.9rem', color: 'var(--ink)',
-                  outline: 'none', fontFamily: 'inherit',
-                  transition: 'all 0.2s',
+                  width: '100%',
+                  padding: '11px 42px 11px 40px',
+                  border: focusedField === 'password' ? '1.5px solid #0F172A' : '1px solid var(--border, #E2E8F0)',
+                  borderRadius: '12px',
+                  background: focusedField === 'password' ? '#FFFFFF' : 'var(--cream, #FAFAFA)',
+                  fontSize: '0.88rem',
+                  color: '#0F172A',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s ease',
+                  boxShadow: focusedField === 'password' ? '0 0 0 4px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)' : 'none',
                   boxSizing: 'border-box',
                 }}
-                onFocus={e => { e.target.style.borderColor = 'var(--ink)'; e.target.style.background = 'white'; }}
-                onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'var(--cream)'; }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 style={{
-                  position: 'absolute', right: '16px', top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--stone)', fontSize: '1rem', padding: '0',
-                  lineHeight: 1,
+                  position: 'absolute',
+                  right: '12px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: showPassword ? '#0F172A' : 'var(--stone, #64748B)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '4px',
+                  borderRadius: '6px',
+                  transition: 'color 0.15s ease',
                 }}
               >
-                {showPassword ? '🙈' : '👁'}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
 
-          {/* Error */}
+          {/* Error message */}
           {error && (
-            <div style={{
-              background: 'rgba(192,99,74,0.08)',
-              border: '1.5px solid rgba(192,99,74,0.25)',
-              borderRadius: '14px',
-              padding: '11px 16px',
-              marginBottom: '16px',
-              fontSize: '0.83rem', color: 'var(--terra)',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              fontWeight: '500',
-            }}>
-              ⚠ {error}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: 'var(--priority-high-bg, rgba(239, 68, 68, 0.08))',
+                border: '1px solid var(--priority-high, #EF4444)',
+                borderRadius: '12px',
+                padding: '10px 14px',
+                fontSize: '0.82rem',
+                color: 'var(--priority-high, #EF4444)',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <span>⚠</span> {error}
+            </motion.div>
           )}
 
-          {/* Submit */}
-          <button
+          {/* Submit button - Adapté au profil Anas ou Rose */}
+          <motion.button
             type="submit"
             disabled={loading}
+            whileHover={!loading ? { scale: 1.015, y: -1 } : {}}
+            whileTap={!loading ? { scale: 0.985 } : {}}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              width: '100%', padding: '15px',
-              background: loading ? 'var(--stone-light)' : 'var(--ink)',
-              color: 'white',
-              border: 'none', borderRadius: '18px',
+              width: '100%',
+              padding: '13px 18px',
+              marginTop: '6px',
+              background: loading
+                ? 'var(--stone-light, #CBD5E1)'
+                : activeIsRose
+                ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #D4607E'
+                : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '14px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem', fontFamily: 'inherit',
-              fontWeight: '600', letterSpacing: '0.01em',
-              transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              boxShadow: loading ? 'none' : '0 4px 20px rgba(24, 24, 27, 0.25)',
+              fontSize: '0.92rem',
+              fontFamily: 'inherit',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: loading
+                ? 'none'
+                : activeIsRose
+                ? '0 8px 24px -4px rgba(212, 96, 126, 0.38), 0 2px 6px rgba(212, 96, 126, 0.16)'
+                : '0 8px 24px -4px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.12)',
+              transition: 'background 0.22s ease, box-shadow 0.22s ease',
             }}
-            onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(24,24,27,0.3)'; } }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = loading ? 'none' : '0 4px 20px rgba(24, 24, 27, 0.25)'; }}
+            onMouseEnter={e => {
+              if (!loading) {
+                e.currentTarget.style.background = activeIsRose
+                  ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 70%), #C04472'
+                  : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 70%), #1E293B';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!loading) {
+                e.currentTarget.style.background = activeIsRose
+                  ? 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.28) 0%, transparent 70%), #D4607E'
+                  : 'radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 70%), #0F172A';
+              }
+            }}
           >
             {loading ? (
               <>
-                <span style={{
-                  display: 'inline-block', width: '16px', height: '16px',
-                  border: '2.5px solid rgba(255,255,255,0.3)',
-                  borderTopColor: 'white', borderRadius: '50%',
-                  animation: 'spin 0.7s linear infinite',
-                }} />
-                Connexion…
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '16px',
+                    height: '16px',
+                    border: '2.5px solid rgba(255,255,255,0.3)',
+                    borderTopColor: 'white',
+                    borderRadius: '50%',
+                    animation: 'spin 0.7s linear infinite',
+                  }}
+                />
+                Connexion en cours…
               </>
             ) : (
-              'Se connecter →'
+              <>
+                <span>Se connecter</span>
+                <ArrowRight size={16} />
+              </>
             )}
-          </button>
+          </motion.button>
         </form>
 
-        {/* Footer */}
-        <div style={{
-          textAlign: 'center', marginTop: '28px',
-          fontSize: '0.72rem', color: 'var(--stone-light)',
-        }}>
-          Accès réservé aux membres
+        {/* Footer info */}
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: '26px',
+            fontSize: '0.74rem',
+            color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            transition: 'color 0.2s ease',
+          }}
+        >
+          <span style={{ color: activeIsRose ? '#D4607E' : '#0F172A' }}>{activeIsRose ? '💖' : '✦'}</span>
+          <span>Accès membre sécurisé · My Planner</span>
         </div>
-      </div>
+      </motion.div>
+
+      {/* ── Écran de chargement immersif post-connexion (Monochrome ou Rose selon le compte) ── */}
+      <AnimatePresence>
+        {isSuccessLoading && (
+          <motion.div
+            key="success-loading-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+              scale: 1.05,
+              filter: 'blur(12px)',
+              transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+            }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              background: activeIsRose ? '#FEF0F5' : 'var(--cream, #FAFAFA)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: "'Nunito', var(--font-geist-sans), system-ui, sans-serif",
+              overflow: 'hidden',
+            }}
+          >
+            {/* Ambient subtle backdrop glows */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '600px',
+                height: '600px',
+                borderRadius: '50%',
+                background: activeIsRose
+                  ? 'radial-gradient(circle, rgba(212, 96, 126, 0.16) 0%, rgba(184, 126, 192, 0.08) 50%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, transparent 65%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Central Block */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                position: 'relative',
+                zIndex: 1,
+              }}
+            >
+              {/* ── Logo synchronisé à 100% avec la vitesse du chargement ── */}
+              <div
+                style={{
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '20px',
+                  background: '#FFFFFF',
+                  border: activeIsRose ? '1px solid #F0D4E4' : '1px solid var(--border, #E2E8F0)',
+                  boxShadow: activeIsRose
+                    ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
+                    : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  marginBottom: '26px',
+                  transform: `rotate(${(progress / 100) * 720}deg) scale(${1 + Math.sin((progress / 100) * Math.PI * 2) * 0.06})`,
+                  willChange: 'transform',
+                }}
+              >
+                <Image
+                  src="/logo.jpg"
+                  alt="My Planner logo"
+                  width={76}
+                  height={76}
+                  style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                  priority
+                />
+              </div>
+
+              {/* Titre & Sous-titre */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.15 }}
+                style={{ marginBottom: '24px' }}
+              >
+                <div
+                  className="font-display"
+                  style={{
+                    fontSize: '1.75rem',
+                    fontWeight: 800,
+                    color: activeIsRose ? '#3B1529' : '#0F172A',
+                    letterSpacing: '-0.03em',
+                    marginBottom: '4px',
+                  }}
+                >
+                  My Planner
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.86rem',
+                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                    minHeight: '20px',
+                    transition: 'color 0.2s ease',
+                  }}
+                >
+                  {statusText}
+                </div>
+              </motion.div>
+
+              {/* ── Barre de chargement avec effet de balayage lumineux (Shimmer) ── */}
+              <div style={{ width: '270px' }}>
+                {/* Track */}
+                <div
+                  style={{
+                    width: '100%',
+                    height: '7px',
+                    background: activeIsRose ? 'rgba(212, 96, 126, 0.16)' : 'rgba(15, 23, 42, 0.08)',
+                    borderRadius: '999px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
+                  }}
+                >
+                  {/* Fill avec effet shimmer */}
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${progress}%`,
+                      background: activeIsRose
+                        ? 'linear-gradient(90deg, #D4607E 0%, #F0A8BC 35%, #FFFFFF 50%, #F0A8BC 65%, #D4607E 100%)'
+                        : 'linear-gradient(90deg, #0F172A 0%, #334155 35%, #FFFFFF 50%, #334155 65%, #0F172A 100%)',
+                      backgroundSize: '240% 100%',
+                      animation: 'barShimmer 1.4s infinite linear',
+                      borderRadius: '999px',
+                      position: 'relative',
+                      boxShadow: activeIsRose
+                        ? '0 0 12px rgba(212, 96, 126, 0.45)'
+                        : '0 0 10px rgba(15, 23, 42, 0.35)',
+                      willChange: 'width',
+                    }}
+                  />
+                </div>
+
+                {/* Pourcentage et détails */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '10px',
+                    fontSize: '0.75rem',
+                    color: activeIsRose ? '#8A4B6B' : 'var(--stone, #64748B)',
+                    fontWeight: 600,
+                  }}
+                >
+                  <span>Initialisation</span>
+                  <span
+                    style={{
+                      color: activeIsRose ? '#D4607E' : '#0F172A',
+                      fontWeight: 800,
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
+                    {Math.round(progress)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes barShimmer {
+          0% { background-position: 100% 0; }
+          100% { background-position: -100% 0; }
+        }
+        @keyframes floatOrb1 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(30px, -25px) scale(1.06); }
+          100% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        @keyframes floatOrb2 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(-30px, 25px) scale(1.05); }
+          100% { transform: translate(25px, -25px) scale(0.94); }
+        }
       `}</style>
     </div>
   );

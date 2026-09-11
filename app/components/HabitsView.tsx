@@ -1,6 +1,6 @@
 'use client';
 import AddButton from './AddButton';
-import { Trash } from './animate-ui';
+import { Trash, TextReveal } from './animate-ui';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, eachDayOfInterval, subDays } from 'date-fns';
@@ -26,16 +26,24 @@ export default function HabitsView() {
   const overallProgress = habits.filter(h => h.completedDays.includes(today)).length;
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', height: '100%' }}>
+    <div className="habits-view-container">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
         <div>
-          <h1 className="font-display" style={{ fontSize: '2rem', color: 'var(--ink)', marginBottom: '4px' }}>
+          <TextReveal
+            as="h1"
+            delay={0.06}
+            className="font-display"
+            style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--ink)', marginBottom: '4px' }}
+          >
             Habitudes
-          </h1>
-          <div style={{ fontSize: '0.82rem', color: 'var(--stone)' }}>
+          </TextReveal>
+          <TextReveal
+            delay={0.14}
+            style={{ fontSize: '0.82rem', color: 'var(--stone)' }}
+          >
             {loading ? 'Chargement…' : `${overallProgress}/${habits.length} complétées aujourd'hui`}
-          </div>
+          </TextReveal>
         </div>
         <AddButton onClick={() => setShowAdd(!showAdd)} label="Habitude" />
       </div>
@@ -53,23 +61,47 @@ export default function HabitsView() {
             <input value={newHabit.name} onChange={e => setNewHabit({...newHabit, name: e.target.value})}
               placeholder="Nom de l'habitude" style={{ flex: 1, ...inputStyle }} />
           </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.78rem', color: 'var(--stone)' }}>Objectif:</span>
             {[3, 5, 7].map(n => (
-              <button key={n} onClick={() => setNewHabit({...newHabit, target: n})} style={{
-                padding: '4px 10px', borderRadius: '6px',
-                border: '1px solid var(--border)',
-                background: newHabit.target === n ? 'var(--ink)' : 'transparent',
-                color: newHabit.target === n ? 'white' : 'var(--stone)',
-                cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit'
-              }}>{n}j/sem</button>
+              <motion.button
+                key={n}
+                onClick={() => setNewHabit({...newHabit, target: n})}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  padding: '5px 12px', borderRadius: '14px',
+                  border: '1px solid var(--border)',
+                  background: newHabit.target === n ? 'var(--primary-btn-bg, var(--ink))' : 'transparent',
+                  color: newHabit.target === n ? 'var(--primary-btn-fg, white)' : 'var(--stone)',
+                  boxShadow: newHabit.target === n ? '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))' : 'none',
+                  cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit', fontWeight: 600,
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                {n}j/sem
+              </motion.button>
             ))}
           </div>
-          <button onClick={handleAddHabit} style={{
-            width: '100%', padding: '8px', background: 'var(--sage)', color: 'white',
-            border: 'none', borderRadius: '8px', cursor: 'pointer',
-            fontSize: '0.82rem', fontFamily: 'inherit'
-          }}>Créer l&apos;habitude</button>
+          <motion.button
+            onClick={handleAddHabit}
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              width: '100%', padding: '11px',
+              background: 'var(--primary-btn-bg, var(--ink))', color: 'var(--primary-btn-fg, white)',
+              border: 'none', borderRadius: '14px', cursor: 'pointer',
+              fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 600,
+              boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.12))',
+              transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-btn-hover, var(--ink-light))'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-btn-bg, var(--ink))'; }}
+          >
+            Créer l&apos;habitude
+          </motion.button>
         </div>
       )}
 
@@ -144,10 +176,10 @@ export default function HabitsView() {
                           whileTap={{ scale: 0.97 }}
                           onClick={() => { deleteHabit(habit.id); setConfirmingId(null); }}
                           style={{
-                            padding: '4px 10px', borderRadius: '6px',
-                            border: '1px solid var(--terra)',
-                            background: 'var(--terra)', color: 'white',
-                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                            padding: '5px 12px', borderRadius: '12px',
+                            border: '1px solid var(--priority-high)',
+                            background: 'var(--priority-high)', color: 'white',
+                            cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 600,
                           }}
                         >
                           Confirmer
@@ -156,13 +188,14 @@ export default function HabitsView() {
                           initial={{ opacity: 0, scale: 0.95, x: -4 }}
                           animate={{ opacity: 1, scale: 1, x: 0 }}
                           transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                          whileTap={{ scale: 0.97 }}
+                          whileTap={{ scale: 0.96 }}
+                          whileHover={{ scale: 1.02, background: 'var(--muted)' }}
                           onClick={() => setConfirmingId(null)}
                           style={{
-                            padding: '4px 8px', borderRadius: '6px',
+                            padding: '5px 10px', borderRadius: '12px',
                             border: '1px solid var(--border)',
                             background: 'transparent', color: 'var(--stone)',
-                            cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit'
+                            cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 500,
                           }}
                         >
                           Annuler
@@ -172,12 +205,11 @@ export default function HabitsView() {
                       <motion.button
                         onClick={() => setConfirmingId(habit.id)}
                         title="Supprimer l'habitude"
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={{ scale: 0.96 }}
+                        whileHover={{ scale: 1.05, background: 'var(--priority-high-bg)' }}
                         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                         style={{
-                          width: '28px', height: '28px', borderRadius: '6px',
+                          width: '32px', height: '32px', borderRadius: '10px',
                           border: '1px solid var(--border)',
                           background: 'transparent', color: 'var(--stone)',
                           cursor: 'pointer', display: 'flex', alignItems: 'center',

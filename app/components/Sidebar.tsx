@@ -2,9 +2,12 @@
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { motion } from 'motion/react';
 import { User } from '@supabase/supabase-js';
+import { LogOut } from 'lucide-react';
 import { NavIconToday, NavIconAgenda, NavIconHabits, NavIconNotes, NavIconGoals } from './animate-ui/icons/nav-icons';
 import { ThemeToggle } from './animate-ui/icons/theme-toggle';
+import { TextReveal } from './animate-ui';
 
 type Tab = 'today' | 'agenda' | 'habits' | 'notes' | 'goals';
 
@@ -14,7 +17,7 @@ interface SidebarProps {
   user: User;
   onSignOut: () => void;
   isDark: boolean;
-  onToggleTheme: () => void;
+  onToggleTheme: (event?: React.MouseEvent) => void;
   isPinkUser: boolean;
 }
 
@@ -28,36 +31,35 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDark, onToggleTheme, isPinkUser }: SidebarProps) {
   const today = new Date();
-  const displayName = user.email?.split('@')[0] ?? 'Utilisateur';
+  const email = user.email?.toLowerCase().trim();
+  const displayName = email?.startsWith('anas.fz1001@')
+    ? 'Anas'
+    : email?.startsWith('rstrpn05@')
+    ? 'Rose'
+    : (() => {
+        const raw = user.email?.split('@')[0] ?? 'Utilisateur';
+        return raw.charAt(0).toUpperCase() + raw.slice(1);
+      })();
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
-    <aside style={{
-      width: '230px',
-      background: 'var(--warm-white)',
-      borderRight: '1px solid var(--border)',
-      transition: 'background 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '28px 0',
-      flexShrink: 0,
-    }}>
+    <aside className="app-sidebar">
       {/* Logo */}
-      <div style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }} className="animate-slide-in">
+      <div className="sidebar-logo-block animate-slide-in" style={{ padding: '0 22px 28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Image
           src="/logo.jpg"
-          alt="Mon Planner logo"
+          alt="My Planner logo"
           width={38}
           height={38}
           style={{ borderRadius: '10px', flexShrink: 0 }}
           priority
         />
-        <div>
+        <div className="sidebar-logo-text">
           <div className="font-display" style={{
             fontSize: '1.1rem', color: 'var(--ink)',
-            fontWeight: '700', letterSpacing: '-0.03em',
+            fontWeight: '800', letterSpacing: '-0.03em',
           }}>
-            Mon Planner
+            My Planner
           </div>
           <div style={{
             fontSize: '0.65rem', color: 'var(--stone)',
@@ -69,7 +71,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
       </div>
 
       {/* Date widget */}
-      <div style={{
+      <div className="sidebar-date-card animate-slide-in" style={{
         margin: '0 14px 24px',
         padding: '16px',
         background: 'var(--cream)',
@@ -77,35 +79,67 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
         border: '1px solid var(--border)',
         textAlign: 'center',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-      }} className="animate-slide-in">
-        <div className="font-display" style={{
-          fontSize: '2.6rem', fontWeight: '700',
-          color: 'var(--ink)', lineHeight: 1,
-        }}>
-          {format(today, 'd')}
+      }}>
+        <div className="sidebar-date-full">
+          <TextReveal
+            delay={0.06}
+            className="font-display"
+            style={{
+              fontSize: '2.6rem', fontWeight: '700',
+              color: 'var(--ink)', lineHeight: 1,
+            }}
+          >
+            {format(today, 'd')}
+          </TextReveal>
+          <TextReveal
+            delay={0.12}
+            style={{
+              fontSize: '0.82rem', color: 'var(--stone)',
+              fontWeight: '500', marginTop: '4px',
+            }}
+          >
+            {format(today, 'MMMM yyyy', { locale: fr })}
+          </TextReveal>
+          <TextReveal
+            delay={0.18}
+            style={{
+              fontSize: '0.7rem', color: 'var(--stone-light)',
+              letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
+            }}
+          >
+            {format(today, 'eeee', { locale: fr })}
+          </TextReveal>
         </div>
-        <div style={{
-          fontSize: '0.82rem', color: 'var(--stone)',
-          fontWeight: '500', marginTop: '4px',
-        }}>
-          {format(today, 'MMMM yyyy', { locale: fr })}
-        </div>
-        <div style={{
-          fontSize: '0.7rem', color: 'var(--stone-light)',
-          letterSpacing: '0.06em', textTransform: 'capitalize', marginTop: '2px',
-        }}>
-          {format(today, 'eeee', { locale: fr })}
+
+        <div className="sidebar-date-compact" style={{ display: 'none' }}>
+          <div className="font-display" style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1 }}>
+            {format(today, 'd')}
+          </div>
+          <div style={{ fontSize: '0.64rem', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: '2px', fontWeight: 700 }}>
+            {format(today, 'MMM', { locale: fr })}
+          </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '0 10px' }} className="stagger-children">
+      <nav className="sidebar-nav-container stagger-children" style={{ flex: 1, padding: '0 10px' }}>
         {navItems.map((item, i) => {
           const active = activeTab === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              title={item.label}
+              className="sidebar-nav-btn"
+              whileHover={{
+                scale: 1.02,
+                x: 2,
+                backgroundColor: active
+                  ? 'transparent'
+                  : (isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.08)'),
+              }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -114,91 +148,82 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 padding: '10px 14px',
                 borderRadius: '14px',
                 border: 'none',
-                background: active 
-                  ? 'var(--ink)' 
-                  : 'transparent',
-                color: active ? 'var(--cream)' : 'var(--stone)',
+                outline: 'none',
+                background: 'transparent',
+                color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
-                fontWeight: active ? '600' : '400',
-                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                fontWeight: active ? '700' : '500',
                 textAlign: 'left',
                 marginBottom: '3px',
                 animationDelay: `${i * 0.05}s`,
                 fontFamily: 'inherit',
                 position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'rgba(128, 128, 128, 0.12)';
-                  e.currentTarget.style.color = 'var(--ink-light)';
-                  e.currentTarget.style.transform = 'translateX(2px)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'var(--stone)';
-                  e.currentTarget.style.transform = 'translateX(0)';
-                }
               }}
             >
-              {/* Glow effect background on active */}
               {active && (
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, transparent 70%)',
-                  pointerEvents: 'none',
-                  opacity: 0,
-                  animation: 'enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                }} />
+                <motion.div
+                  layoutId="activeNavIndicator"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '14px',
+                    background: 'var(--primary-btn-bg)',
+                    boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15,23,42,0.12))',
+                    zIndex: 0,
+                  }}
+                />
               )}
-              
+
               <div style={{
+                position: 'relative',
+                zIndex: 1,
                 fontSize: '1rem',
-                color: active ? 'var(--cream)' : 'var(--stone)',
-                opacity: active ? 1 : 0.5,
+                color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
+                opacity: active ? 1 : 0.6,
                 transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                transform: active ? 'scale(1.15)' : 'scale(1)',
+                transform: active ? 'scale(1.1)' : 'scale(1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
                 {item.icon}
               </div>
-              <span style={{ flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+              <span className="sidebar-nav-label" style={{ position: 'relative', zIndex: 1, flex: 1, transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                 {item.label}
               </span>
               {active && (
-                <div style={{
+                <div className="sidebar-nav-dot" style={{
+                  position: 'relative',
+                  zIndex: 1,
                   width: '6px', height: '6px',
                   borderRadius: '50%',
-                  background: 'var(--terra)',
+                  background: 'var(--accent)',
                   marginLeft: '8px',
                   animation: 'enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                 }} />
               )}
-            </button>
+            </motion.button>
           );
         })}
       </nav>
 
       {/* Theme toggle — masqué pour l'utilisateur pink */}
       {!isPinkUser && (
-        <div style={{ padding: '0 10px', marginBottom: '4px' }}>
+        <div className="sidebar-theme-toggle" style={{ padding: '0 10px', marginBottom: '4px' }}>
           <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
         </div>
       )}
 
       {/* User profile + logout */}
-      <div style={{ padding: '0 14px', marginTop: 'auto' }} className="animate-slide-in">
+      <div className="sidebar-profile-container animate-slide-in" style={{ padding: '0 14px', marginTop: 'auto' }}>
         <div style={{
           borderTop: '1px solid var(--border)',
           paddingTop: '16px',
         }}>
           <div
+            className="sidebar-profile-card"
             style={{
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '10px 12px',
@@ -219,7 +244,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             {/* Avatar */}
             <div style={{
               width: '34px', height: '34px', borderRadius: '12px',
-              background: 'linear-gradient(135deg, var(--sage) 0%, var(--lavender) 100%)',
+              background: isPinkUser
+                ? 'linear-gradient(135deg, #F472B6 0%, #D4607E 100%)'
+                : 'linear-gradient(135deg, var(--accent) 0%, var(--lavender) 100%)',
               color: 'white',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '0.7rem', fontWeight: '700', flexShrink: 0,
@@ -227,7 +254,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
             }}>
               {initials}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 fontSize: '0.76rem', fontWeight: '600', color: 'var(--ink)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -242,28 +269,23 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
               </div>
             </div>
             {/* Logout */}
-            <button
+            <motion.button
               onClick={onSignOut}
               title="Se déconnecter"
+              className="sidebar-logout-btn"
+              whileHover={{ scale: 1.1, background: 'var(--priority-high-bg)', color: 'var(--priority-high)' }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--stone)', fontSize: '1.1rem', padding: '4px',
-                borderRadius: '8px', transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                color: 'var(--stone)', fontSize: '1.1rem', padding: '6px',
+                borderRadius: '10px',
                 flexShrink: 0, lineHeight: 1,
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--terra)';
-                e.currentTarget.style.background = 'rgba(192,99,74,0.1)';
-                e.currentTarget.style.transform = 'scale(1.12)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'var(--stone)';
-                e.currentTarget.style.background = 'none';
-                e.currentTarget.style.transform = 'scale(1)';
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
-              ⎋
-            </button>
+              <LogOut size={16} />
+            </motion.button>
           </div>
         </div>
       </div>

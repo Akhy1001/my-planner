@@ -1,15 +1,17 @@
 'use client';
 import AddButton from './AddButton';
+import { TextReveal } from './animate-ui';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotes, Note } from '@/hooks/useNotes';
 import FormatToolbar from './FormatToolbar';
+import { Pin } from 'lucide-react';
 
 const tagColors: Record<string, string> = {
-  'Idées': 'var(--gold)',
-  'Travail': 'var(--sage)',
-  'Personnel': 'var(--lavender)',
-  'Projets': 'var(--terra)',
+  'Idées': '#E11D48',      // Rose Corail vif & lumineux
+  'Travail': '#9D174D',    // Framboise velours intense
+  'Personnel': '#D4607E',  // Rose poudré signature
+  'Projets': '#A21CAF',    // Prune rosée / Fuchsia chic
 };
 
 export default function NotesView() {
@@ -102,16 +104,25 @@ export default function NotesView() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="notes-view-container">
       {/* Left panel */}
-      <div style={{ 
-        width: '260px', flexShrink: 0,
+      <div className="notes-sidebar-panel" style={{ 
         borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column',
         background: 'var(--warm-white)'
       }}>
         {/* Search + Add */}
         <div style={{ padding: '20px 16px 12px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <TextReveal
+              as="h1"
+              delay={0.06}
+              className="font-display"
+              style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ink)' }}
+            >
+              Notes
+            </TextReveal>
+          </div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
             <input
               value={search}
@@ -126,24 +137,110 @@ export default function NotesView() {
             />
             <AddButton onClick={handleAddNote} size={18} />
           </div>
-          {/* Tags filter */}
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            <button onClick={() => setFilterTag(null)} style={{
-              padding: '3px 8px', borderRadius: '6px',
-              border: '1px solid var(--border)',
-              background: !filterTag ? 'var(--ink)' : 'transparent',
-              color: !filterTag ? 'white' : 'var(--stone)',
-              cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit'
-            }}>Tout</button>
-            {Object.keys(tagColors).map(tag => (
-              <button key={tag} onClick={() => setFilterTag(filterTag === tag ? null : tag)} style={{
-                padding: '3px 8px', borderRadius: '6px',
-                border: `1px solid ${tagColors[tag]}`,
-                background: filterTag === tag ? tagColors[tag] : 'transparent',
-                color: filterTag === tag ? 'white' : 'var(--stone)',
-                cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit'
-              }}>{tag}</button>
-            ))}
+          {/* Tags filter avec pilule glissante (sans encadrement) */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              overflowX: 'auto',
+              position: 'relative',
+              scrollbarWidth: 'none',
+            }}
+          >
+            <motion.button
+              onClick={() => setFilterTag(null)}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                position: 'relative',
+                padding: '5px 11px',
+                border: 'none',
+                borderRadius: '10px',
+                background: 'transparent',
+                color: !filterTag ? 'var(--primary-btn-fg, #FFFFFF)' : 'var(--ink)',
+                opacity: !filterTag ? 1 : 0.72,
+                fontWeight: !filterTag ? 700 : 600,
+                cursor: 'pointer',
+                fontSize: '0.74rem',
+                fontFamily: 'inherit',
+                zIndex: 1,
+                flexShrink: 0,
+                transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+              }}
+            >
+              {!filterTag && (
+                <motion.div
+                  layoutId="notes-filter-tag-pill"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '10px',
+                    background: 'var(--primary-btn-bg, var(--ink))',
+                    boxShadow: '0 2px 8px var(--primary-btn-shadow, rgba(15, 23, 42, 0.16))',
+                    zIndex: -1,
+                  }}
+                />
+              )}
+              Tout
+            </motion.button>
+            {Object.keys(tagColors).map(tag => {
+              const isActive = filterTag === tag;
+              const color = tagColors[tag];
+              return (
+                <motion.button
+                  key={tag}
+                  onClick={() => setFilterTag(filterTag === tag ? null : tag)}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    position: 'relative',
+                    padding: '5px 11px',
+                    border: 'none',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    color: isActive ? '#FFFFFF' : 'var(--ink)',
+                    opacity: isActive ? 1 : 0.72,
+                    fontWeight: isActive ? 700 : 600,
+                    cursor: 'pointer',
+                    fontSize: '0.74rem',
+                    fontFamily: 'inherit',
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    flexShrink: 0,
+                    transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="notes-filter-tag-pill"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        borderRadius: '10px',
+                        background: color,
+                        boxShadow: `0 2px 10px ${color}55`,
+                        zIndex: -1,
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: isActive ? '#FFFFFF' : color,
+                      flexShrink: 0,
+                      boxShadow: isActive ? '0 0 6px rgba(255, 255, 255, 0.7)' : `0 0 4px ${color}60`,
+                      transition: 'all 0.2s ease',
+                    }}
+                  />
+                  <span>{tag}</span>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
@@ -172,11 +269,19 @@ export default function NotesView() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1
+                    <div style={{
+                      fontSize: '0.82rem', fontWeight: '500', color: 'var(--ink)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+                      display: 'flex', alignItems: 'center', gap: '6px'
                     }}>
-                      {note.pinned && <span style={{ color: 'var(--gold)', marginRight: '4px' }}>📌</span>}
-                      {note.title || 'Sans titre'}
+                      {note.pinned && (
+                        <span style={{ color: 'var(--gold)', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+                          <Pin size={13} style={{ fill: 'currentColor', transform: 'rotate(45deg)' }} />
+                        </span>
+                      )}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {note.title || 'Sans titre'}
+                      </span>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--stone)',
@@ -187,9 +292,11 @@ export default function NotesView() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{
-                      fontSize: '0.65rem', padding: '1px 6px', borderRadius: '8px',
-                      background: tagColors[note.tag] + '25', color: tagColors[note.tag],
-                      border: `1px solid ${tagColors[note.tag]}50`
+                      fontSize: '0.65rem', padding: '2px 8px', borderRadius: '8px',
+                      background: (tagColors[note.tag] || '#64748B') + '22',
+                      color: tagColors[note.tag] || '#64748B',
+                      border: `1px solid ${(tagColors[note.tag] || '#64748B')}45`,
+                      fontWeight: 600,
                     }}>{note.tag}</span>
                     <span style={{ fontSize: '0.65rem', color: 'var(--stone-light)' }}>{timeAgo(note.updated_at)}</span>
                   </div>
@@ -210,28 +317,114 @@ export default function NotesView() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               flexShrink: 0
             }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {Object.entries(tagColors).map(([tag, color]) => (
-                  <button key={tag} onClick={() => handleUpdateNote('tag', tag)} style={{
-                    padding: '4px 10px', borderRadius: '6px',
-                    border: `1px solid ${color}50`,
-                    background: selectedNote.tag === tag ? color + '20' : 'transparent',
-                    color: selectedNote.tag === tag ? color : 'var(--stone)',
-                    cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit',
-                    fontWeight: selectedNote.tag === tag ? '500' : '300'
-                  }}>{tag}</button>
-                ))}
+              {/* Menu de sélection de catégorie avec indicateur glissant (sans encadrement) */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  position: 'relative',
+                }}
+              >
+                {Object.entries(tagColors).map(([tag, color]) => {
+                  const isSelected = selectedNote.tag === tag;
+                  return (
+                    <motion.button
+                      key={tag}
+                      onClick={() => handleUpdateNote('tag', tag)}
+                      whileTap={{ scale: 0.96 }}
+                      style={{
+                        position: 'relative',
+                        padding: '6px 13px',
+                        border: 'none',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontFamily: 'inherit',
+                        background: 'transparent',
+                        color: isSelected ? '#FFFFFF' : 'var(--ink)',
+                        opacity: isSelected ? 1 : 0.72,
+                        fontWeight: isSelected ? 700 : 600,
+                        zIndex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                      }}
+                    >
+                      {isSelected && (
+                        <motion.div
+                          layoutId="note-editor-tag-pill"
+                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            borderRadius: '10px',
+                            background: color,
+                            boxShadow: `0 2px 10px ${color}55`,
+                            zIndex: -1,
+                          }}
+                        />
+                      )}
+                      <span
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: isSelected ? '#FFFFFF' : color,
+                          flexShrink: 0,
+                          boxShadow: isSelected ? '0 0 6px rgba(255, 255, 255, 0.7)' : `0 0 4px ${color}60`,
+                          transition: 'all 0.2s ease',
+                        }}
+                      />
+                      <span>{tag}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => togglePin(selectedNote.id)} style={{
-                  padding: '6px 10px', border: '1px solid var(--border)', borderRadius: '8px',
-                  background: selectedNote.pinned ? 'var(--gold-light)' : 'transparent',
-                  cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit', color: 'var(--stone)'
-                }}>📌</button>
-                <button onClick={() => { deleteNote(selectedNote.id); setSelected(null); }} style={{
-                  padding: '6px 10px', border: '1px solid var(--border)', borderRadius: '8px',
-                  background: 'transparent', cursor: 'pointer', fontSize: '0.78rem', color: 'var(--terra)'
-                }}>Supprimer</button>
+                <motion.button
+                  onClick={() => togglePin(selectedNote.id)}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  title={selectedNote.pinned ? "Désépingler la note" : "Épingler la note"}
+                  aria-label={selectedNote.pinned ? "Désépingler la note" : "Épingler la note"}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '6px 12px',
+                    border: `1px solid ${selectedNote.pinned ? 'var(--gold)' : 'var(--border)'}`,
+                    borderRadius: '12px',
+                    background: selectedNote.pinned ? 'var(--gold-light)' : 'transparent',
+                    cursor: 'pointer',
+                    color: selectedNote.pinned ? 'var(--gold)' : 'var(--stone)',
+                    transition: 'border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), background 0.2s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                  }}
+                >
+                  <Pin
+                    size={15}
+                    style={{
+                      fill: selectedNote.pinned ? 'currentColor' : 'none',
+                      transform: selectedNote.pinned ? 'rotate(45deg)' : 'none',
+                      transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                    }}
+                  />
+                </motion.button>
+                <motion.button
+                  onClick={() => { deleteNote(selectedNote.id); setSelected(null); }}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    padding: '6px 14px', border: '1px solid var(--border)', borderRadius: '12px',
+                    background: 'transparent', cursor: 'pointer', fontSize: '0.78rem', color: 'var(--priority-high)',
+                    fontWeight: 500, fontFamily: 'inherit'
+                  }}
+                >
+                  Supprimer
+                </motion.button>
               </div>
             </div>
 

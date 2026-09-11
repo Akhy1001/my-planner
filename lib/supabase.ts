@@ -13,7 +13,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
+// Nettoyage préventif des anciens tokens persistants stockés dans localStorage
+if (typeof window !== 'undefined') {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sb-') || key.includes('supabase.auth.token'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+  } catch {}
+}
+
 export const supabase = createClient(
   supabaseUrl ?? 'https://placeholder.supabase.co',
-  supabaseAnonKey ?? 'placeholder-key'
+  supabaseAnonKey ?? 'placeholder-key',
+  {
+    auth: {
+      storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  }
 );
