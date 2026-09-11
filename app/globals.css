@@ -621,6 +621,26 @@ input:focus, textarea:focus {
   transform: scale(0.85) !important;
 }
 
+/* ── Rebonds fluides et constants du logo (Écrans de chargement & déconnexion) ── */
+@keyframes logoFluidBounce {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.33, 0.95, 0.45, 1);
+  }
+  50% {
+    transform: translateY(-11px);
+    animation-timing-function: cubic-bezier(0.55, 0.05, 0.7, 0.4);
+  }
+}
+
+.logo-fluid-bounce {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoFluidBounce 0.7s infinite;
+  will-change: transform;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    ── ADAPTATION IPAD & TABLETTES (IPADOS & TOUCH OPTIMISATIONS) ────
    ═══════════════════════════════════════════════════════════════════ */
