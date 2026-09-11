@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { CirclePlus, Trash, CheckCircle } from './icons';
+import { ScribbleStrikethrough } from './icons/scribble-strikethrough';
 import { usePlayfulTodos, DayStat } from '@/hooks/usePlayfulTodos';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
@@ -357,7 +358,6 @@ function SubtaskZone({
                     flex: 1,
                     fontSize: '0.82rem',
                     color: sub.done ? 'var(--stone)' : 'var(--ink)',
-                    textDecoration: sub.done ? 'line-through' : 'none',
                     opacity: sub.done ? 0.6 : 1,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
@@ -366,7 +366,10 @@ function SubtaskZone({
                     display: 'block',
                   }}
                 >
-                  {sub.label}
+                  <span style={{ position: 'relative', display: 'inline' }}>
+                    {sub.label}
+                    <ScribbleStrikethrough active={sub.done} color="var(--stone)" strokeWidth={1.5} />
+                  </span>
                 </motion.span>
               )}
 
@@ -726,12 +729,14 @@ export function PlayfulTodolist() {
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 display: 'block',
-                                textDecoration: isDone ? 'line-through' : 'none',
                                 opacity: isDone ? 0.6 : 1,
                                 cursor: isDone ? 'default' : 'text',
                               }}
                             >
-                              {item.label}
+                              <span style={{ position: 'relative', display: 'inline' }}>
+                                {item.label}
+                                <ScribbleStrikethrough active={isDone} color="var(--stone)" />
+                              </span>
                             </motion.span>
                           )}
                           {subCount > 0 && !isDone && (

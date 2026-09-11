@@ -34,10 +34,11 @@ create table if not exists daily_journal (
   reading_target int2 not null default 20,
   unique (date, user_id)
 );
--- Migration si la table existe déjà :
--- alter table daily_journal add column if not exists water_target int2 not null default 8;
--- alter table daily_journal add column if not exists reading_pages int2 not null default 0;
--- alter table daily_journal add column if not exists reading_target int2 not null default 20;
+-- Migration si la table existe déjà (DEV2-30) :
+alter table daily_journal add column if not exists water_glasses  int2 not null default 0;
+alter table daily_journal add column if not exists water_target   int2 not null default 8;
+alter table daily_journal add column if not exists reading_pages  int2 not null default 0;
+alter table daily_journal add column if not exists reading_target int2 not null default 20;
 alter table daily_journal enable row level security;
 create policy "journal: select own" on daily_journal for select using (auth.uid() = user_id);
 create policy "journal: insert own" on daily_journal for insert with check (auth.uid() = user_id);
