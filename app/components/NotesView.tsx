@@ -415,13 +415,16 @@ export default function NotesView() {
                 <motion.button
                   onClick={() => { deleteNote(selectedNote.id); setSelected(null); }}
                   whileTap={{ scale: 0.95 }}
-                  whileHover={{ scale: 1.02, background: 'var(--priority-high-bg)' }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     padding: '6px 14px', border: '1px solid var(--border)', borderRadius: '12px',
                     background: 'transparent', cursor: 'pointer', fontSize: '0.78rem', color: 'var(--priority-high)',
-                    fontWeight: 500, fontFamily: 'inherit'
+                    fontWeight: 500, fontFamily: 'inherit',
+                    transition: 'background 0.2s ease',
                   }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--priority-high-bg)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   Supprimer
                 </motion.button>

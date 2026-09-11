@@ -581,7 +581,7 @@ export function PlayfulTodolist() {
             <motion.button
               type="button"
               onClick={() => setShowModal(true)}
-              whileHover={{ scale: 1.04, background: 'var(--muted)', borderColor: 'var(--stone)' }}
+              whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15, ease: EASE_OUT }}
               title="Voir la tendance 7 jours"
@@ -596,6 +596,14 @@ export function PlayfulTodolist() {
                 fontWeight: 500,
                 fontFamily: 'inherit',
                 transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--muted)';
+                e.currentTarget.style.borderColor = 'var(--stone)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'var(--border)';
               }}
             >
               Tendance
@@ -858,7 +866,7 @@ export function PlayfulTodolist() {
                           <motion.button
                             type="button"
                             onClick={() => toggleExpand(item.id)}
-                            whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                            whileHover={{ scale: 1.08 }}
                             whileTap={{ scale: 0.9 }}
                             transition={{ duration: 0.15, ease: EASE_OUT }}
                             aria-label={isExpanded ? 'Masquer les sous-tâches' : 'Afficher les sous-tâches'}
@@ -875,6 +883,12 @@ export function PlayfulTodolist() {
                               justifyContent: 'center',
                               transition: 'background 0.15s ease',
                             }}
+                            onMouseEnter={e => {
+                              if (!isExpanded) e.currentTarget.style.background = 'var(--muted)';
+                            }}
+                            onMouseLeave={e => {
+                              if (!isExpanded) e.currentTarget.style.background = 'transparent';
+                            }}
                           >
                             <motion.span
                               animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -890,7 +904,7 @@ export function PlayfulTodolist() {
                         <motion.button
                           type="button"
                           onClick={() => removeTodo(item.id)}
-                          whileHover={{ scale: 1.1, background: 'var(--priority-high-bg, rgba(180, 90, 60, 0.1))' }}
+                          whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           transition={{ duration: 0.15, ease: EASE_OUT }}
                           style={{
@@ -905,6 +919,12 @@ export function PlayfulTodolist() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             transition: 'background 0.15s ease',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = 'var(--priority-high-bg, rgba(180, 90, 60, 0.1))';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'transparent';
                           }}
                           aria-label="Supprimer tâche"
                         >

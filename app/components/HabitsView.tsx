@@ -189,14 +189,17 @@ export default function HabitsView() {
                           animate={{ opacity: 1, scale: 1, x: 0 }}
                           transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                           whileTap={{ scale: 0.96 }}
-                          whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                          whileHover={{ scale: 1.02 }}
                           onClick={() => setConfirmingId(null)}
                           style={{
                             padding: '5px 10px', borderRadius: '12px',
                             border: '1px solid var(--border)',
                             background: 'transparent', color: 'var(--stone)',
                             cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', fontWeight: 500,
+                            transition: 'background 0.15s ease',
                           }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                         >
                           Annuler
                         </motion.button>
@@ -206,15 +209,18 @@ export default function HabitsView() {
                         onClick={() => setConfirmingId(habit.id)}
                         title="Supprimer l'habitude"
                         whileTap={{ scale: 0.96 }}
-                        whileHover={{ scale: 1.05, background: 'var(--priority-high-bg)' }}
+                        whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                         style={{
                           width: '32px', height: '32px', borderRadius: '10px',
                           border: '1px solid var(--border)',
                           background: 'transparent', color: 'var(--stone)',
                           cursor: 'pointer', display: 'flex', alignItems: 'center',
-                          justifyContent: 'center', fontSize: '0.8rem', lineHeight: 1
+                          justifyContent: 'center', fontSize: '0.8rem', lineHeight: 1,
+                          transition: 'background 0.15s ease',
                         }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--priority-high-bg)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                       >
                         <Trash size={14} color="var(--terra)" />
                       </motion.button>
@@ -224,13 +230,13 @@ export default function HabitsView() {
                       whileTap={{ scale: 0.9 }}
                       animate={{
                         borderColor: doneToday ? habit.color : 'var(--border)',
-                        background: doneToday ? habit.color : 'transparent',
+                        backgroundColor: doneToday ? habit.color : 'rgba(0, 0, 0, 0)',
                       }}
                       transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                       style={{
                         width: '36px', height: '36px', borderRadius: '50%',
                         border: `2px solid ${doneToday ? habit.color : 'var(--border)'}`,
-                        background: doneToday ? habit.color : 'transparent',
+                        backgroundColor: doneToday ? habit.color : 'rgba(0, 0, 0, 0)',
                         cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: doneToday ? '1rem' : '0.9rem',
