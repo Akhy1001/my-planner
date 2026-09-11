@@ -367,37 +367,48 @@ export default function Home() {
                 zIndex: 1,
               }}
             >
-              {/* ── Logo synchronisé à 100% avec la vitesse de déconnexion (2 tours complets 720°) ── */}
-              <div
-                style={{
-                  width: '76px',
-                  height: '76px',
-                  borderRadius: '20px',
-                  background: '#FFFFFF',
-                  border: (signingOutIsPink || isPinkUser)
-                    ? '1px solid #F0D4E4'
-                    : '1px solid var(--border, #E2E8F0)',
-                  boxShadow: (signingOutIsPink || isPinkUser)
-                    ? '0 14px 34px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)'
-                    : '0 14px 34px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                  marginBottom: '26px',
-                  transform: `rotate(${(signOutProgress / 100) * 720}deg) scale(${1 + Math.sin((signOutProgress / 100) * Math.PI * 2) * 0.06})`,
-                  willChange: 'transform',
-                }}
-              >
-                <Image
-                  src="/logo.jpg"
-                  alt="My Planner logo"
-                  width={76}
-                  height={76}
-                  style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
-                  priority
-                />
-              </div>
+              {/* ── Logo synchronisé avec rotation et petits rebonds dynamiques ── */}
+              {(() => {
+                const p = signOutProgress / 100;
+                const rotation = p * 720;
+                const bounce = Math.abs(Math.sin(p * Math.PI * 6));
+                const bounceY = -bounce * 10;
+                const bounceScale = 1 + Math.sin(p * Math.PI * 2) * 0.04 + bounce * 0.04;
+                const shadowBlur = Math.round(14 + bounce * 10);
+                const shadowY = Math.round(14 - bounceY * 0.4);
+                return (
+                  <div
+                    style={{
+                      width: '76px',
+                      height: '76px',
+                      borderRadius: '20px',
+                      background: '#FFFFFF',
+                      border: (signingOutIsPink || isPinkUser)
+                        ? '1px solid #F0D4E4'
+                        : '1px solid var(--border, #E2E8F0)',
+                      boxShadow: (signingOutIsPink || isPinkUser)
+                        ? `0 ${shadowY}px ${shadowBlur}px -6px rgba(212, 96, 126, 0.25), 0 2px 8px rgba(212, 96, 126, 0.1)`
+                        : `0 ${shadowY}px ${shadowBlur}px -6px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.05)`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      marginBottom: '26px',
+                      transform: `translateY(${bounceY}px) rotate(${rotation}deg) scale(${bounceScale})`,
+                      willChange: 'transform, box-shadow',
+                    }}
+                  >
+                    <Image
+                      src="/logo.jpg"
+                      alt="My Planner logo"
+                      width={76}
+                      height={76}
+                      style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }}
+                      priority
+                    />
+                  </div>
+                );
+              })()}
 
               {/* Titre & Sous-titre dynamique */}
               <motion.div
