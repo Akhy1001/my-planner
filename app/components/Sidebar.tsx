@@ -135,7 +135,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 scale: 1.02,
                 x: 2,
                 backgroundColor: active
-                  ? 'transparent'
+                  ? 'rgba(0, 0, 0, 0)'
                   : (isPinkUser ? 'rgba(212, 96, 126, 0.12)' : 'rgba(128, 128, 128, 0.08)'),
               }}
               whileTap={{ scale: 0.97 }}
@@ -149,7 +149,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
                 borderRadius: '14px',
                 border: 'none',
                 outline: 'none',
-                background: 'transparent',
+                backgroundColor: 'rgba(0, 0, 0, 0)',
                 color: active ? 'var(--primary-btn-fg, var(--cream))' : 'var(--stone)',
                 cursor: 'pointer',
                 fontSize: '0.84rem',
@@ -273,16 +273,19 @@ export default function Sidebar({ activeTab, setActiveTab, user, onSignOut, isDa
               onClick={onSignOut}
               title="Se déconnecter"
               className="sidebar-logout-btn"
-              whileHover={{ scale: 1.1, background: 'var(--priority-high-bg)', color: 'var(--priority-high)' }}
+              whileHover={{ scale: 1.1, color: 'var(--priority-high)' }}
               whileTap={{ scale: 0.92 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                background: 'none', border: 'none', cursor: 'pointer',
+                background: 'rgba(0, 0, 0, 0)', border: 'none', cursor: 'pointer',
                 color: 'var(--stone)', fontSize: '1.1rem', padding: '6px',
                 borderRadius: '10px',
                 flexShrink: 0, lineHeight: 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background-color 0.18s ease, color 0.18s ease',
               }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--priority-high-bg)'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0)'; }}
             >
               <LogOut size={16} />
             </motion.button>

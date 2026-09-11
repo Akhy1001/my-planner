@@ -433,7 +433,7 @@ export default function AgendaView() {
             {/* Navigation pills */}
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
               <motion.button
-                whileHover={{ scale: 1.06, background: 'var(--muted)' }}
+                whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.15 }}
                 onClick={goPrev}
@@ -445,6 +445,8 @@ export default function AgendaView() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--card, var(--warm-white))'; }}
               >
                 <ChevronLeft size={16} />
               </motion.button>
@@ -472,7 +474,7 @@ export default function AgendaView() {
                 Aujourd&apos;hui
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.06, background: 'var(--muted)' }}
+                whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.15 }}
                 onClick={goNext}
@@ -484,6 +486,8 @@ export default function AgendaView() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--card, var(--warm-white))'; }}
               >
                 <ChevronRight size={16} />
               </motion.button>
@@ -980,7 +984,7 @@ export default function AgendaView() {
                 </motion.button>
                 <motion.button
                   onClick={closeForm}
-                  whileHover={{ scale: 1.02, background: 'var(--muted)' }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   style={{
@@ -988,7 +992,10 @@ export default function AgendaView() {
                     background: 'transparent', color: 'var(--stone)',
                     border: '1px solid var(--border)', borderRadius: '14px', cursor: 'pointer',
                     fontSize: '0.84rem', fontFamily: 'inherit', fontWeight: 500,
+                    transition: 'background 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   Annuler
                 </motion.button>
@@ -1074,7 +1081,7 @@ export default function AgendaView() {
               {!showCycleForm && (
                 <motion.button
                   onClick={openCycleForm}
-                  whileHover={{ scale: 1.03, background: 'rgba(212, 96, 126, 0.14)' }}
+                  whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ duration: 0.15 }}
                   style={{
@@ -1091,7 +1098,10 @@ export default function AgendaView() {
                     alignItems: 'center',
                     gap: '4px',
                     boxShadow: '0 1px 3px rgba(212, 96, 126, 0.08)',
+                    transition: 'background 0.15s ease',
                   }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212, 96, 126, 0.14)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(212, 96, 126, 0.08)'; }}
                 >
                   <Pencil size={11} />
                   <span>{cycle ? 'Modifier' : 'Configurer'}</span>
@@ -1192,14 +1202,17 @@ export default function AgendaView() {
                     <motion.button
                       onClick={() => setShowCycleForm(false)}
                       whileTap={{ scale: 0.96 }}
-                      whileHover={{ scale: 1.02, background: 'rgba(212, 96, 126, 0.08)' }}
+                      whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       style={{
                         padding: '9px 14px',
                         background: 'transparent', color: '#8A4B6B',
                         border: '1px solid rgba(240, 212, 228, 0.9)', borderRadius: '12px', cursor: 'pointer',
                         fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
+                        transition: 'background 0.22s ease',
                       }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212, 96, 126, 0.08)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       Annuler
                     </motion.button>
@@ -1207,14 +1220,17 @@ export default function AgendaView() {
                       <motion.button
                         onClick={async () => { await deleteCycle(); setShowCycleForm(false); }}
                         whileTap={{ scale: 0.96 }}
-                        whileHover={{ scale: 1.02, background: 'rgba(239, 68, 68, 0.08)' }}
+                        whileHover={{ scale: 1.02 }}
                         transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                         style={{
                           padding: '9px 12px',
                           background: 'transparent', color: '#EF4444',
                           border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '12px', cursor: 'pointer',
                           fontSize: '0.8rem', fontFamily: 'inherit', fontWeight: 600,
+                          transition: 'background 0.22s ease',
                         }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                       >
                         Supprimer
                       </motion.button>
@@ -1247,7 +1263,7 @@ export default function AgendaView() {
                   </div>
                   <motion.button
                     onClick={openCycleForm}
-                    whileHover={{ background: 'var(--ink)', color: 'var(--cream)' }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                     style={{
@@ -1255,7 +1271,10 @@ export default function AgendaView() {
                       background: 'transparent', color: 'var(--ink)',
                       border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer',
                       fontSize: '0.76rem', fontFamily: 'inherit',
+                      transition: 'background 0.15s ease, color 0.15s ease',
                     }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.color = 'var(--cream)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink)'; }}
                   >
                     Configurer mon cycle
                   </motion.button>
@@ -1470,7 +1489,7 @@ export default function AgendaView() {
                                 onClick={() => openEditForm(event)}
                                 title="Modifier l'événement"
                                 whileTap={{ scale: 0.92 }}
-                                whileHover={{ scale: 1.08, background: 'var(--muted)' }}
+                                whileHover={{ scale: 1.08 }}
                                 transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                                 style={{
                                   padding: '4px 6px',
@@ -1481,7 +1500,10 @@ export default function AgendaView() {
                                   color: 'var(--stone)',
                                   display: 'inline-flex',
                                   alignItems: 'center',
+                                  transition: 'background 0.15s ease',
                                 }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                               >
                                 <Pencil size={12} />
                               </motion.button>
@@ -1489,7 +1511,7 @@ export default function AgendaView() {
                                 onClick={() => handleDelete(event)}
                                 title="Supprimer l'événement"
                                 whileTap={{ scale: 0.92 }}
-                                whileHover={{ scale: 1.08, background: 'var(--priority-high-bg)' }}
+                                whileHover={{ scale: 1.08 }}
                                 transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                                 style={{
                                   padding: '4px 6px',
@@ -1500,9 +1522,12 @@ export default function AgendaView() {
                                   color: 'var(--priority-high)',
                                   display: 'inline-flex',
                                   alignItems: 'center',
+                                  transition: 'background 0.15s ease',
                                 }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--priority-high-bg)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                               >
-                                <Trash size={12} color="var(--priority-high)" />
+                                <Trash size={12} />
                               </motion.button>
                             </div>
                           </div>

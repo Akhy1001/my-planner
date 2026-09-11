@@ -864,7 +864,7 @@ export default function TodayView() {
                         opacity: 1,
                         y: 0,
                         scale: 1,
-                        backgroundColor: task.done ? 'var(--muted)' : 'transparent',
+                        backgroundColor: task.done ? 'var(--muted)' : 'rgba(0, 0, 0, 0)',
                       }}
                       exit={{
                         opacity: 0,
@@ -887,7 +887,7 @@ export default function TodayView() {
                         gap: '12px',
                         padding: '12px 14px',
                         borderRadius: '16px',
-                        border: task.done ? '1px solid var(--border)' : '1px solid transparent',
+                        border: task.done ? '1px solid var(--border)' : '1px solid rgba(0, 0, 0, 0)',
                         transition: 'border-color 0.2s',
                       }}
                     >
@@ -902,7 +902,7 @@ export default function TodayView() {
                           height: '24px',
                           borderRadius: '8px',
                           border: task.done ? 'none' : '1.8px solid var(--stone-light, #CBD5E1)',
-                          background: task.done ? 'var(--ink)' : 'transparent',
+                          background: task.done ? 'var(--ink)' : 'rgba(0, 0, 0, 0)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1020,10 +1020,10 @@ export default function TodayView() {
                       <motion.button
                         onClick={() => removeTask(task.id)}
                         title="Supprimer la tâche"
-                        whileHover={{ scale: 1.15, background: 'var(--priority-high-bg)' }}
+                        whileHover={{ scale: 1.15 }}
                         whileTap={{ scale: 0.9 }}
                         style={{
-                          background: 'none',
+                          background: 'rgba(0, 0, 0, 0)',
                           border: 'none',
                           cursor: 'pointer',
                           padding: '6px',
@@ -1032,10 +1032,16 @@ export default function TodayView() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           opacity: 0.4,
-                          transition: 'opacity 0.15s',
+                          transition: 'opacity 0.15s, background-color 0.15s',
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-                        onMouseLeave={e => (e.currentTarget.style.opacity = '0.4')}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.opacity = '1';
+                          e.currentTarget.style.backgroundColor = 'var(--priority-high-bg)';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.opacity = '0.4';
+                          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                        }}
                       >
                         <Trash size={15} color="var(--priority-high)" />
                       </motion.button>
