@@ -22,7 +22,8 @@ import {
   Zap,
   Heart,
   AlertCircle,
-  RotateCcw
+  RotateCcw,
+  Shuffle
 } from 'lucide-react';
 
 type Priority = 'high' | 'medium' | 'low';
@@ -133,10 +134,8 @@ export default function TodayView() {
             <span>{format(new Date(), 'eeee d MMMM yyyy', { locale: fr })}</span>
           </TextReveal>
 
-          <TextReveal
-            as="h1"
+          <h1
             key={`${greeting}-${displayName}`}
-            delay={0.06}
             className="font-display"
             style={{
               fontSize: '2.15rem',
@@ -148,22 +147,17 @@ export default function TodayView() {
               alignItems: 'center',
               gap: '8px',
               flexWrap: 'wrap',
+              margin: 0,
             }}
           >
-            <span>{greeting}, {displayName}</span>
+            <TextReveal as="span" delay={0.06}>
+              <span>{greeting}, {displayName}</span>
+            </TextReveal>
             {isRose ? (
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2.2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                whileHover={{ scale: 1.25 }}
-                whileTap={{ scale: 0.9 }}
-                style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
+              <span
+                className="greeting-heart-icon"
+                title="Mon cœur"
+                aria-label="Cœur animé"
               >
                 <Heart
                   size={26}
@@ -174,46 +168,17 @@ export default function TodayView() {
                     filter: 'drop-shadow(0 2px 8px rgba(212, 96, 126, 0.35))',
                   }}
                 />
-              </motion.div>
+              </span>
             ) : (
-              <motion.span
-                animate={{
-                  scale: [1, 1.25, 0.96, 1.18, 1],
-                  rotate: [0, 14, -8, 12, 0],
-                  filter: [
-                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
-                    'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.22))',
-                    'drop-shadow(0 0 1px rgba(0, 0, 0, 0.08))',
-                    'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18))',
-                    'drop-shadow(0 0 0px rgba(0, 0, 0, 0))',
-                  ],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                whileHover={{
-                  scale: 1.4,
-                  rotate: 180,
-                  transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-                }}
-                whileTap={{ scale: 0.85 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--ink, #000000)',
-                  cursor: 'pointer',
-                  fontSize: '1.75rem',
-                  lineHeight: 1,
-                  userSelect: 'none',
-                }}
+              <span
+                className="greeting-star-icon"
+                title="Étoile étincelante"
+                aria-label="Étoile animée"
               >
                 ✦
-              </motion.span>
+              </span>
             )}
-          </TextReveal>
+          </h1>
 
           <TextReveal
             delay={0.12}
@@ -1123,7 +1088,7 @@ export default function TodayView() {
           </div>
 
           {/* Bento Widget 3: Daily Focus & Intention */}
-          <DailyFocusCard />
+          <DailyFocusCard isRose={isRose} />
 
         </div>
 
@@ -1487,62 +1452,192 @@ function ReadingBentoWidget({
   );
 }
 
-// ─── BENTO WIDGET FOCUS / INTENTION DU JOUR ────────────────────────────────────
+// ─── BENTO WIDGET FOCUS / INTENTION DU JOUR AUTOMATIQUE ────────────────────────
 
-function DailyFocusCard() {
-  const [focusText, setFocusText] = useState<string>('Focaliser sur le progrès régulier plutôt que sur la perfection.');
+const DAILY_INTENTIONS: string[] = [
+  "Focaliser sur le progrès régulier plutôt que sur la perfection.",
+  "Accueillir chaque instant d'aujourd'hui avec curiosité, calme et confiance.",
+  "Prioriser l'essentiel avec clarté et laisser partir ce qui ne m'élève pas.",
+  "Créer avec intention, agir avec détermination et respirer en pleine conscience.",
+  "Chaque petite victoire d'aujourd'hui bâtit les grandes réussites de demain.",
+  "Être pleinement présent à chaque geste avant d'aborder le suivant.",
+  "Ralentir le rythme pour mieux écouter mon intuition et respecter mon énergie.",
+  "Faire preuve d'une bienveillance inconditionnelle envers moi-même tout au long du jour.",
+  "Trouver la sérénité dans la simplicité et la gratitude pour ce qui est déjà là.",
+  "Canaliser mon attention et mon énergie là où mon impact est le plus précieux.",
+  "La constance tranquille surpasse toujours l'intensité éphémère.",
+  "Avancer pas à pas avec sérénité, chaque obstacle portant en lui une leçon.",
+  "Cultiver la patience : les accomplissements les plus durables demandent du temps.",
+  "Remplacer l'illusion de l'urgence par la profondeur et la maîtrise du calme.",
+  "Poser des limites saines et douces pour protéger mon espace de paix.",
+  "Aujourd'hui, je choisis l'alignement avec mes valeurs plutôt que le confort facile.",
+  "Nourrir mon esprit de pensées lumineuses, constructives et pleines d'espoir.",
+  "Célébrer la beauté de l'effort continu et la joie d'apprendre chaque jour.",
+  "Faire de mon harmonie intérieure une priorité sacrée et non négociable.",
+  "Accorder mon temps aux projets et aux personnes qui font vibrer mon cœur.",
+  "Transformer chaque doute en opportunité de grandir et de m'affirmer.",
+  "Garder un esprit curieux, ouvert et le cœur léger face aux imprévus.",
+  "Ce matin est une page vierge offerte à ma créativité et à ma volonté.",
+  "Agir avec rigueur dans mes actions et infinie douceur dans mon attitude.",
+  "Prendre le temps de savourer les détails invisibles qui rendent la vie magique.",
+  "Être le gardien de ma paix intérieure, peu importe l'agitation autour de moi.",
+  "Investir mon énergie avec sagesse, discernement et intentionnalité.",
+  "Chaque action posée aujourd'hui avec amour rapproche de ma vision d'avenir.",
+  "Écouter mon corps, honorer mon repos et célébrer mes élans de vitalité.",
+  "Vivre cette journée avec clarté d'esprit, gratitude sincère et enthousiasme.",
+  "Rester fidèle à ce qui m'anime profondément dans chacune de mes décisions.",
+  "Laisser de l'espace au silence pour que naissent mes plus belles inspirations.",
+  "Accueillir ce qui est, relâcher ce qui était et embrasser ce qui vient.",
+  "Semer aujourd'hui des graines de paix, de discipline et d'épanouissement.",
+  "Faire confiance au processus de la vie et savourer le chemin pas à pas.",
+  "Chaque choix conscient que je fais aujourd'hui me construit avec force.",
+  "Déposer les fardeaux inutiles pour avancer le cœur léger et l'esprit clair.",
+  "Faire briller ma lumière unique sans me comparer ni chercher à plaire à tous.",
+  "La gratitude transforme ce que j'ai en un espace d'abondance infinie.",
+  "Donner le meilleur de moi-même dans l'instant, sans attachement anxieux au résultat.",
+  "Aujourd'hui est une opportunité précieuse d'être fier de mes choix et de mes pas.",
+  "M'accorder le droit d'évoluer, d'apprendre et de recommencer à tout moment.",
+];
+
+function getDailyIntentionForDate(dateStr: string): string {
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = (hash * 31 + dateStr.charCodeAt(i)) >>> 0;
+  }
+  return DAILY_INTENTIONS[hash % DAILY_INTENTIONS.length];
+}
+
+function DailyFocusCard({ isRose }: { isRose?: boolean }) {
+  const [focusText, setFocusText] = useState<string>(() => {
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    return getDailyIntentionForDate(todayStr);
+  });
   const [isEditing, setIsEditing] = useState(false);
+  const [isShuffling, setIsShuffling] = useState(false);
 
   useEffect(() => {
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
     try {
-      const saved = localStorage.getItem('my_planner_daily_focus');
-      if (saved) setFocusText(saved);
-    } catch {}
+      const raw = localStorage.getItem('my_planner_daily_focus_v2');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.date === todayStr && parsed.text) {
+          setFocusText(parsed.text);
+          return;
+        }
+      }
+      const autoText = getDailyIntentionForDate(todayStr);
+      setFocusText(autoText);
+      localStorage.setItem('my_planner_daily_focus_v2', JSON.stringify({ date: todayStr, text: autoText }));
+    } catch {
+      setFocusText(getDailyIntentionForDate(todayStr));
+    }
   }, []);
 
   const saveFocus = (val: string) => {
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
     setFocusText(val);
     try {
-      localStorage.setItem('my_planner_daily_focus', val);
+      localStorage.setItem('my_planner_daily_focus_v2', JSON.stringify({ date: todayStr, text: val }));
     } catch {}
   };
+
+  const handleShuffle = () => {
+    setIsShuffling(true);
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const otherIntentions = DAILY_INTENTIONS.filter(t => t !== focusText);
+    const randomPick = otherIntentions[Math.floor(Math.random() * otherIntentions.length)] || DAILY_INTENTIONS[0];
+    setFocusText(randomPick);
+    try {
+      localStorage.setItem('my_planner_daily_focus_v2', JSON.stringify({ date: todayStr, text: randomPick }));
+    } catch {}
+    setTimeout(() => setIsShuffling(false), 400);
+  };
+
+  const cardGradient = isRose
+    ? 'linear-gradient(135deg, #3B1529 0%, #5E2644 60%, #7D315A 100%)'
+    : 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)';
+  const accentColor = isRose ? '#F472B6' : '#60A5FA';
+  const labelColor = isRose ? '#FBCFE8' : '#93C5FD';
+  const shadowColor = isRose ? 'rgba(212, 96, 126, 0.22)' : 'rgba(15, 23, 42, 0.16)';
 
   return (
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
       style={{
-        background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+        background: cardGradient,
         color: '#FFFFFF',
         borderRadius: '20px',
         padding: '20px',
-        boxShadow: '0 8px 24px -6px rgba(15, 23, 42, 0.16)',
+        boxShadow: `0 8px 24px -6px ${shadowColor}`,
         position: 'relative',
         overflow: 'hidden',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Sparkles size={14} color="#60A5FA" />
-          <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#93C5FD' }}>
+          <Sparkles size={14} color={accentColor} />
+          <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: labelColor }}>
             Intention du Jour
           </span>
+          <span
+            style={{
+              fontSize: '0.58rem',
+              fontWeight: 700,
+              padding: '1px 6px',
+              borderRadius: '6px',
+              background: 'rgba(255, 255, 255, 0.12)',
+              color: 'rgba(255, 255, 255, 0.85)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Auto
+          </span>
         </div>
-        <button
-          onClick={() => setIsEditing(v => !v)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#94A3B8',
-            cursor: 'pointer',
-            padding: '2px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          aria-label="Modifier l'intention du jour"
-        >
-          <Edit size={13} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <motion.button
+            onClick={handleShuffle}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.85 }}
+            animate={isShuffling ? { rotate: 180 } : { rotate: 0 }}
+            transition={{ duration: 0.35 }}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: 'none',
+              borderRadius: '6px',
+              color: 'rgba(255, 255, 255, 0.75)',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Changer d'inspiration pour aujourd'hui"
+            aria-label="Changer d'inspiration"
+          >
+            <Shuffle size={12} />
+          </motion.button>
+          <button
+            onClick={() => setIsEditing(v => !v)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: 'none',
+              borderRadius: '6px',
+              color: 'rgba(255, 255, 255, 0.75)',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Personnaliser l'intention"
+            aria-label="Modifier l'intention du jour"
+          >
+            <Edit size={12} />
+          </button>
+        </div>
       </div>
 
       {isEditing ? (
@@ -1571,20 +1666,27 @@ function DailyFocusCard() {
           </div>
         </div>
       ) : (
-        <p
-          onClick={() => setIsEditing(true)}
-          style={{
-            fontSize: '0.84rem',
-            lineHeight: 1.45,
-            fontWeight: 500,
-            color: '#F1F5F9',
-            fontStyle: 'italic',
-            cursor: 'pointer',
-          }}
-          title="Cliquez pour personnaliser votre intention"
-        >
-          « {focusText} »
-        </p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={focusText}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setIsEditing(true)}
+            style={{
+              fontSize: '0.84rem',
+              lineHeight: 1.45,
+              fontWeight: 500,
+              color: '#F1F5F9',
+              fontStyle: 'italic',
+              cursor: 'pointer',
+            }}
+            title="Cliquez pour personnaliser votre intention"
+          >
+            « {focusText} »
+          </motion.p>
+        </AnimatePresence>
       )}
     </motion.div>
   );
