@@ -195,3 +195,19 @@ create policy "cycle: select own" on menstrual_cycles for select using (auth.uid
 create policy "cycle: insert own" on menstrual_cycles for insert with check (auth.uid() = user_id);
 create policy "cycle: update own" on menstrual_cycles for update using (auth.uid() = user_id);
 create policy "cycle: delete own" on menstrual_cycles for delete using (auth.uid() = user_id);
+
+-- 12. SOUS-TÂCHES DES TÂCHES DU JOUR (DEV1-117)
+create table if not exists task_subtasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
+  task_id uuid not null references tasks(id) on delete cascade,
+  text text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists task_subtasks_task_id_idx on task_subtasks(task_id);
+alter table task_subtasks enable row level security;
+create policy "task_subtasks: select own" on task_subtasks for select using (auth.uid() = user_id);
+create policy "task_subtasks: insert own" on task_subtasks for insert with check (auth.uid() = user_id);
+create policy "task_subtasks: update own" on task_subtasks for update using (auth.uid() = user_id);
+create policy "task_subtasks: delete own" on task_subtasks for delete using (auth.uid() = user_id);
