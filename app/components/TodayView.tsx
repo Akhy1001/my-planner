@@ -6,6 +6,7 @@ import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trash, CheckCircle, Edit, ScribbleStrikethrough, TextReveal } from './animate-ui';
 import AddButton from './AddButton';
+import TaskSubtasks from './task-subtasks';
 import { useTasks, Task } from '@/hooks/useTasks';
 import { useJournal } from '@/hooks/useJournal';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,7 +47,19 @@ const CATEGORIES = ['Personnel', 'Travail', 'Projet', 'Santé', 'Loisirs', 'Étu
 
 export default function TodayView() {
   const { user } = useAuth();
-  const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask, rescheduleTask, rescheduleAllOverdue, today } = useTasks();
+  const {
+    tasks,
+    loading: tasksLoading,
+    addTask,
+    toggleTask,
+    removeTask,
+    rescheduleTask,
+    rescheduleAllOverdue,
+    addSubtask,
+    toggleSubtask,
+    removeSubtask,
+    today,
+  } = useTasks();
   const { journal, loading: journalLoading, updateJournal } = useJournal();
 
   const [newTask, setNewTask] = useState('');
@@ -883,7 +896,7 @@ export default function TodayView() {
                       }}
                       style={{
                         display: 'flex',
-                        alignItems: 'center',
+                        alignItems: task.subtasks.length > 0 ? 'flex-start' : 'center',
                         gap: '12px',
                         padding: '12px 14px',
                         borderRadius: '16px',
@@ -986,6 +999,16 @@ export default function TodayView() {
                             {priorityConfig[task.priority].label}
                           </span>
                         </div>
+
+                        {/* Sous-tâches (DEV1-117) */}
+                        <TaskSubtasks
+                          taskId={task.id}
+                          taskDone={task.done}
+                          subtasks={task.subtasks}
+                          onAdd={addSubtask}
+                          onToggle={toggleSubtask}
+                          onRemove={removeSubtask}
+                        />
                       </div>
 
                       {/* Action Reporter si en retard */}
