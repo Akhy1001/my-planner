@@ -961,3 +961,20 @@ button, input, select, textarea, .task-check, .habit-day, .mood-btn {
   transition: background-color 0.65s ease, border-color 0.65s ease, color 0.65s ease, fill 0.65s ease, stroke 0.65s ease !important;
 }
 
+
+/* ── Sous-tâches des tâches du jour (DEV1-117) ── */
+.task-subtask-remove {
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.task-subtask-row:hover .task-subtask-remove,
+.task-subtask-remove:focus-visible {
+  opacity: 1;
+}
+.task-subtask-remove:hover {
+  color: var(--priority-high) !important;
+  background-color: var(--priority-high-bg) !important;
+}
+@media (hover: none) {
+  .task-subtask-remove { opacity: 0.6; }
+}
